@@ -8,42 +8,60 @@
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-  <div class="topbar">
-    <img class="site-logo" src="zg-data/Miguide_website_logo_32-px.png.webp" alt="MiGuide logo" />
-    <div class="title-wrap">
-      <div class="title">Zorggroepen Interactieve Kaart</div>
-      <div class="subtitle">Zoek snel op gemeente, postcode en zorggroep</div>
+  <div id="authGate" class="auth-gate">
+    <div class="auth-card">
+      <img class="auth-logo" src="zg-data/Miguide_website_logo_32-px.png.webp" alt="MiGuide logo" />
+      <h1 class="auth-title">Beveiligde Toegang</h1>
+      <p class="auth-text">Voer wachtwoord in om de kaart te openen.</p>
+      <input id="authPassword" class="auth-input" type="password" placeholder="Wachtwoord" autocomplete="current-password" />
+      <button id="authSubmit" class="auth-button" type="button">Inloggen</button>
+      <p id="authError" class="auth-error" hidden>Onjuist wachtwoord.</p>
+      <p class="auth-text">
+        Voor toegang: neem contact op via
+        <a href="mailto:info@miguide.nl">info@miguide.nl</a>
+        of stuur Onur een intern Teams-bericht.
+      </p>
     </div>
   </div>
-  <div id="statusMessage" class="status-message" hidden></div>
 
-  <div class="content-layout">
-    <aside class="filter-panel">
-      <label class="filter-label" for="gemeenteSearch">Zoek gemeente / postcode</label>
-      <div class="search-wrap">
-        <input id="gemeenteSearch" type="text" placeholder="Zoek gemeente..." autocomplete="off" />
-        <div id="gemeenteSuggestions" class="suggestions" hidden></div>
+  <div id="appShell" hidden>
+    <div class="topbar">
+      <img class="site-logo" src="zg-data/Miguide_website_logo_32-px.png.webp" alt="MiGuide logo" />
+      <div class="title-wrap">
+        <div class="title">Zorggroepen Interactieve Kaart</div>
+        <div class="subtitle">Zoek snel op gemeente, postcode en zorggroep</div>
       </div>
-      <div class="city-list-block">
-        <div class="filter-label">Plaatsenlijst</div>
-        <ul id="cityList" class="city-list"></ul>
-      </div>
-      <label class="filter-label" for="zorggroepFilter">Alle zorggroepen</label>
-      <select id="zorggroepFilter">
-        <option value="ALL">Alle zorggroepen</option>
-      </select>
-    </aside>
-    <div id="map"></div>
+    </div>
+    <div id="statusMessage" class="status-message" hidden></div>
+
+    <div class="content-layout">
+      <aside class="filter-panel">
+        <label class="filter-label" for="gemeenteSearch">Zoek gemeente / postcode</label>
+        <div class="search-wrap">
+          <input id="gemeenteSearch" type="text" placeholder="Zoek gemeente..." autocomplete="off" />
+          <div id="gemeenteSuggestions" class="suggestions" hidden></div>
+        </div>
+        <div class="city-list-block">
+          <div class="filter-label">Plaatsenlijst</div>
+          <ul id="cityList" class="city-list"></ul>
+        </div>
+        <label class="filter-label" for="zorggroepFilter">Alle zorggroepen</label>
+        <select id="zorggroepFilter">
+          <option value="ALL">Alle zorggroepen</option>
+        </select>
+      </aside>
+      <div id="map"></div>
+    </div>
+
+    <footer class="page-note">
+      If there is something wrong or an update is needed, please send an email to
+      <a href="mailto:info@miguide.nl">info@miguide.nl</a> or send an internal message to Onur.
+      Repository:
+      <a href="https://github.com/onurmiguide/zorggroepen_interactieve_kaart" target="_blank" rel="noopener noreferrer">
+        github.com/onurmiguide/zorggroepen_interactieve_kaart
+      </a>
+    </footer>
   </div>
-
-  <footer class="page-note">
-    If there is something wrong or an update is needed, please send an email to
-    <a href="mailto:info@miguide.nl">info@miguide.nl</a> or send an internal message to Onur.
-    Repository:
-    <a href="https://github.com/onurmiguide/zorggroepen_interactieve_kaart" target="_blank" rel="noopener noreferrer">
-      github.com/onurmiguide/zorggroepen_interactieve_kaart
-    </a>
-  </footer>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="script/script.js"></script>

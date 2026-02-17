@@ -1,10 +1,6 @@
-﻿const map = L.map("map").setView([52.1, 5.3], 8);
-
-L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-  maxZoom: 19,
-  attribution: "&copy; OpenStreetMap contributors"
-}).addTo(map);
-
+﻿const AUTH_HASH = "9571debdee0b6cc98a87511ce8e3938c8b1617458c8a58335d1b2edb06811b64";
+const AUTH_SESSION_KEY = "miguide_auth_ok";
+const AUTH_PASSWORD_FALLBACK = "MiGuide#2026!@";
 const ZORGGROEPEN_URL = "zg-data/zorggroepen.json";
 const PDOK_GEMEENTE_ITEMS_URL = "https://api.pdok.nl/kadaster/brk-bestuurlijke-gebieden/ogc/v1/collections/gemeentegebied/items?f=json&limit=100";
 const PDOK_POSTCODE_WFS_URL = "https://service.pdok.nl/cbs/postcode6/2024/wfs/v1_0";
@@ -95,12 +91,95 @@ const CITY_TO_GEMEENTE = {
   "friesland": ""
 };
 
+let map;
 let geoLayer;
 let allFeatures = [];
 let currentFilter = "ALL";
 let currentGemeente = "";
 let gemeenteFeaturesStore = [];
 let messageTimer;
+
+function createMap() {
+  if (map) {
+    return;
+  }
+  map = L.map("map").setView([52.1, 5.3], 8);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 19,
+    attribution: "&copy; OpenStreetMap contributors"
+  }).addTo(map);
+}
+
+async function sha256Hex(input) {
+  if (!window.crypto || !window.crypto.subtle) {
+    throw new Error("Crypto API unavailable");
+  }
+  const bytes = new TextEncoder().encode(input);
+  const digest = await crypto.subtle.digest("SHA-256", bytes);
+  return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+async function checkPassword(password) {
+  try {
+    const hash = await sha256Hex(password);
+    return hash === AUTH_HASH;
+  } catch (error) {
+    return password === AUTH_PASSWORD_FALLBACK;
+  }
+}
+
+function unlockApp() {
+  const gate = document.getElementById("authGate");
+  const appShell = document.getElementById("appShell");
+  gate.hidden = true;
+  appShell.hidden = false;
+  sessionStorage.setItem(AUTH_SESSION_KEY, "1");
+}
+
+function initAuthGate() {
+  const gate = document.getElementById("authGate");
+  const appShell = document.getElementById("appShell");
+  const passInput = document.getElementById("authPassword");
+  const submit = document.getElementById("authSubmit");
+  const error = document.getElementById("authError");
+
+  const openApp = () => {
+    unlockApp();
+    init();
+  };
+
+  if (sessionStorage.getItem(AUTH_SESSION_KEY) === "1") {
+    openApp();
+    return;
+  }
+
+  gate.hidden = false;
+  appShell.hidden = true;
+
+  const tryLogin = async () => {
+    try {
+      const ok = await checkPassword(passInput.value.trim());
+      if (!ok) {
+        error.hidden = false;
+        return;
+      }
+      error.hidden = true;
+      passInput.value = "";
+      openApp();
+    } catch (loginError) {
+      console.error(loginError);
+      error.textContent = "Inloggen mislukt. Probeer opnieuw.";
+      error.hidden = false;
+    }
+  };
+
+  submit.addEventListener("click", tryLogin);
+  passInput.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      tryLogin();
+    }
+  });
+}
 
 function normalizeText(value) {
   return String(value || "")
@@ -707,6 +786,8 @@ function buildZorggroepFeatures(zorggroepen, gemeenteFeatures) {
 
 async function init() {
   try {
+    createMap();
+
     const [zorggroepResponse, gemeenteFeatures] = await Promise.all([
       fetch(ZORGGROEPEN_URL),
       fetchAllGemeenteFeatures()
@@ -730,4 +811,4 @@ async function init() {
   }
 }
 
-init();
+initAuthGate();
