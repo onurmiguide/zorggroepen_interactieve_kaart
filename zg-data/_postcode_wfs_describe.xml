@@ -1,0 +1,161 @@
+﻿<?xml version='1.0' encoding="UTF-8" ?>
+<schema
+   targetNamespace="http://postcode6.geonovum.nl" 
+   xmlns:postcode6="http://postcode6.geonovum.nl" 
+   xmlns:ogc="http://www.opengis.net/ogc"
+   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+   xmlns="http://www.w3.org/2001/XMLSchema"
+   xmlns:gml="http://www.opengis.net/gml"
+   elementFormDefault="qualified" version="0.1" >
+
+  <import namespace="http://www.opengis.net/gml"
+          schemaLocation="http://schemas.opengis.net/gml/3.1.1/base/gml.xsd" />
+
+  <element name="postcode6" 
+           type="postcode6:postcode6Type" 
+           substitutionGroup="gml:_Feature" />
+
+  <complexType name="postcode6Type">
+    <complexContent>
+      <extension base="gml:AbstractFeatureType">
+        <sequence>
+          <element name="geom" type="gml:GeometryPropertyType" minOccurs="0" maxOccurs="1"/>
+          <element name="postcode6" minOccurs="0" type="string"/>
+          <element name="aantalInwoners" minOccurs="0" type="integer"/>
+          <element name="aantalMannen" minOccurs="0" type="integer"/>
+          <element name="aantalVrouwen" minOccurs="0" type="integer"/>
+          <element name="aantalInwoners0Tot15Jaar" minOccurs="0" type="integer"/>
+          <element name="aantalInwoners15Tot25Jaar" minOccurs="0" type="integer"/>
+          <element name="aantalInwoners25Tot45Jaar" minOccurs="0" type="integer"/>
+          <element name="aantalInwoners45Tot65Jaar" minOccurs="0" type="integer"/>
+          <element name="aantalInwoners65JaarEnOuder" minOccurs="0" type="integer"/>
+          <element name="aantalGeboorten" minOccurs="0" type="integer"/>
+          <element name="percentageGebNederlandHerkomstNederland" minOccurs="0" type="integer"/>
+          <element name="percentageGebNederlandHerkomstOverigEuropa" minOccurs="0" type="integer"/>
+          <element name="percentageGebNederlandHerkomstBuitenEuropa" minOccurs="0" type="integer"/>
+          <element name="percentageGebBuitenNederlandHerkomstEuropa" minOccurs="0" type="integer"/>
+          <element name="percentageGebBuitenNederlandHerkmstBuitenEuropa" minOccurs="0" type="integer"/>
+          <element name="aantalPartHuishoudens" minOccurs="0" type="integer"/>
+          <element name="aantalEenpersoonshuishoudens" minOccurs="0" type="integer"/>
+          <element name="aantalMeerpersoonshuishoudensZonderKind" minOccurs="0" type="integer"/>
+          <element name="aantalEenouderhuishoudens" minOccurs="0" type="integer"/>
+          <element name="aantalTweeouderhuishoudens" minOccurs="0" type="integer"/>
+          <element name="gemiddeldeHuishoudensgrootte" minOccurs="0" type="double"/>
+          <element name="aantalWoningen" minOccurs="0" type="integer"/>
+          <element name="aantalWoningenBouwjaarVoor1945" minOccurs="0" type="integer"/>
+          <element name="aantalWoningenBouwjaar45Tot65" minOccurs="0" type="integer"/>
+          <element name="aantalWoningenBouwjaar65Tot75" minOccurs="0" type="integer"/>
+          <element name="aantalWoningenBouwjaar75Tot85" minOccurs="0" type="integer"/>
+          <element name="aantalWoningenBouwjaar85Tot95" minOccurs="0" type="integer"/>
+          <element name="aantalWoningenBouwjaar95Tot05" minOccurs="0" type="integer"/>
+          <element name="aantalWoningenBouwjaar05Tot15" minOccurs="0" type="integer"/>
+          <element name="aantalWoningenBouwjaar15EnLater" minOccurs="0" type="integer"/>
+          <element name="aantalMeergezinsWoningen" minOccurs="0" type="integer"/>
+          <element name="percentageKoopwoningen" minOccurs="0" type="integer"/>
+          <element name="percentageHuurwoningen" minOccurs="0" type="integer"/>
+          <element name="aantalHuurwoningenInBezitWoningcorporaties" minOccurs="0" type="integer"/>
+          <element name="aantalNietBewoondeWoningen" minOccurs="0" type="integer"/>
+          <element name="gemiddeldeWozWaardeWoning" minOccurs="0" type="integer"/>
+          <element name="gemiddeldGasverbruikWoning" minOccurs="0" type="integer"/>
+          <element name="gemiddeldElektriciteitsverbruikWoning" minOccurs="0" type="integer"/>
+          <element name="aantalPersonenMetUitkeringOnderAowlft" minOccurs="0" type="integer"/>
+          <element name="dichtstbijzijndeGroteSupermarktAfstandInKm" minOccurs="0" type="double"/>
+          <element name="groteSupermarktAantalBinnen1Km" minOccurs="0" type="double"/>
+          <element name="groteSupermarktAantalBinnen3Km" minOccurs="0" type="double"/>
+          <element name="groteSupermarktAantalBinnen5Km" minOccurs="0" type="double"/>
+          <element name="dichtstbijzijndeWinkelsOvDagelLevensmAfstInKm" minOccurs="0" type="double"/>
+          <element name="winkelsOvDagelLevensmAantalBinnen1Km" minOccurs="0" type="double"/>
+          <element name="winkelsOvDagelLevensmAantalBinnen3Km" minOccurs="0" type="double"/>
+          <element name="winkelsOvDagelLevensmAantalBinnen5Km" minOccurs="0" type="double"/>
+          <element name="dichtstbijzijndeWarenhuisAfstandInKm" minOccurs="0" type="double"/>
+          <element name="warenhuisAantalBinnen5Km" minOccurs="0" type="double"/>
+          <element name="warenhuisAantalBinnen10Km" minOccurs="0" type="double"/>
+          <element name="warenhuisAantalBinnen20Km" minOccurs="0" type="double"/>
+          <element name="dichtstbijzijndeCafeAfstandInKm" minOccurs="0" type="double"/>
+          <element name="cafeAantalBinnen1Km" minOccurs="0" type="double"/>
+          <element name="cafeAantalBinnen3Km" minOccurs="0" type="double"/>
+          <element name="cafeAantalBinnen5Km" minOccurs="0" type="double"/>
+          <element name="dichtstbijzijndeCafetariaAfstandInKm" minOccurs="0" type="double"/>
+          <element name="cafetariaAantalBinnen1Km" minOccurs="0" type="double"/>
+          <element name="cafetariaAantalBinnen3Km" minOccurs="0" type="double"/>
+          <element name="cafetariaAantalBinnen5Km" minOccurs="0" type="double"/>
+          <element name="dichtstbijzijndeHotelAfstandInKm" minOccurs="0" type="double"/>
+          <element name="hotelAantalBinnen5Km" minOccurs="0" type="double"/>
+          <element name="hotelAantalBinnen10Km" minOccurs="0" type="double"/>
+          <element name="hotelAantalBinnen20Km" minOccurs="0" type="double"/>
+          <element name="dichtstbijzijndeRestaurantAfstandInKm" minOccurs="0" type="double"/>
+          <element name="restaurantAantalBinnen1Km" minOccurs="0" type="double"/>
+          <element name="restaurantAantalBinnen3Km" minOccurs="0" type="double"/>
+          <element name="restaurantAantalBinnen5Km" minOccurs="0" type="double"/>
+          <element name="dichtstbijzijndeBuitenschoolseOpvangAfstandInKm" minOccurs="0" type="double"/>
+          <element name="buitenschoolseOpvangAantalBinnen1Km" minOccurs="0" type="double"/>
+          <element name="buitenschoolseOpvangAantalBinnen3Km" minOccurs="0" type="double"/>
+          <element name="buitenschoolseOpvangAantalBinnen5Km" minOccurs="0" type="double"/>
+          <element name="dichtstbijzijndeKinderdagverblijfAfstandInKm" minOccurs="0" type="double"/>
+          <element name="kinderdagverblijfAantalBinnen1Km" minOccurs="0" type="double"/>
+          <element name="kinderdagverblijfAantalBinnen3Km" minOccurs="0" type="double"/>
+          <element name="kinderdagverblijfAantalBinnen5Km" minOccurs="0" type="double"/>
+          <element name="dichtstbijzijndeBrandweerkazerneAfstandInKm" minOccurs="0" type="double"/>
+          <element name="dichtstbijzijndeOpritHoofdverkeerswegAfstandInKm" minOccurs="0" type="double"/>
+          <element name="dichtstbijzijndeOverstapstationAfstandInKm" minOccurs="0" type="double"/>
+          <element name="dichtstbijzijndeTreinstationAfstandInKm" minOccurs="0" type="double"/>
+          <element name="dichtstbijzijndeAttractieparkAfstandInKm" minOccurs="0" type="double"/>
+          <element name="attractieparkAantalBinnen10Km" minOccurs="0" type="double"/>
+          <element name="attractieparkAantalBinnen20Km" minOccurs="0" type="double"/>
+          <element name="attractieparkAantalBinnen50Km" minOccurs="0" type="double"/>
+          <element name="dichtstbijzijndeBioscoopAfstandInKm" minOccurs="0" type="double"/>
+          <element name="bioscoopAantalBinnen5Km" minOccurs="0" type="double"/>
+          <element name="bioscoopAantalBinnen10Km" minOccurs="0" type="double"/>
+          <element name="bioscoopAantalBinnen20Km" minOccurs="0" type="double"/>
+          <element name="dichtstbijzijndeMuseumAfstandInKm" minOccurs="0" type="double"/>
+          <element name="museumAantalBinnen5Km" minOccurs="0" type="double"/>
+          <element name="museumAantalBinnen10Km" minOccurs="0" type="double"/>
+          <element name="museumAantalBinnen20Km" minOccurs="0" type="double"/>
+          <element name="dichtstbijzijndeTheaterAfstandInKm" minOccurs="0" type="double"/>
+          <element name="theaterAantalBinnen5Km" minOccurs="0" type="double"/>
+          <element name="theaterAantalBinnen10Km" minOccurs="0" type="double"/>
+          <element name="theaterAantalBinnen20Km" minOccurs="0" type="double"/>
+          <element name="dichtstbijzijndeBibliotheekAfstandInKm" minOccurs="0" type="double"/>
+          <element name="dichtstbijzijndeKunstijsbaanAfstandInKm" minOccurs="0" type="double"/>
+          <element name="dichtstbijzijndePoppodiumAfstandInKm" minOccurs="0" type="double"/>
+          <element name="dichtstbijzijndeSaunaAfstandInKm" minOccurs="0" type="double"/>
+          <element name="dichtstbijzijndeZonnebankAfstandInKm" minOccurs="0" type="double"/>
+          <element name="dichtstbijzijndeZwembadAfstandInKm" minOccurs="0" type="double"/>
+          <element name="dichtstbijzijndeBasisonderwijsAfstandInKm" minOccurs="0" type="double"/>
+          <element name="basisonderwijsAantalBinnen1Km" minOccurs="0" type="double"/>
+          <element name="basisonderwijsAantalBinnen3Km" minOccurs="0" type="double"/>
+          <element name="basisonderwijsAantalBinnen5Km" minOccurs="0" type="double"/>
+          <element name="dichtstbijzijndeHavoVwoAfstandInKm" minOccurs="0" type="double"/>
+          <element name="havoVwoAantalBinnen3Km" minOccurs="0" type="double"/>
+          <element name="havoVwoAantalBinnen5Km" minOccurs="0" type="double"/>
+          <element name="havoVwoAantalBinnen10Km" minOccurs="0" type="double"/>
+          <element name="dichtstbijzijndeVmboAfstandInKm" minOccurs="0" type="double"/>
+          <element name="vmboAantalBinnen3Km" minOccurs="0" type="double"/>
+          <element name="vmboAantalBinnen5Km" minOccurs="0" type="double"/>
+          <element name="vmboAantalBinnen10Km" minOccurs="0" type="double"/>
+          <element name="dichtstbijzijndeVoortgezetOnderwijsAfstandInKm" minOccurs="0" type="double"/>
+          <element name="voortgezetOnderwijsAantalBinnen3Km" minOccurs="0" type="double"/>
+          <element name="voortgezetOnderwijsAantalBinnen5Km" minOccurs="0" type="double"/>
+          <element name="voortgezetOnderwijsAantalBinnen10Km" minOccurs="0" type="double"/>
+          <element name="dichtstbijzijndeHuisartsenpraktijkAfstandInKm" minOccurs="0" type="double"/>
+          <element name="huisartsenpraktijkAantalBinnen1Km" minOccurs="0" type="double"/>
+          <element name="huisartsenpraktijkAantalBinnen3Km" minOccurs="0" type="double"/>
+          <element name="huisartsenpraktijkAantalBinnen5Km" minOccurs="0" type="double"/>
+          <element name="dichtstbijzijndeZiekenhExclBuitenpoliAfstInKm" minOccurs="0" type="double"/>
+          <element name="ziekenhuisExclBuitenpoliAantalBinnen5Km" minOccurs="0" type="double"/>
+          <element name="ziekenhuisExclBuitenpoliAantalBinnen10Km" minOccurs="0" type="double"/>
+          <element name="ziekenhuisExclBuitenpoliAantalBinnen20Km" minOccurs="0" type="double"/>
+          <element name="dichtstbijzijndeZiekenhInclBuitenpoliAfstInKm" minOccurs="0" type="double"/>
+          <element name="ziekenhuisInclBuitenpoliAantalBinnen5Km" minOccurs="0" type="double"/>
+          <element name="ziekenhuisInclBuitenpoliAantalBinnen10Km" minOccurs="0" type="double"/>
+          <element name="ziekenhuisInclBuitenpoliAantalBinnen20Km" minOccurs="0" type="double"/>
+          <element name="dichtstbijzijndeApotheekAfstandInKm" minOccurs="0" type="double"/>
+          <element name="dichtstbijzijndeHuisartsenpostAfstandInKm" minOccurs="0" type="double"/>
+          <element name="fuuid" minOccurs="0" type="string"/>
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+
+</schema>
+

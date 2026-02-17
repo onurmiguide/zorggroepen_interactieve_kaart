@@ -1,0 +1,263 @@
+{
+  "source": "Zorggroep plaatsen 1 1.docx",
+  "zorggroepen": [
+    {
+      "zorggroep": "Zuid-Holland-Zuid",
+      "regio": "Zuid-Holland-Zuid",
+      "website": "",
+      "cities": [
+        "Alblasserdam",
+        "Dordrecht",
+        "Goeree-Overflakkee",
+        "Gorinchem",
+        "Hardinxveld-Giesendam",
+        "Hendrik Ido Ambacht",
+        "Hoekse Waard",
+        "Molenlanden",
+        "Papendrecht",
+        "Sliedrecht",
+        "Zwijndrecht"
+      ]
+    },
+    {
+      "zorggroep": "West-Friesland",
+      "regio": "West-Friesland",
+      "website": "",
+      "cities": [
+        "Hoorn",
+        "Enkhuizen",
+        "Medemblik",
+        "Bovenkarspel",
+        "Andijk",
+        "Wognum",
+        "Zwaag",
+        "Wevershoof"
+      ]
+    },
+    {
+      "zorggroep": "Ketenzorg Friesland",
+      "regio": "Ketenzorg Friesland",
+      "website": "",
+      "cities": [
+        "Leeuwarden",
+        "Drachten",
+        "Sneek",
+        "Heerenveen",
+        "Harlingen",
+        "Dokkum",
+        "Franeker",
+        "Friesland",
+        "Joure",
+        "Burgum",
+        "Gorredijk",
+        "Kollum"
+      ]
+    },
+    {
+      "zorggroep": "ZIO",
+      "regio": "ZIO",
+      "website": "",
+      "cities": [
+        "Maastricht",
+        "Meersen",
+        "Bund",
+        "Eijsden"
+      ]
+    },
+    {
+      "zorggroep": "Zorggroep Almere",
+      "regio": "Zorggroep Almere",
+      "website": "",
+      "cities": [
+        "Almere"
+      ]
+    },
+    {
+      "zorggroep": "RHOGO (Regionale Huisartsen Organisatie Gooi en Omstreken BV)",
+      "regio": "RHOGO (Regionale Huisartsen Organisatie Gooi en Omstreken BV)",
+      "website": "",
+      "cities": [
+        "Hilversum",
+        "Loosdrecht",
+        "Muiden",
+        "Muiderberg",
+        "Naarden",
+        "Weesp",
+        "Nederhorst den Berg",
+        "Bussum",
+        "Laren",
+        "Huizen F",
+        "Eemnes",
+        "Baarn",
+        "Kortenhoef",
+        "Blaricum"
+      ]
+    },
+    {
+      "zorggroep": "UNICUM",
+      "regio": "UNICUM",
+      "website": "",
+      "cities": [
+        "Houten",
+        "Zeist",
+        "IJsselstein",
+        "Nieuwegein",
+        "Bunnink",
+        "Vianen",
+        "Wijk bij Duurstede",
+        "Doorn",
+        "Schoonhoven",
+        "Soesterberg",
+        "Driebergen- Rijsenberg",
+        "De Bilt"
+      ]
+    },
+    {
+      "zorggroep": "Post- Z (Naam in zorgtraject = StroomZ)",
+      "regio": "Post- Z (Naam in zorgtraject = StroomZ)",
+      "website": "",
+      "cities": [
+        "Eindhoven"
+      ]
+    },
+    {
+      "zorggroep": "Rijnmond dokters",
+      "regio": "Rijnmond dokters",
+      "website": "https://www.rijnmonddokters.nl",
+      "cities": [
+        "Rotterdam",
+        "Capelle a/d ijssel",
+        "Berken en Rodenrijs",
+        "Rhoon",
+        "Rotterdam Pernis"
+      ]
+    },
+    {
+      "zorggroep": "Zorggroep Gezondheid Amsterdam",
+      "regio": "Zorggroep Gezondheid Amsterdam",
+      "website": "",
+      "cities": [
+        "Amsterdam (Alle Ziekenhuizen en Huisartsen uit Amsterdam vallen hieronder)",
+        "Diemen",
+        "Duivendrecht",
+        "Badhoevedorp"
+      ]
+    },
+    {
+      "zorggroep": "HOOG",
+      "regio": "HOOG",
+      "website": "",
+      "cities": [
+        "Zutphen",
+        "Apeldoorn"
+      ]
+    },
+    {
+      "zorggroep": "Medita",
+      "regio": "Medita",
+      "website": "",
+      "cities": [
+        "Sittard",
+        "Geleen",
+        "Echt",
+        "Schinnen",
+        "Beek",
+        "Weert",
+        "SchimmertBorn"
+      ]
+    },
+    {
+      "zorggroep": "HOZL",
+      "regio": "HOZL",
+      "website": "",
+      "cities": [
+        "Brunssum",
+        "Heerlen",
+        "Hoensbroek",
+        "Landgraaf",
+        "Kerkrade",
+        "Nuth",
+        "Voerendaal",
+        "Hoevelland"
+      ]
+    },
+    {
+      "zorggroep": "Rijn en Duin",
+      "regio": "Rijn en Duin",
+      "website": "",
+      "cities": [
+        "Alphen a/d Rijn",
+        "Leiden",
+        "Hillegom",
+        "Kaag en Braasem",
+        "Katwijk",
+        "Leiderdorp",
+        "Lisse",
+        "Noordwijk",
+        "Oegstgeest",
+        "Noordwijkerhout",
+        "Teylingen",
+        "Voorschoten",
+        "Nieuwkoop",
+        "Hazerswoude",
+        "Stompwijk",
+        "Zoeterwoude"
+      ]
+    },
+    {
+      "zorggroep": "Amstelland",
+      "regio": "Amstelland",
+      "website": "",
+      "cities": [
+        "Aalsmeer",
+        "Abcoude",
+        "Amstelveen",
+        "Uithoorn"
+      ]
+    },
+    {
+      "zorggroep": "Hadoks",
+      "regio": "Hadoks",
+      "website": "",
+      "cities": [
+        "Den Haag"
+      ]
+    },
+    {
+      "zorggroep": "Eemland",
+      "regio": "Eemland",
+      "website": "",
+      "cities": [
+        "Amersfoort (Amersfoort, Hoogland, Hooglanderveen)",
+        "Achterveld",
+        "Baarn",
+        "Bunschoten (Bunschoten, Spakenburg, Eemdijk)",
+        "De Glind",
+        "Eembrugge (gem. Baarn)",
+        "Eemdijk",
+        "Eemnes en Soest (Soest tussen dorp en het oostelijk deel de Eem, ex Soesterberg)",
+        "Garderen",
+        "Hoevelaken",
+        "Kootwijk en Kootwijkerbroek",
+        "Leersum",
+        "Leusden",
+        "Lunteren",
+        "Maarsbergen",
+        "Overberg",
+        "Putten",
+        "Renswoude",
+        "Soest en Soestdijk",
+        "Stroe",
+        "Stoutenberg",
+        "Terschuur",
+        "Uddel",
+        "Voorthuizen",
+        "Woudenberg",
+        "Barneveld",
+        "Scherpenzeel",
+        "Nijkerk en Nijkerkerveen",
+        "Zwartebroek"
+      ]
+    }
+  ]
+}

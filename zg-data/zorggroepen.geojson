@@ -1,0 +1,682 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "zorggroep": "Zuid-Holland-Zuid",
+        "regio": "Zuid-Holland-Zuid",
+        "website": "",
+        "cities_count": 11,
+        "geocoded_count": 10
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              4.061995626,
+              51.731380448
+            ],
+            [
+              4.671523434,
+              51.749065232
+            ],
+            [
+              4.98157545,
+              51.814576628
+            ],
+            [
+              5.79534519,
+              52.775264492
+            ],
+            [
+              4.061995626,
+              51.731380448
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "zorggroep": "West-Friesland",
+        "regio": "West-Friesland",
+        "website": "",
+        "cities_count": 8,
+        "geocoded_count": 7
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              5.015575564,
+              52.679011708
+            ],
+            [
+              5.068325356000001,
+              52.64895952
+            ],
+            [
+              5.302190716,
+              52.703344216
+            ],
+            [
+              5.170971364,
+              52.797396555999995
+            ],
+            [
+              5.015575564,
+              52.679011708
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "zorggroep": "Ketenzorg Friesland",
+        "regio": "Ketenzorg Friesland",
+        "website": "",
+        "cities_count": 12,
+        "geocoded_count": 12
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              5.379467762666666,
+              53.17878307066667
+            ],
+            [
+              5.646123110666667,
+              53.02578778666667
+            ],
+            [
+              5.799016550666667,
+              52.951138834666665
+            ],
+            [
+              6.0814284506666665,
+              52.99599339466667
+            ],
+            [
+              6.172764698666667,
+              53.29174534666667
+            ],
+            [
+              6.011301026666667,
+              53.339855566666664
+            ],
+            [
+              5.379467762666666,
+              53.17878307066667
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "zorggroep": "ZIO",
+        "regio": "ZIO",
+        "website": "",
+        "cities_count": 4,
+        "geocoded_count": 4
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              5.6885745199999995,
+              50.85110309
+            ],
+            [
+              5.706455972,
+              50.772289873999995
+            ],
+            [
+              5.75552804,
+              50.887653422
+            ],
+            [
+              5.733462668,
+              50.900964314
+            ],
+            [
+              5.6885745199999995,
+              50.85110309
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "zorggroep": "Zorggroep Almere",
+        "regio": "Zorggroep Almere",
+        "website": "",
+        "cities_count": 1,
+        "geocoded_count": 1
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              5.1392942999999995,
+              52.3717513
+            ],
+            [
+              5.2792943,
+              52.3717513
+            ],
+            [
+              5.2792943,
+              52.5117513
+            ],
+            [
+              5.1392942999999995,
+              52.5117513
+            ],
+            [
+              5.1392942999999995,
+              52.3717513
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "zorggroep": "RHOGO (Regionale Huisartsen Organisatie Gooi en Omstreken BV)",
+        "regio": "RHOGO (Regionale Huisartsen Organisatie Gooi en Omstreken BV)",
+        "website": "",
+        "cities_count": 14,
+        "geocoded_count": 14
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              5.033370559000001,
+              52.309651388999995
+            ],
+            [
+              5.036748907,
+              52.262819132999994
+            ],
+            [
+              5.085729715,
+              52.196618589
+            ],
+            [
+              5.304560611,
+              52.205819001
+            ],
+            [
+              5.3051325789999995,
+              52.281434877
+            ],
+            [
+              5.265180355,
+              52.297288521
+            ],
+            [
+              5.114370127,
+              52.330822737000005
+            ],
+            [
+              5.062728847,
+              52.334411253
+            ],
+            [
+              5.033370559000001,
+              52.309651388999995
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "zorggroep": "UNICUM",
+        "regio": "UNICUM",
+        "website": "",
+        "cities_count": 12,
+        "geocoded_count": 12
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              4.823901640800001,
+              51.9385845264
+            ],
+            [
+              5.3485568928000005,
+              51.969674918399996
+            ],
+            [
+              5.3573703408,
+              52.032455858400006
+            ],
+            [
+              5.2904212487999995,
+              52.127045606399996
+            ],
+            [
+              5.1718065768,
+              52.152598190400006
+            ],
+            [
+              4.823901640800001,
+              51.9385845264
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "zorggroep": "Post- Z (Naam in zorgtraject = StroomZ)",
+        "regio": "Post- Z (Naam in zorgtraject = StroomZ)",
+        "website": "",
+        "cities_count": 1,
+        "geocoded_count": 1
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              5.408633,
+              51.369264799999996
+            ],
+            [
+              5.548633000000001,
+              51.369264799999996
+            ],
+            [
+              5.548633000000001,
+              51.5092648
+            ],
+            [
+              5.408633,
+              51.5092648
+            ],
+            [
+              5.408633,
+              51.369264799999996
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "zorggroep": "Rijnmond dokters",
+        "regio": "Rijnmond dokters",
+        "website": "https://www.rijnmonddokters.nl",
+        "cities_count": 5,
+        "geocoded_count": 5
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              4.38126442,
+              51.886845740000005
+            ],
+            [
+              4.42010122,
+              51.852184976000004
+            ],
+            [
+              4.597953568,
+              51.932386208000004
+            ],
+            [
+              4.474420792,
+              51.997053476
+            ],
+            [
+              4.38126442,
+              51.886845740000005
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "zorggroep": "Zorggroep Gezondheid Amsterdam",
+        "regio": "Zorggroep Gezondheid Amsterdam",
+        "website": "",
+        "cities_count": 4,
+        "geocoded_count": 3
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              4.775712765333333,
+              52.339203825333335
+            ],
+            [
+              4.9399340013333335,
+              52.322570961333334
+            ],
+            [
+              4.966175733333333,
+              52.34273391333333
+            ],
+            [
+              4.775712765333333,
+              52.339203825333335
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "zorggroep": "HOOG",
+        "regio": "HOOG",
+        "website": "",
+        "cities_count": 2,
+        "geocoded_count": 2
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              5.8600775,
+              52.0696933
+            ],
+            [
+              6.264772000000001,
+              52.0696933
+            ],
+            [
+              6.264772000000001,
+              52.2495738
+            ],
+            [
+              5.8600775,
+              52.2495738
+            ],
+            [
+              5.8600775,
+              52.0696933
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "zorggroep": "Medita",
+        "regio": "Medita",
+        "website": "",
+        "cities_count": 7,
+        "geocoded_count": 7
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              5.696007374,
+              51.250183789999994
+            ],
+            [
+              5.810061205999999,
+              50.916781310000005
+            ],
+            [
+              5.891610602,
+              50.933682014
+            ],
+            [
+              5.876255918,
+              51.111639986
+            ],
+            [
+              5.696007374,
+              51.250183789999994
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "zorggroep": "HOZL",
+        "regio": "HOZL",
+        "website": "",
+        "cities_count": 8,
+        "geocoded_count": 8
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              5.8768219248,
+              50.91840500879999
+            ],
+            [
+              5.9091466488,
+              50.869881148800005
+            ],
+            [
+              6.066426616799999,
+              50.8727428248
+            ],
+            [
+              6.0339456168,
+              50.902494340800004
+            ],
+            [
+              5.9705033927999995,
+              50.9464008768
+            ],
+            [
+              5.8768219248,
+              50.91840500879999
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "zorggroep": "Rijn en Duin",
+        "regio": "Rijn en Duin",
+        "website": "",
+        "cities_count": 16,
+        "geocoded_count": 15
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              4.405042356,
+              52.190170383
+            ],
+            [
+              4.433617644,
+              52.120906851
+            ],
+            [
+              4.466154048,
+              52.087406655
+            ],
+            [
+              4.649389547999999,
+              52.107241935
+            ],
+            [
+              4.800112188,
+              52.166211987000004
+            ],
+            [
+              4.5874530600000005,
+              52.300784415
+            ],
+            [
+              4.487079912,
+              52.269069134999995
+            ],
+            [
+              4.4392120440000005,
+              52.245499539
+            ],
+            [
+              4.405042356,
+              52.190170383
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "zorggroep": "Amstelland",
+        "regio": "Amstelland",
+        "website": "",
+        "cities_count": 4,
+        "geocoded_count": 4
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              4.741120952,
+              52.266618756
+            ],
+            [
+              4.82624882,
+              52.241842152
+            ],
+            [
+              4.980561596,
+              52.270222499999996
+            ],
+            [
+              4.860294632,
+              52.305365592
+            ],
+            [
+              4.741120952,
+              52.266618756
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "zorggroep": "Hadoks",
+        "regio": "Hadoks",
+        "website": "",
+        "cities_count": 1,
+        "geocoded_count": 1
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              4.2413460999999995,
+              52.0099838
+            ],
+            [
+              4.3813461,
+              52.0099838
+            ],
+            [
+              4.3813461,
+              52.1499838
+            ],
+            [
+              4.2413460999999995,
+              52.1499838
+            ],
+            [
+              4.2413460999999995,
+              52.0099838
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "zorggroep": "Eemland",
+        "regio": "Eemland",
+        "website": "",
+        "cities_count": 29,
+        "geocoded_count": 22
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              5.263820828,
+              52.2140084368
+            ],
+            [
+              5.415119756,
+              51.9970861168
+            ],
+            [
+              6.525367964,
+              52.1374823368
+            ],
+            [
+              5.794009136,
+              52.2661460848
+            ],
+            [
+              5.302807316,
+              52.260228224799995
+            ],
+            [
+              5.263820828,
+              52.2140084368
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

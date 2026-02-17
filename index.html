@@ -1,0 +1,48 @@
+﻿<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Zorggroepen Choropleth</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="topbar">
+    <img class="site-logo" src="zg-data/Miguide_website_logo_32-px.png.webp" alt="MiGuide logo" />
+    <div class="title-wrap">
+      <div class="title">Zorggroepen Interactieve Kaart</div>
+      <div class="subtitle">Zoek snel op gemeente, postcode en zorggroep</div>
+    </div>
+  </div>
+  <div id="statusMessage" class="status-message" hidden></div>
+
+  <div class="content-layout">
+    <aside class="filter-panel">
+      <label class="filter-label" for="gemeenteSearch">Zoek gemeente / postcode</label>
+      <div class="search-wrap">
+        <input id="gemeenteSearch" type="text" placeholder="Zoek gemeente..." autocomplete="off" />
+        <div id="gemeenteSuggestions" class="suggestions" hidden></div>
+      </div>
+      <div class="city-list-block">
+        <div class="filter-label">Plaatsenlijst</div>
+        <ul id="cityList" class="city-list"></ul>
+      </div>
+      <label class="filter-label" for="zorggroepFilter">Alle zorggroepen</label>
+      <select id="zorggroepFilter">
+        <option value="ALL">Alle zorggroepen</option>
+      </select>
+    </aside>
+    <div id="map"></div>
+  </div>
+
+  <footer class="page-note">
+    If there is something wrong or an update is needed, please send an email to
+    <a href="mailto:info@miguide.nl">info@miguide.nl</a> or send an internal message to Onur.
+  </footer>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="script/script.js"></script>
+</body>
+</html>
+
