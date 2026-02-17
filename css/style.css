@@ -31,6 +31,8 @@ body {
   border-bottom: 1px solid #d9e2ec;
   box-shadow: 0 3px 10px rgba(16, 24, 40, 0.08);
   z-index: 1000;
+  position: sticky;
+  top: 0;
 }
 
 .site-logo {
@@ -74,7 +76,7 @@ body {
 }
 
 #gemeenteSearch {
-  width: 93%;
+  width: 100%;
   padding: 8px 10px;
   border: 1px solid #b8c4d2;
   border-radius: 8px;
@@ -195,14 +197,38 @@ body {
   color: #6b7280;
 }
 
-@media (max-width: 640px) {
-  .topbar {
-    flex-direction: column;
-    align-items: stretch;
+@media (max-width: 1024px) {
+  :root {
+    --main-panel-height: calc(100vh - 220px);
   }
 
-  .title-wrap {
-    align-items: flex-start;
+  .content-layout {
+    grid-template-columns: 280px minmax(0, 1fr);
+    width: min(100%, 96%);
+    gap: 10px;
+    margin: 10px auto 14px auto;
+  }
+
+  .site-logo {
+    width: 100px;
+  }
+
+  .title {
+    font-size: 1.05rem;
+  }
+
+  .subtitle {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 768px) {
+  :root {
+    --main-panel-height: auto;
+  }
+
+  .topbar {
+    padding: 10px 12px;
   }
 
   .content-layout {
@@ -212,22 +238,48 @@ body {
     margin: 6px 0 0 0;
   }
 
-  #map {
-    min-width: 0;
-    border-radius: 0;
-    box-shadow: none;
-    height: calc(100vh - 180px);
-  }
-
   .filter-panel {
     border-radius: 0;
     min-height: auto;
     height: auto;
     box-shadow: none;
+    border-left: 0;
+    border-right: 0;
+  }
+
+  #map {
+    min-width: 0;
+    border-radius: 0;
+    box-shadow: none;
+    height: clamp(320px, 52vh, 500px);
+  }
+}
+
+@media (max-width: 640px) {
+  .topbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .title-wrap {
+    align-items: flex-start;
+  }
+
+  .site-logo {
+    width: 92px;
+  }
+
+  .title {
+    font-size: 1rem;
+  }
+
+  .subtitle {
+    font-size: 0.78rem;
   }
 
   .city-list {
-    height: 180px;
+    height: 160px;
   }
 
   .page-note {
