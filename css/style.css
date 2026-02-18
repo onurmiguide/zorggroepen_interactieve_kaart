@@ -146,6 +146,27 @@ body {
   white-space: nowrap;
 }
 
+.theme-toggle {
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid #334155;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #0f172a;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.theme-toggle:hover {
+  background: #f8fafc;
+}
+
 #zorggroepFilter,
 #zorgverzekeraarFilter,
 #declaratiestroomFilter {
@@ -267,6 +288,10 @@ body {
   background: #e9f0f5;
 }
 
+.leaflet-tile.map-tiles-dark {
+  filter: brightness(0.78) contrast(1.12) saturate(0.88) invert(1) hue-rotate(180deg);
+}
+
 .content-layout {
   display: grid;
   grid-template-columns: 440px minmax(0, 1fr);
@@ -357,6 +382,76 @@ label[for="declaratiestroomFilter"] {
   color: #6b7280;
 }
 
+body.dark-mode {
+  background: #0b1220;
+  color: #e2e8f0;
+}
+
+body.dark-mode .auth-gate {
+  background: linear-gradient(180deg, #0f172a 0%, #111827 100%);
+}
+
+body.dark-mode .auth-card,
+body.dark-mode .topbar,
+body.dark-mode .filter-panel {
+  background: #111827;
+  border-color: #334155;
+}
+
+body.dark-mode .title,
+body.dark-mode .auth-title,
+body.dark-mode .filter-label,
+body.dark-mode .city-list li {
+  color: #f1f5f9;
+}
+
+body.dark-mode .subtitle,
+body.dark-mode .auth-text,
+body.dark-mode .page-note,
+body.dark-mode .page-note a {
+  color: #94a3b8;
+}
+
+body.dark-mode #gemeenteSearch,
+body.dark-mode #zorggroepFilter,
+body.dark-mode #zorgverzekeraarFilter,
+body.dark-mode #declaratiestroomFilter,
+body.dark-mode .auth-input,
+body.dark-mode .suggestions,
+body.dark-mode .city-list {
+  background: #0f172a;
+  color: #e2e8f0;
+  border-color: #334155;
+}
+
+body.dark-mode .suggestion-item:hover {
+  background: #1e293b;
+}
+
+body.dark-mode .zoek-button,
+body.dark-mode .reset-button,
+body.dark-mode .theme-toggle {
+  background: #0f172a;
+  color: #e2e8f0;
+  border-color: #475569;
+}
+
+body.dark-mode .zoek-button:hover,
+body.dark-mode .reset-button:hover,
+body.dark-mode .theme-toggle:hover {
+  background: #1e293b;
+}
+
+body.dark-mode .demo-badge {
+  background: #3f1d1d;
+  color: #fecaca;
+  border-color: #f87171;
+}
+
+body.dark-mode .leaflet-container {
+  background: #1e293b;
+}
+
 @media (max-width: 1024px) {
   :root {
     --main-panel-height: calc(100vh - 220px);
@@ -430,6 +525,11 @@ label[for="declaratiestroomFilter"] {
     flex-direction: column;
     align-items: stretch;
     gap: 8px;
+  }
+
+  .theme-toggle {
+    width: 34px;
+    align-self: flex-start;
   }
 
   .demo-badge {

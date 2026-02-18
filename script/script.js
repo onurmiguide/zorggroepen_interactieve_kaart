@@ -6,6 +6,7 @@ const PDOK_GEMEENTE_ITEMS_URL = "https://api.pdok.nl/kadaster/brk-bestuurlijke-g
 const PDOK_POSTCODE_WFS_URL = "https://service.pdok.nl/cbs/postcode6/2024/wfs/v1_0";
 const NL_DEFAULT_CENTER = [52.2, 5.3];
 const NL_DEFAULT_ZOOM = 8;
+const THEME_STORAGE_KEY = "miguide_theme";
 const DEFAULT_ZORGVERZEKERAARS = [
   "a.s.r.",
   "Menzis Digitaal 2026",
@@ -143,6 +144,7 @@ const CITY_TO_GEMEENTE = {
 };
 
 let map;
+let baseTileLayer;
 let geoLayer;
 let allFeatures = [];
 let currentFilter = "ALL";
@@ -157,10 +159,7 @@ function createMap() {
     return;
   }
   map = L.map("map").setView([52.1, 5.3], 8);
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    maxZoom: 19,
-    attribution: "&copy; OpenStreetMap contributors"
-  }).addTo(map);
+  applyMapTheme();
 
   // Clicking the map background clears polygon selection and shows full result set again.
   map.on("click", () => {
@@ -174,6 +173,60 @@ function createMap() {
     }
     applyActiveFilters();
   });
+}
+
+function isDarkModeActive() {
+  return document.body.classList.contains("dark-mode");
+}
+
+function applyMapTheme() {
+  if (!map) {
+    return;
+  }
+
+  if (baseTileLayer) {
+    map.removeLayer(baseTileLayer);
+  }
+
+  const dark = isDarkModeActive();
+  baseTileLayer = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 19,
+    attribution: "&copy; OpenStreetMap contributors",
+    className: dark ? "map-tiles-dark" : "map-tiles-light"
+  });
+
+  baseTileLayer.addTo(map);
+}
+
+function setTheme(mode) {
+  const nextMode = mode === "dark" ? "dark" : "light";
+  document.body.classList.toggle("dark-mode", nextMode === "dark");
+  localStorage.setItem(THEME_STORAGE_KEY, nextMode);
+
+  const toggle = document.getElementById("themeToggle");
+  const toggleIcon = document.getElementById("themeToggleIcon");
+  if (toggle) {
+    toggle.setAttribute("aria-label", nextMode === "dark" ? "Schakel naar light mode" : "Schakel naar dark mode");
+    toggle.setAttribute("title", nextMode === "dark" ? "Light mode" : "Dark mode");
+  }
+  if (toggleIcon) {
+    toggleIcon.textContent = nextMode === "dark" ? "☀" : "🌙";
+  }
+
+  applyMapTheme();
+}
+
+function initThemeToggle() {
+  const toggle = document.getElementById("themeToggle");
+  const saved = localStorage.getItem(THEME_STORAGE_KEY);
+  const preferred = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  setTheme(saved || preferred);
+
+  if (toggle) {
+    toggle.addEventListener("click", () => {
+      setTheme(isDarkModeActive() ? "light" : "dark");
+    });
+  }
 }
 
 async function sha256Hex(input) {
@@ -1316,4 +1369,5 @@ async function init() {
   }
 }
 
+initThemeToggle();
 initAuthGate();
