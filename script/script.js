@@ -87,7 +87,7 @@ const CITY_TO_GEMEENTE = {
   "muiderberg": "Gooise Meren",
   "naarden": "Gooise Meren",
   "bussum": "Gooise Meren",
-  "weesp": "Amsterdam",
+  "weesp": "Gooise Meren",
   "huizen f": "Huizen",
   "bunnink": "Bunnik",
   "vianen": "Vijfheerenlanden",
