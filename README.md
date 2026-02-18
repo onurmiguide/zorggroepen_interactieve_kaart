@@ -6,6 +6,8 @@ Interactieve webapp (Leaflet.js) voor het tonen en filteren van Nederlandse zorg
 
 - Choropleth-kaart met zorggroepgebieden (Leaflet + OpenStreetMap tiles)
 - Domeinfilter (`Alle zorggroepen` of 1 specifieke zorggroep)
+- Zorgverzekeraar-filter
+- Declaratiestroom-filter (afhankelijk van geselecteerde zorgverzekeraar)
 - Zoekveld voor:
   - Gemeente
   - Plaats/stad/dorp
@@ -86,6 +88,35 @@ Bewerk `zg-data/zorggroepen.json`:
 - `cities`: lijst met plaatsen/steden/dorpen
 
 Na opslaan en refresh in browser worden wijzigingen direct gebruikt.
+
+### Contractdata (zorgverzekeraar + declaratiestroom)
+
+De app ondersteunt contractdata per zorggroep via 2 opties:
+
+1. Inline per zorggroep-object:
+
+```json
+{
+  "zorggroep": "Rijnmond dokters",
+  "cities": ["Rotterdam"],
+  "contracten": [
+    { "zorgverzekeraar": "Menzis", "declaratiestroom": "VIPLive", "contract": "Ja" },
+    { "zorgverzekeraar": "CZ", "declaratiestroom": "VIPLive", "contract": "Nee" }
+  ]
+}
+```
+
+2. Centrale matrix op root-niveau:
+
+```json
+{
+  "contracten": [
+    { "zorggroep": "Rijnmond dokters", "zorgverzekeraar": "Menzis", "declaratiestroom": "VIPLive", "contract": "Ja" }
+  ]
+}
+```
+
+`contract` accepteert o.a. `Ja/Nee`, `true/false`, `gecontracteerd/ongecontracteerd`.
 
 ## Bekende aandachtspunten
 

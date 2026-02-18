@@ -31,24 +31,41 @@
         <div class="title">Zorggroepen Interactieve Kaart</div>
         <div class="subtitle">Zoek snel op gemeente, postcode en zorggroep</div>
       </div>
+      <div class="demo-badge">Concept / Demo · Work in progress · Niet 100% werkend</div>
     </div>
     <div id="statusMessage" class="status-message" hidden></div>
 
     <div class="content-layout">
       <aside class="filter-panel">
-        <label class="filter-label" for="gemeenteSearch">Zoek gemeente / postcode</label>
-        <div class="search-wrap">
-          <input id="gemeenteSearch" type="text" placeholder="Zoek gemeente..." autocomplete="off" />
-          <div id="gemeenteSuggestions" class="suggestions" hidden></div>
+        <div class="filter-grid">
+          <div class="city-list-block">
+            <div class="filter-label">Plaatsenlijst</div>
+            <ul id="cityList" class="city-list"></ul>
+          </div>
+          <div class="filter-controls">
+            <label class="filter-label" for="gemeenteSearch">Zoek gemeente / postcode</label>
+            <div class="search-wrap">
+              <input id="gemeenteSearch" type="text" placeholder="Zoek gemeente of postcode..." autocomplete="off" />
+              <div id="gemeenteSuggestions" class="suggestions" hidden></div>
+            </div>
+            <label class="filter-label" for="zorgverzekeraarFilter">Zorgverzekeraar</label>
+            <select id="zorgverzekeraarFilter">
+              <option value="ALL">Alle zorgverzekeraars</option>
+            </select>
+            <div class="action-row">
+              <button id="zoekButton" class="zoek-button" type="button">Zoek</button>
+              <button id="resetButton" class="reset-button" type="button">Reset</button>
+            </div>
+            <label class="filter-label" for="zorggroepFilter">Zorggroep</label>
+            <select id="zorggroepFilter">
+              <option value="ALL">Alle zorggroepen</option>
+            </select>
+            <label class="filter-label" for="declaratiestroomFilter">Declaratiestroom</label>
+            <select id="declaratiestroomFilter">
+              <option value="ALL">Alle declaratiestromen</option>
+            </select>
+          </div>
         </div>
-        <div class="city-list-block">
-          <div class="filter-label">Plaatsenlijst</div>
-          <ul id="cityList" class="city-list"></ul>
-        </div>
-        <label class="filter-label" for="zorggroepFilter">Alle zorggroepen</label>
-        <select id="zorggroepFilter">
-          <option value="ALL">Alle zorggroepen</option>
-        </select>
       </aside>
       <div id="map"></div>
     </div>
@@ -67,4 +84,3 @@
   <script src="script/script.js"></script>
 </body>
 </html>
-

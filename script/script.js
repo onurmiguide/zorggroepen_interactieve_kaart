@@ -4,6 +4,57 @@ const AUTH_PASSWORD_FALLBACK = "MiGuide#2026!@";
 const ZORGGROEPEN_URL = "zg-data/zorggroepen.json";
 const PDOK_GEMEENTE_ITEMS_URL = "https://api.pdok.nl/kadaster/brk-bestuurlijke-gebieden/ogc/v1/collections/gemeentegebied/items?f=json&limit=100";
 const PDOK_POSTCODE_WFS_URL = "https://service.pdok.nl/cbs/postcode6/2024/wfs/v1_0";
+const NL_DEFAULT_CENTER = [52.2, 5.3];
+const NL_DEFAULT_ZOOM = 8;
+const DEFAULT_ZORGVERZEKERAARS = [
+  "a.s.r.",
+  "Menzis Digitaal 2026",
+  "ONVZ",
+  "VGZ",
+  "Zilveren Kruis (Achmea)",
+  "Aevitae (Eucare)",
+  "CZ",
+  "DSW",
+  "Salland",
+  "Zorg & Zekerheid"
+];
+
+const ZORGGROEP_DECLARATIESTROOM_FALLBACK = {
+  "zorggroep almere": "Op factuur achteraf",
+  "almere": "Op factuur achteraf",
+  "amstelland": "Extern Monter Systeem",
+  "amstelland zorg": "Extern Monter Systeem",
+  "eemland": "Boards",
+  "eemland huisartsen": "Boards",
+  "hadoks": "Evry -> Per 1 Maart 2026 nieuw systeem",
+  "hoog": "Declaratiestromen per zorgverzekeraar",
+  "hozl": "VIPLive",
+  "ketenzorg friesland": "VIPLive",
+  "medita": "VIPLive",
+  "meditta": "VIPLive",
+  "rhogo": "VIPLive",
+  "rhogo regionale huisartsen organisatie gooi en omstreken bv": "VIPLive",
+  "rijn en duin": "VIPLive",
+  "rijnmond dokters": "VIPLive",
+  "post z naam in zorgtraject stroomz": "VIPLive",
+  "stroomz": "VIPLive",
+  "postz": "VIPLive",
+  "unicum": "VIPLive - Op factuur achteraf",
+  "zio": "Medix"
+};
+
+const DECLARATIE_PER_VERZEKERAAR_OUTPUT = {
+  "a s r": "VECOZO",
+  "menzis digitaal 2026": "VECOZO",
+  "onvz": "VECOZO",
+  "vgz": "VECOZO",
+  "zilveren kruis achmea": "VECOZO",
+  "aevitae eucare": "Losse facturen & ZoHealthy",
+  "cz": "Losse facturen & ZoHealthy",
+  "dsw": "Losse facturen & ZoHealthy",
+  "salland": "Losse facturen & ZoHealthy",
+  "zorg zekerheid": "Losse facturen & ZoHealthy"
+};
 
 const CITY_TO_GEMEENTE = {
   "capelle a d ijssel": "Capelle aan den IJssel",
@@ -79,7 +130,7 @@ const CITY_TO_GEMEENTE = {
   "stroe": "Barneveld",
   "stoutenberg": "Leusden",
   "terschuur": "Barneveld",
-  "uddel": "Apeldoorn",
+  "uddel": "",
   "voorthuizen": "Barneveld",
   "zwartebroek": "Nijkerk",
   "amersfoort amersfoort hoogland hooglanderveen": "Amersfoort",
@@ -96,6 +147,8 @@ let geoLayer;
 let allFeatures = [];
 let currentFilter = "ALL";
 let currentGemeente = "";
+let currentZorgverzekeraar = "ALL";
+let currentDeclaratiestroom = "ALL";
 let gemeenteFeaturesStore = [];
 let messageTimer;
 
@@ -108,6 +161,19 @@ function createMap() {
     maxZoom: 19,
     attribution: "&copy; OpenStreetMap contributors"
   }).addTo(map);
+
+  // Clicking the map background clears polygon selection and shows full result set again.
+  map.on("click", () => {
+    if (currentFilter === "ALL") {
+      return;
+    }
+    currentFilter = "ALL";
+    const filterSelect = document.getElementById("zorggroepFilter");
+    if (filterSelect) {
+      filterSelect.value = "ALL";
+    }
+    applyActiveFilters();
+  });
 }
 
 async function sha256Hex(input) {
@@ -194,6 +260,170 @@ function getZorggroepName(feature) {
   return feature?.properties?.zorggroep || "Onbekend";
 }
 
+function normalizeContractValue(value) {
+  if (typeof value === "boolean") {
+    return value;
+  }
+  const normalized = normalizeText(value);
+  if (!normalized) {
+    return null;
+  }
+  if (["ja", "yes", "true", "gecontracteerd"].includes(normalized)) {
+    return true;
+  }
+  if (["nee", "no", "false", "ongecontracteerd"].includes(normalized)) {
+    return false;
+  }
+  return null;
+}
+
+function fallbackDeclaratiestroomForFeature(feature, insurerName = "") {
+  const zorggroep = getZorggroepName(feature);
+  const normalized = normalizeText(zorggroep);
+  const raw = ZORGGROEP_DECLARATIESTROOM_FALLBACK[normalized] || "Onbekend";
+  if (normalizeText(raw) !== "declaratiestromen per zorgverzekeraar") {
+    return raw;
+  }
+
+  const insurerKey = normalizeText(insurerName);
+  if (!insurerKey || insurerKey === "all") {
+    return raw;
+  }
+
+  return DECLARATIE_PER_VERZEKERAAR_OUTPUT[insurerKey] || "Onbekend";
+}
+
+function extractContracts(item) {
+  const collections = [
+    item?.contracten,
+    item?.contracts,
+    item?.zorgverzekeraars,
+    item?.zorgverzekeraar_contracten,
+    item?.verzekeraars
+  ];
+
+  const flattened = [];
+  for (const collection of collections) {
+    if (!Array.isArray(collection)) {
+      continue;
+    }
+    flattened.push(...collection);
+  }
+
+  const rows = [];
+  const dedupe = new Set();
+  for (const row of flattened) {
+    if (!row) {
+      continue;
+    }
+
+    const zorgverzekeraar = typeof row === "string"
+      ? row
+      : (row.zorgverzekeraar || row.verzekeraar || row.insurer || "");
+
+    if (!zorgverzekeraar) {
+      continue;
+    }
+
+    const declaratiestroom = typeof row === "string"
+      ? "Onbekend"
+      : (row.declaratiestroom || row.declaratie_stroom || row.stroom || "Onbekend");
+
+    const contractValue = typeof row === "string"
+      ? null
+      : normalizeContractValue(row.contract ?? row.gecontracteerd ?? row.status);
+
+    const key = `${normalizeText(zorgverzekeraar)}|${normalizeText(declaratiestroom)}`;
+    if (dedupe.has(key)) {
+      continue;
+    }
+    dedupe.add(key);
+
+    rows.push({
+      zorgverzekeraar,
+      declaratiestroom,
+      contract: contractValue
+    });
+  }
+
+  return rows;
+}
+
+function extractContractsByZorggroep(rootData) {
+  const map = new Map();
+  const collections = [
+    rootData?.contracten,
+    rootData?.contracts,
+    rootData?.zorggroep_contracten,
+    rootData?.contract_matrix
+  ];
+
+  for (const collection of collections) {
+    if (!Array.isArray(collection)) {
+      continue;
+    }
+
+    for (const row of collection) {
+      if (!row || typeof row !== "object") {
+        continue;
+      }
+      const zorggroep = row.zorggroep || row.zorggroep_naam || row.domain || "";
+      const zorgverzekeraar = row.zorgverzekeraar || row.verzekeraar || row.insurer || "";
+      if (!zorggroep || !zorgverzekeraar) {
+        continue;
+      }
+
+      const key = normalizeText(zorggroep);
+      const existing = map.get(key) || [];
+      existing.push({
+        zorgverzekeraar,
+        declaratiestroom: row.declaratiestroom || row.declaratie_stroom || row.stroom || "Onbekend",
+        contract: normalizeContractValue(row.contract ?? row.gecontracteerd ?? row.status)
+      });
+      map.set(key, existing);
+    }
+  }
+
+  return map;
+}
+
+function contractsForInsurer(feature, insurerName) {
+  const contracts = Array.isArray(feature?.properties?.contracts) ? feature.properties.contracts : [];
+  const target = normalizeText(insurerName);
+  return contracts.filter((row) => normalizeText(row.zorgverzekeraar) === target);
+}
+
+function featureMatchesInsurer(feature, insurerName) {
+  if (insurerName === "ALL") {
+    return true;
+  }
+
+  const rows = contractsForInsurer(feature, insurerName);
+  if (rows.length === 0) {
+    return true;
+  }
+
+  return rows.some((row) => row.contract !== false);
+}
+
+function featureMatchesDeclaratiestroom(feature, insurerName, declaratiestroom) {
+  if (declaratiestroom === "ALL") {
+    return true;
+  }
+  if (insurerName === "ALL") {
+    return true;
+  }
+
+  const rows = contractsForInsurer(feature, insurerName);
+  if (rows.length === 0) {
+    const fallback = fallbackDeclaratiestroomForFeature(feature, insurerName);
+    return normalizeText(fallback) === normalizeText(declaratiestroom);
+  }
+
+  const target = normalizeText(declaratiestroom);
+  return rows.some((row) => normalizeText(row.declaratiestroom) === target && row.contract !== false);
+}
+
 function colorFromString(str) {
   const input = String(str || "Onbekend");
   let hash = 0;
@@ -240,15 +470,35 @@ function popupContent(feature) {
   const regio = props.regio || "Onbekend";
   const website = props.website || "";
   const gemeenten = Array.isArray(props.gemeenten) ? props.gemeenten : [];
+  const contracts = Array.isArray(props.contracts) ? props.contracts : [];
   const websiteRow = website
     ? `<div><a href="${website}" target="_blank" rel="noopener noreferrer">${website}</a></div>`
     : "<div>Geen website</div>";
+
+  let contractRow = "<div>Contract: Onbekend</div>";
+  if (currentZorgverzekeraar !== "ALL") {
+    const insurerRows = contractsForInsurer(feature, currentZorgverzekeraar);
+    if (insurerRows.length > 0) {
+      const yesRow = insurerRows.find((row) => row.contract !== false);
+      if (yesRow) {
+        contractRow = `<div>Contract ${currentZorgverzekeraar}: Ja (${yesRow.declaratiestroom || "Onbekend"})</div>`;
+      } else {
+        contractRow = `<div>Contract ${currentZorgverzekeraar}: Nee</div>`;
+      }
+    } else {
+      contractRow = `<div>Declaratiestroom: ${fallbackDeclaratiestroomForFeature(feature, currentZorgverzekeraar)}</div>`;
+    }
+  } else if (contracts.length > 0) {
+    const contractedCount = contracts.filter((row) => row.contract !== false).length;
+    contractRow = `<div>Contractregels: ${contractedCount}</div>`;
+  }
 
   return `
     <div>
       <strong>${zorggroep}</strong>
       <div>Regio: ${regio}</div>
       <div>Gemeenten: ${gemeenten.length}</div>
+      ${contractRow}
       ${websiteRow}
     </div>
   `;
@@ -274,6 +524,7 @@ function onEachFeature(feature, layer) {
         searchInput.value = "";
       }
 
+      refreshDependentFilters();
       applyActiveFilters();
     }
   });
@@ -282,7 +533,9 @@ function onEachFeature(feature, layer) {
   layer.bindPopup(popupContent(feature));
 }
 
-function renderLayer(features) {
+function renderLayer(features, options = {}) {
+  const { useNetherlandsDefaultView = false } = options;
+
   if (geoLayer) {
     map.removeLayer(geoLayer);
   }
@@ -293,7 +546,11 @@ function renderLayer(features) {
   }).addTo(map);
 
   if (geoLayer.getLayers().length > 0) {
-    map.fitBounds(geoLayer.getBounds(), { padding: [16, 16] });
+    if (useNetherlandsDefaultView) {
+      map.setView(NL_DEFAULT_CENTER, NL_DEFAULT_ZOOM);
+    } else {
+      map.fitBounds(geoLayer.getBounds(), { padding: [16, 16] });
+    }
   }
 }
 
@@ -340,6 +597,14 @@ function showStatus(message) {
 function applyActiveFilters() {
   let filtered = allFeatures;
 
+  if (currentZorgverzekeraar !== "ALL") {
+    filtered = filtered.filter((feature) => featureMatchesInsurer(feature, currentZorgverzekeraar));
+  }
+
+  if (currentDeclaratiestroom !== "ALL") {
+    filtered = filtered.filter((feature) => featureMatchesDeclaratiestroom(feature, currentZorgverzekeraar, currentDeclaratiestroom));
+  }
+
   if (currentFilter !== "ALL") {
     filtered = filtered.filter((feature) => getZorggroepName(feature) === currentFilter);
   }
@@ -356,11 +621,37 @@ function applyActiveFilters() {
   }
 
   updateCityList(filtered);
-  renderLayer(filtered);
+  const broadOverview = currentFilter === "ALL" && !currentGemeente;
+  renderLayer(filtered, { useNetherlandsDefaultView: broadOverview });
 }
 
-function setupFilter(features) {
+function featuresScopedForOptionLists() {
+  let scoped = allFeatures;
+
+  if (currentGemeente) {
+    const target = normalizeText(currentGemeente);
+    scoped = scoped.filter((feature) => {
+      const gemeenten = Array.isArray(feature?.properties?.gemeenten) ? feature.properties.gemeenten : [];
+      const cities = Array.isArray(feature?.properties?.cities) ? feature.properties.cities : [];
+      return gemeenten.some((name) => normalizeText(name) === target)
+        || cities.some((name) => normalizeText(name) === target);
+    });
+  }
+
+  if (currentZorgverzekeraar !== "ALL") {
+    scoped = scoped.filter((feature) => featureMatchesInsurer(feature, currentZorgverzekeraar));
+  }
+
+  if (currentDeclaratiestroom !== "ALL") {
+    scoped = scoped.filter((feature) => featureMatchesDeclaratiestroom(feature, currentZorgverzekeraar, currentDeclaratiestroom));
+  }
+
+  return scoped;
+}
+
+function populateZorggroepOptions(features) {
   const select = document.getElementById("zorggroepFilter");
+  const selectedBefore = currentFilter;
   const zorggroepen = [...new Set(features.map(getZorggroepName))].sort((a, b) => a.localeCompare(b, "nl"));
 
   select.innerHTML = '<option value="ALL">Alle zorggroepen</option>';
@@ -371,10 +662,157 @@ function setupFilter(features) {
     select.appendChild(option);
   }
 
-  select.addEventListener("change", (event) => {
+  if (selectedBefore !== "ALL" && zorggroepen.includes(selectedBefore)) {
+    select.value = selectedBefore;
+  } else {
+    currentFilter = "ALL";
+    select.value = "ALL";
+  }
+}
+
+function populateDeclaratiestroomOptions(features) {
+  const select = document.getElementById("declaratiestroomFilter");
+  const selectedBefore = currentDeclaratiestroom;
+  const allStromen = new Set();
+  const canUseDeclaratiestroom = currentZorgverzekeraar !== "ALL";
+
+  if (canUseDeclaratiestroom) {
+    for (const feature of features) {
+      const rows = contractsForInsurer(feature, currentZorgverzekeraar);
+      if (rows.length === 0) {
+        allStromen.add(fallbackDeclaratiestroomForFeature(feature, currentZorgverzekeraar));
+        continue;
+      }
+      for (const row of rows) {
+        if (row.contract === false) {
+          continue;
+        }
+        allStromen.add(row.declaratiestroom || fallbackDeclaratiestroomForFeature(feature, currentZorgverzekeraar));
+      }
+    }
+  }
+
+  const sorted = [...allStromen].sort((a, b) => a.localeCompare(b, "nl"));
+  select.innerHTML = '<option value="ALL">Alle declaratiestromen</option>';
+  for (const stroom of sorted) {
+    const option = document.createElement("option");
+    option.value = stroom;
+    option.textContent = stroom;
+    select.appendChild(option);
+  }
+
+  if (selectedBefore !== "ALL" && sorted.includes(selectedBefore)) {
+    select.value = selectedBefore;
+  } else {
+    currentDeclaratiestroom = "ALL";
+    select.value = "ALL";
+  }
+
+  select.disabled = !canUseDeclaratiestroom;
+}
+
+function refreshDependentFilters() {
+  const scoped = featuresScopedForOptionLists();
+  populateZorggroepOptions(scoped);
+  populateDeclaratiestroomOptions(scoped);
+  autoSelectSingleDependentOptions(scoped);
+}
+
+function autoSelectSingleDependentOptions(scopedFeatures) {
+  if (!currentGemeente || currentZorgverzekeraar === "ALL") {
+    return;
+  }
+
+  const zorggroepSelect = document.getElementById("zorggroepFilter");
+  const declaratieSelect = document.getElementById("declaratiestroomFilter");
+  if (!zorggroepSelect || !declaratieSelect) {
+    return;
+  }
+
+  const availableZorggroepen = [...new Set(scopedFeatures.map(getZorggroepName))];
+  if (currentFilter === "ALL" && availableZorggroepen.length === 1) {
+    currentFilter = availableZorggroepen[0];
+    zorggroepSelect.value = currentFilter;
+  }
+
+  let declaratieScope = scopedFeatures;
+  if (currentFilter !== "ALL") {
+    declaratieScope = declaratieScope.filter((feature) => getZorggroepName(feature) === currentFilter);
+  }
+
+  const availableStromen = new Set();
+  for (const feature of declaratieScope) {
+    const rows = contractsForInsurer(feature, currentZorgverzekeraar);
+    if (rows.length === 0) {
+      availableStromen.add(fallbackDeclaratiestroomForFeature(feature, currentZorgverzekeraar));
+      continue;
+    }
+    for (const row of rows) {
+      if (row.contract === false) {
+        continue;
+      }
+      availableStromen.add(row.declaratiestroom || fallbackDeclaratiestroomForFeature(feature, currentZorgverzekeraar));
+    }
+  }
+
+  const uniqueStromen = [...availableStromen];
+  if (currentDeclaratiestroom === "ALL" && uniqueStromen.length === 1) {
+    currentDeclaratiestroom = uniqueStromen[0];
+    declaratieSelect.value = currentDeclaratiestroom;
+  }
+}
+
+function setupFilterControls() {
+  const zorggroepSelect = document.getElementById("zorggroepFilter");
+  const verzekeraarSelect = document.getElementById("zorgverzekeraarFilter");
+  const declaratieSelect = document.getElementById("declaratiestroomFilter");
+
+  const insurers = new Set(DEFAULT_ZORGVERZEKERAARS);
+  for (const feature of allFeatures) {
+    const contracts = Array.isArray(feature?.properties?.contracts) ? feature.properties.contracts : [];
+    for (const row of contracts) {
+      if (row.zorgverzekeraar) {
+        insurers.add(row.zorgverzekeraar);
+      }
+    }
+  }
+
+  const sortedInsurers = [...insurers].sort((a, b) => a.localeCompare(b, "nl"));
+  verzekeraarSelect.innerHTML = '<option value="ALL">Alle zorgverzekeraars</option>';
+  for (const insurer of sortedInsurers) {
+    const option = document.createElement("option");
+    option.value = insurer;
+    option.textContent = insurer;
+    verzekeraarSelect.appendChild(option);
+  }
+
+  verzekeraarSelect.addEventListener("change", (event) => {
+    currentZorgverzekeraar = event.target.value;
+    currentFilter = "ALL";
+    currentDeclaratiestroom = "ALL";
+    refreshDependentFilters();
+    applyActiveFilters();
+
+    const hasMatches = allFeatures.some((feature) => featureMatchesInsurer(feature, currentZorgverzekeraar));
+    if (currentZorgverzekeraar !== "ALL" && !hasMatches) {
+      showStatus(`Geen zorggroepen gevonden voor ${currentZorgverzekeraar}.`);
+    } else {
+      showStatus("");
+    }
+  });
+
+  zorggroepSelect.addEventListener("change", (event) => {
     currentFilter = event.target.value;
     applyActiveFilters();
   });
+
+  declaratieSelect.addEventListener("change", (event) => {
+    currentDeclaratiestroom = event.target.value;
+    refreshDependentFilters();
+    applyActiveFilters();
+  });
+
+  refreshDependentFilters();
 }
 
 function collectGemeenten(features) {
@@ -536,6 +974,8 @@ async function lookupPostcodeToGemeente(postcodeInput) {
 function setupGemeenteSearch(features) {
   const input = document.getElementById("gemeenteSearch");
   const suggestions = document.getElementById("gemeenteSuggestions");
+  const zoekButton = document.getElementById("zoekButton");
+  const resetButton = document.getElementById("resetButton");
   const gemeenten = collectGemeenten(features);
 
   function hideSuggestions() {
@@ -548,6 +988,7 @@ function setupGemeenteSearch(features) {
     input.value = value;
     hideSuggestions();
     showStatus("");
+    refreshDependentFilters();
     applyActiveFilters();
   }
 
@@ -556,6 +997,7 @@ function setupGemeenteSearch(features) {
     if (!q) {
       hideSuggestions();
       currentGemeente = "";
+      refreshDependentFilters();
       applyActiveFilters();
       return;
     }
@@ -582,68 +1024,115 @@ function setupGemeenteSearch(features) {
     renderSuggestions(event.target.value);
   });
 
+  async function executeSearch() {
+    const rawValue = input.value.trim();
+
+    if (isPostcodeInput(rawValue)) {
+      hideSuggestions();
+      const postcode6 = formatPostcode(rawValue);
+      const postcode4 = formatPostcode4(rawValue);
+      const normalizedInput = postcode6 || postcode4;
+      if (!normalizedInput) {
+        showStatus("Ongeldige postcode. Gebruik 1234 of 1234AB.");
+        return;
+      }
+      try {
+        const result = await lookupPostcodeToGemeente(normalizedInput);
+        const gemeenteNaam = result.gemeenten[0];
+
+        if (!gemeenteNaam) {
+          currentGemeente = "";
+          refreshDependentFilters();
+          applyActiveFilters();
+          showStatus(`Postcode ${normalizedInput} niet gevonden in de PDOK postcode6 data.`);
+          return;
+        }
+
+        const hasDomain = allFeatures.some((feature) => {
+          const gemeenten = Array.isArray(feature?.properties?.gemeenten) ? feature.properties.gemeenten : [];
+          return gemeenten.some((name) => normalizeText(name) === normalizeText(gemeenteNaam));
+        });
+
+        if (!hasDomain) {
+          currentGemeente = "";
+          refreshDependentFilters();
+          applyActiveFilters();
+          showStatus(`Postcode ${normalizedInput} valt niet binnen een zorggroep domein in je lijst.`);
+          return;
+        }
+
+        currentGemeente = gemeenteNaam;
+        input.value = normalizedInput;
+        refreshDependentFilters();
+        applyActiveFilters();
+        showStatus(`Postcode ${normalizedInput} gevonden in gemeente ${gemeenteNaam}.`);
+        return;
+      } catch (error) {
+        console.error(error);
+        showStatus("Postcode zoeken via PDOK is nu niet beschikbaar.");
+        return;
+      }
+    }
+
+    const first = suggestions.querySelector(".suggestion-item");
+    if (first) {
+      applySuggestion(first.dataset.gemeente);
+    } else if (input.value.trim() === "") {
+      currentGemeente = "";
+      showStatus("");
+      refreshDependentFilters();
+      applyActiveFilters();
+    } else {
+      currentGemeente = input.value.trim();
+      refreshDependentFilters();
+      applyActiveFilters();
+    }
+  }
+
   input.addEventListener("keydown", async (event) => {
     if (event.key === "Enter") {
       event.preventDefault();
-      const rawValue = input.value.trim();
-
-      if (isPostcodeInput(rawValue)) {
-        hideSuggestions();
-        const postcode6 = formatPostcode(rawValue);
-        const postcode4 = formatPostcode4(rawValue);
-        const normalizedInput = postcode6 || postcode4;
-        if (!normalizedInput) {
-          showStatus("Ongeldige postcode. Gebruik 1234 of 1234AB.");
-          return;
-        }
-        try {
-          const result = await lookupPostcodeToGemeente(normalizedInput);
-          const gemeenteNaam = result.gemeenten[0];
-
-          if (!gemeenteNaam) {
-            currentGemeente = "";
-            applyActiveFilters();
-            showStatus(`Postcode ${normalizedInput} niet gevonden in de PDOK postcode6 data.`);
-            return;
-          }
-
-          const hasDomain = allFeatures.some((feature) => {
-            const gemeenten = Array.isArray(feature?.properties?.gemeenten) ? feature.properties.gemeenten : [];
-            return gemeenten.some((name) => normalizeText(name) === normalizeText(gemeenteNaam));
-          });
-
-          if (!hasDomain) {
-            currentGemeente = "";
-            applyActiveFilters();
-            showStatus(`Postcode ${normalizedInput} valt niet binnen een zorggroep domein in je lijst.`);
-            return;
-          }
-
-          currentGemeente = gemeenteNaam;
-          input.value = normalizedInput;
-          applyActiveFilters();
-          showStatus(`Postcode ${normalizedInput} gevonden in gemeente ${gemeenteNaam}.`);
-          return;
-        } catch (error) {
-          console.error(error);
-          showStatus("Postcode zoeken via PDOK is nu niet beschikbaar.");
-          return;
-        }
-      }
-
-      const first = suggestions.querySelector(".suggestion-item");
-      if (first) {
-        applySuggestion(first.dataset.gemeente);
-      } else if (input.value.trim() === "") {
-        currentGemeente = "";
-        showStatus("");
-        applyActiveFilters();
-      }
+      await executeSearch();
     }
     if (event.key === "Escape") {
       hideSuggestions();
     }
   });
+
+  if (zoekButton) {
+    zoekButton.addEventListener("click", async () => {
+      await executeSearch();
+    });
+  }
+
+  if (resetButton) {
+    resetButton.addEventListener("click", () => {
+      currentGemeente = "";
+      currentZorgverzekeraar = "ALL";
+      currentFilter = "ALL";
+      currentDeclaratiestroom = "ALL";
+
+      input.value = "";
+      hideSuggestions();
+      showStatus("");
+
+      const verzekeraarSelect = document.getElementById("zorgverzekeraarFilter");
+      const zorggroepSelect = document.getElementById("zorggroepFilter");
+      const declaratieSelect = document.getElementById("declaratiestroomFilter");
+      if (verzekeraarSelect) {
+        verzekeraarSelect.value = "ALL";
+      }
+      if (zorggroepSelect) {
+        zorggroepSelect.value = "ALL";
+      }
+      if (declaratieSelect) {
+        declaratieSelect.value = "ALL";
+      }
+
+      refreshDependentFilters();
+      applyActiveFilters();
+    });
+  }
 
   suggestions.addEventListener("click", (event) => {
     const target = event.target.closest(".suggestion-item");
@@ -718,7 +1207,7 @@ async function fetchAllGemeenteFeatures() {
   return all;
 }
 
-function buildZorggroepFeatures(zorggroepen, gemeenteFeatures) {
+function buildZorggroepFeatures(zorggroepen, gemeenteFeatures, contractsByZorggroep = new Map()) {
   const gemeenteByNormName = new Map();
   for (const feature of gemeenteFeatures) {
     const naam = feature?.properties?.naam;
@@ -764,15 +1253,30 @@ function buildZorggroepFeatures(zorggroepen, gemeenteFeatures) {
       continue;
     }
 
+    const zorggroepName = item.zorggroep || "Onbekend";
+    const inlineContracts = extractContracts(item);
+    const rootContracts = contractsByZorggroep.get(normalizeText(zorggroepName)) || [];
+    const contracts = [];
+    const seenContract = new Set();
+    for (const row of [...inlineContracts, ...rootContracts]) {
+      const key = `${normalizeText(row.zorgverzekeraar)}|${normalizeText(row.declaratiestroom)}`;
+      if (seenContract.has(key)) {
+        continue;
+      }
+      seenContract.add(key);
+      contracts.push(row);
+    }
+
     features.push({
       type: "Feature",
       properties: {
-        zorggroep: item.zorggroep || "Onbekend",
-        regio: item.regio || item.zorggroep || "Onbekend",
+        zorggroep: zorggroepName,
+        regio: item.regio || zorggroepName || "Onbekend",
         website: item.website || "",
         cities: Array.isArray(item.cities) ? item.cities : [],
         gemeenten: matchedGemeenten,
-        unmatchedCities
+        unmatchedCities,
+        contracts
       },
       geometry: {
         type: "MultiPolygon",
@@ -799,10 +1303,11 @@ async function init() {
 
     const zorggroepData = await zorggroepResponse.json();
     const zorggroepen = Array.isArray(zorggroepData.zorggroepen) ? zorggroepData.zorggroepen : [];
+    const contractsByZorggroep = extractContractsByZorggroep(zorggroepData);
 
-    allFeatures = buildZorggroepFeatures(zorggroepen, gemeenteFeatures);
+    allFeatures = buildZorggroepFeatures(zorggroepen, gemeenteFeatures, contractsByZorggroep);
     gemeenteFeaturesStore = gemeenteFeatures;
-    setupFilter(allFeatures);
+    setupFilterControls();
     setupGemeenteSearch(allFeatures);
     applyActiveFilters();
   } catch (error) {
