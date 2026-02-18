@@ -213,6 +213,13 @@ function setTheme(mode) {
     toggleIcon.textContent = nextMode === "dark" ? "☀" : "🌙";
   }
 
+  const siteLogo = document.getElementById("siteLogo");
+  if (siteLogo) {
+    const lightLogo = siteLogo.getAttribute("data-logo-light");
+    const darkLogo = siteLogo.getAttribute("data-logo-dark");
+    siteLogo.src = nextMode === "dark" ? (darkLogo || lightLogo || siteLogo.src) : (lightLogo || siteLogo.src);
+  }
+
   applyMapTheme();
 }
 

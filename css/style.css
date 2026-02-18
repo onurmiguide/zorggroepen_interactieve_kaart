@@ -392,10 +392,14 @@ body.dark-mode .auth-gate {
 }
 
 body.dark-mode .auth-card,
-body.dark-mode .topbar,
 body.dark-mode .filter-panel {
   background: #111827;
   border-color: #334155;
+}
+
+body.dark-mode .topbar {
+  background: #111827;
+  border-bottom-color: #1f2937;
 }
 
 body.dark-mode .title,
