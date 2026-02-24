@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Data Overzicht - Zorggroepen Kaart</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="topbar">
+    <img
+      class="site-logo"
+      id="siteLogo"
+      src="zg-data/MiGuide_Logo_Nieuw.png"
+      data-logo-light="zg-data/MiGuide_Logo_Nieuw.png"
+      data-logo-dark="zg-data/MiGuide_Logo_White.png"
+      alt="MiGuide logo"
+    />
+    <div class="title-wrap">
+      <div class="title">Data Overzicht</div>
+      <div class="subtitle">Gebruikte bronnen en mappings per categorie</div>
+    </div>
+    <button id="themeToggle" class="theme-toggle" type="button" aria-label="Schakel dark mode" title="Schakel dark mode">
+      <span id="themeToggleIcon" aria-hidden="true">🌙</span>
+    </button>
+    <a class="data-link-button" href="index.html" title="Terug naar kaart">Kaart</a>
+    <div class="demo-badge">Concept / Demo · Work in progress</div>
+  </div>
+
+  <main class="data-page">
+    <section class="data-card">
+      <h2 class="data-title">Betekenis OCR detectie</h2>
+      <div class="data-summary">
+        <strong>Ja</strong> = de term/regel is (redelijk) herkend in de OCR van de screenshot.<br />
+        <strong>Nee</strong> = niet duidelijk herkend; waarde is ingevuld via bekende mapping / handmatige interpretatie.
+      </div>
+    </section>
+
+    <section class="data-card">
+      <h2 class="data-title">Bronbestanden</h2>
+      <ul class="data-list">
+        <li><code>zg-data/zorggroepen.json</code></li>
+        <li><code>zg-data/declaratiestroomfoto_ocr.json</code></li>
+        <li><code>zg-data/declaratiestroom_samenvatting.txt</code></li>
+        <li><code>zg-data/zorggroepen.geojson</code> (legacy/placeholder bestand)</li>
+      </ul>
+    </section>
+
+    <section class="data-card">
+      <h2 class="data-title">Zorggroepen</h2>
+      <div id="zorggroepenSummary" class="data-summary">Laden...</div>
+      <div class="table-wrap">
+        <table class="data-table" id="zorggroepenTable">
+          <thead>
+            <tr>
+              <th>Zorggroep</th>
+              <th>Regio</th>
+              <th>Aantal plaatsen</th>
+              <th>Website</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="data-card">
+      <h2 class="data-title">Zorgverzekeraar → Facturatiestroom</h2>
+      <div class="table-wrap">
+        <table class="data-table" id="verzekeraarsTable">
+          <thead>
+            <tr>
+              <th>Zorgverzekeraar</th>
+              <th>Facturatiestroom</th>
+              <th>OCR detectie</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="data-card">
+      <h2 class="data-title">Zorggroep → Facturatiestroom</h2>
+      <div class="table-wrap">
+        <table class="data-table" id="zorggroepStromenTable">
+          <thead>
+            <tr>
+              <th>Zorggroep</th>
+              <th>Facturatiestroom</th>
+              <th>OCR detectie</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="data-card">
+      <h2 class="data-title">Facturatiemodule templates</h2>
+      <div class="table-wrap">
+        <table class="data-table" id="templatesTable">
+          <thead>
+            <tr>
+              <th>Naam</th>
+              <th>Beschrijving</th>
+              <th>OCR detectie</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="data-card">
+      <h2 class="data-title">OCR Warnings</h2>
+      <ul id="warningsList" class="data-list"></ul>
+    </section>
+  </main>
+
+  <script src="script/data-overzicht.js"></script>
+</body>
+</html>

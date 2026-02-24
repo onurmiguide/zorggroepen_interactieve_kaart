@@ -167,6 +167,26 @@ body {
   background: #f8fafc;
 }
 
+.data-link-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #0f172a;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-decoration: none;
+  line-height: 1;
+}
+
+.data-link-button:hover {
+  background: #f8fafc;
+}
+
 #zorggroepFilter,
 #zorgverzekeraarFilter,
 #declaratiestroomFilter {
@@ -399,6 +419,69 @@ label[for="declaratiestroomFilter"] {
   color: #6b7280;
 }
 
+.data-page {
+  width: min(1280px, 96%);
+  margin: 14px auto 20px auto;
+  display: grid;
+  gap: 14px;
+}
+
+.data-card {
+  background: #fff;
+  border: 1px solid #d9e2ec;
+  border-radius: 10px;
+  box-shadow: 0 6px 16px rgba(16, 24, 40, 0.06);
+  padding: 12px;
+}
+
+.data-title {
+  margin: 0 0 10px 0;
+  font-size: 1rem;
+  color: #0f172a;
+}
+
+.data-summary {
+  margin-bottom: 10px;
+  color: #475569;
+  font-size: 0.9rem;
+}
+
+.data-list {
+  margin: 0;
+  padding-left: 18px;
+  color: #334155;
+}
+
+.data-list li {
+  margin: 4px 0;
+}
+
+.table-wrap {
+  overflow: auto;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.86rem;
+}
+
+.data-table th,
+.data-table td {
+  text-align: left;
+  vertical-align: top;
+  padding: 8px 9px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.data-table th {
+  color: #0f172a;
+  font-weight: 700;
+  background: #f8fafc;
+  position: sticky;
+  top: 0;
+}
+
 body.dark-mode {
   background: #0b1220;
   color: #e2e8f0;
@@ -459,9 +542,35 @@ body.dark-mode .module-context strong {
   color: #f1f5f9;
 }
 
+body.dark-mode .data-card {
+  background: #111827;
+  border-color: #334155;
+}
+
+body.dark-mode .data-title {
+  color: #f1f5f9;
+}
+
+body.dark-mode .data-summary,
+body.dark-mode .data-list {
+  color: #cbd5e1;
+}
+
+body.dark-mode .data-table th,
+body.dark-mode .data-table td {
+  border-bottom-color: #334155;
+  color: #e2e8f0;
+}
+
+body.dark-mode .data-table th {
+  background: #0f172a;
+  color: #f1f5f9;
+}
+
 body.dark-mode .zoek-button,
 body.dark-mode .reset-button,
-body.dark-mode .theme-toggle {
+body.dark-mode .theme-toggle,
+body.dark-mode .data-link-button {
   background: #0f172a;
   color: #e2e8f0;
   border-color: #475569;
@@ -469,7 +578,8 @@ body.dark-mode .theme-toggle {
 
 body.dark-mode .zoek-button:hover,
 body.dark-mode .reset-button:hover,
-body.dark-mode .theme-toggle:hover {
+body.dark-mode .theme-toggle:hover,
+body.dark-mode .data-link-button:hover {
   background: #1e293b;
 }
 
