@@ -57,6 +57,18 @@ const DECLARATIE_PER_VERZEKERAAR_OUTPUT = {
   "zorg zekerheid": "Losse facturen & ZoHealthy"
 };
 
+const FACTURATIEMODULE_TEMPLATES = {
+  "CoOL via zorggroep": "CoOL via zorggroep. Gebruik wanneer declaraties via een zorggroep-context lopen (bijv. via zorggroep-afspraken of zorggroep-afhandeling).",
+  "CoOL via ZORGVERZEKERAAR - via GA": "CoOL via zorgverzekeraar via GA-route. Specifieke module voor zorgverzekeraar-afhandeling via de GA-constructie.",
+  "Gezondheid Amsterdam (GA)": "CoOL-MiGuide via zorgverzekeraar voor de GA-regio. Declaraties van deelnemers in de GA-regio worden periodiek via een XML-bestand aangeleverd aan GA.",
+  "MiGuide": "CoOL-MiGuide via zorgverzekeraar. Declaraties worden direct vanuit MiGuide gedeclareerd aan andere zorgverzekeraars (niet VGZ), conform contractafspraken.",
+  "MiGuide - VGZ": "CoOL via zorgverzekeraar (VGZ). Declaraties worden direct aan VGZ gedeclareerd vanuit MiGuide, conform contract met VGZ.",
+  "ZoHealthy": "CoOL via zorgverzekeraar via ZoHealthy. Declaraties lopen via ZoHealthy en de verkooptarieven van ZoHealthy worden gebruikt.",
+  "Zorggroep": "CoOL-MiGuide via zorggroep. Declaraties worden verwerkt via een platform/omgeving van een andere zorggroep (bijv. VIPLive of Monter); tarieven vanuit de zorggroep.",
+  "Zuid Holland Zuid - CZ": "CoOL-MiGuide via zorgverzekeraar voor GLI-ZHZ-CZ. Declaraties voor CZ-gebied in dit contract worden via de statische declarant GLI-ZHZ-CZ gedeclareerd.",
+  "Zuid Holland Zuid - VGZ": "CoOL via zorgverzekeraar voor GLI-ZHZ-VGZ. Declaraties voor VGZ-gebied in dit contract worden via de statische declarant GLI-ZHZ-VGZ gedeclareerd."
+};
+
 const CITY_TO_GEMEENTE = {
   "capelle a d ijssel": "Capelle aan den IJssel",
   "berken en rodenrijs": "Lansingerland",
@@ -320,6 +332,96 @@ function getZorggroepName(feature) {
   return feature?.properties?.zorggroep || "Onbekend";
 }
 
+function resolveFacturatiemoduleName(rawStroom, feature, insurerName = "") {
+  const raw = String(rawStroom || "").trim() || "Onbekend";
+  const rawNorm = normalizeText(raw);
+  const insurerNorm = normalizeText(insurerName);
+  const zorggroepNorm = normalizeText(getZorggroepName(feature));
+
+  if (FACTURATIEMODULE_TEMPLATES[raw]) {
+    return raw;
+  }
+
+  if (zorggroepNorm === "zuid holland zuid" && insurerNorm === "cz") {
+    return "Zuid Holland Zuid - CZ";
+  }
+  if (zorggroepNorm === "zuid holland zuid" && insurerNorm === "vgz") {
+    return "Zuid Holland Zuid - VGZ";
+  }
+
+  if (rawNorm === "declaratiestromen per zorgverzekeraar") {
+    if (zorggroepNorm.includes("gezondheid amsterdam")) {
+      return "Gezondheid Amsterdam (GA)";
+    }
+    if (insurerNorm === "vgz") {
+      return "MiGuide - VGZ";
+    }
+    if (["aevitae eucare", "cz", "dsw", "salland", "zorg zekerheid"].includes(insurerNorm)) {
+      return "ZoHealthy";
+    }
+    if (insurerNorm) {
+      return "MiGuide";
+    }
+  }
+
+  if (rawNorm === "vecozo") {
+    if (zorggroepNorm.includes("gezondheid amsterdam")) {
+      return "Gezondheid Amsterdam (GA)";
+    }
+    if (insurerNorm === "vgz") {
+      return "MiGuide - VGZ";
+    }
+    return "MiGuide";
+  }
+
+  if (rawNorm.includes("zohealthy")) {
+    return "ZoHealthy";
+  }
+
+  if (["viplive", "boards", "evry", "medix"].some((token) => rawNorm.includes(token))) {
+    return "Zorggroep";
+  }
+  if (rawNorm.includes("monter")) {
+    return "Zorggroep";
+  }
+  if (rawNorm.includes("op factuur achteraf")) {
+    return "CoOL via zorggroep";
+  }
+
+  return raw;
+}
+
+function getFacturatiemoduleDescription(moduleName) {
+  return FACTURATIEMODULE_TEMPLATES[moduleName] || "";
+}
+
+function updateFacturatiemoduleContext() {
+  const box = document.getElementById("facturatiemoduleContext");
+  if (!box) {
+    return;
+  }
+  if (currentDeclaratiestroom === "ALL") {
+    box.hidden = true;
+    box.innerHTML = "";
+    return;
+  }
+
+  const representativeFeature = allFeatures.find((feature) => {
+    if (currentFilter !== "ALL" && getZorggroepName(feature) !== currentFilter) {
+      return false;
+    }
+    return featureMatchesInsurer(feature, currentZorgverzekeraar);
+  }) || allFeatures[0];
+
+  const moduleName = resolveFacturatiemoduleName(currentDeclaratiestroom, representativeFeature, currentZorgverzekeraar);
+  const description = getFacturatiemoduleDescription(moduleName);
+
+  box.innerHTML = description
+    ? `<strong>${moduleName}</strong>${description}`
+    : `<strong>${moduleName}</strong>Geen beschrijving beschikbaar.`;
+  box.hidden = false;
+}
+
 function normalizeContractValue(value) {
   if (typeof value === "boolean") {
     return value;
@@ -536,17 +638,23 @@ function popupContent(feature) {
     : "<div>Geen website</div>";
 
   let contractRow = "<div>Contract: Onbekend</div>";
+  let moduleRow = "";
   if (currentZorgverzekeraar !== "ALL") {
     const insurerRows = contractsForInsurer(feature, currentZorgverzekeraar);
     if (insurerRows.length > 0) {
       const yesRow = insurerRows.find((row) => row.contract !== false);
       if (yesRow) {
-        contractRow = `<div>Contract ${currentZorgverzekeraar}: Ja (${yesRow.declaratiestroom || "Onbekend"})</div>`;
+        const moduleName = resolveFacturatiemoduleName(yesRow.declaratiestroom || "Onbekend", feature, currentZorgverzekeraar);
+        contractRow = `<div>Contract ${currentZorgverzekeraar}: Ja</div>`;
+        moduleRow = `<div>Facturatiestroom: ${moduleName}</div>`;
       } else {
         contractRow = `<div>Contract ${currentZorgverzekeraar}: Nee</div>`;
       }
     } else {
-      contractRow = `<div>Declaratiestroom: ${fallbackDeclaratiestroomForFeature(feature, currentZorgverzekeraar)}</div>`;
+      const rawStroom = fallbackDeclaratiestroomForFeature(feature, currentZorgverzekeraar);
+      const moduleName = resolveFacturatiemoduleName(rawStroom, feature, currentZorgverzekeraar);
+      moduleRow = `<div>Facturatiestroom: ${moduleName}</div>`;
+      contractRow = "<div>Contract: Onbekend</div>";
     }
   } else if (contracts.length > 0) {
     const contractedCount = contracts.filter((row) => row.contract !== false).length;
@@ -559,6 +667,7 @@ function popupContent(feature) {
       <div>Regio: ${regio}</div>
       <div>Gemeenten: ${gemeenten.length}</div>
       ${contractRow}
+      ${moduleRow}
       ${websiteRow}
     </div>
   `;
@@ -753,11 +862,21 @@ function populateDeclaratiestroomOptions(features) {
   }
 
   const sorted = [...allStromen].sort((a, b) => a.localeCompare(b, "nl"));
-  select.innerHTML = '<option value="ALL">Alle declaratiestromen</option>';
+  select.innerHTML = '<option value="ALL">Alle facturatiestromen</option>';
   for (const stroom of sorted) {
     const option = document.createElement("option");
     option.value = stroom;
-    option.textContent = stroom;
+    const representative = features.find((feature) => {
+      const rows = contractsForInsurer(feature, currentZorgverzekeraar);
+      return rows.some((row) => (row.declaratiestroom || fallbackDeclaratiestroomForFeature(feature, currentZorgverzekeraar)) === stroom)
+        || fallbackDeclaratiestroomForFeature(feature, currentZorgverzekeraar) === stroom;
+    }) || features[0];
+    const moduleName = resolveFacturatiemoduleName(stroom, representative, currentZorgverzekeraar);
+    option.textContent = moduleName;
+    const desc = getFacturatiemoduleDescription(moduleName);
+    if (desc) {
+      option.title = desc;
+    }
     select.appendChild(option);
   }
 
@@ -776,6 +895,7 @@ function refreshDependentFilters() {
   populateZorggroepOptions(scoped);
   populateDeclaratiestroomOptions(scoped);
   autoSelectSingleDependentOptions(scoped);
+  updateFacturatiemoduleContext();
 }
 
 function autoSelectSingleDependentOptions(scopedFeatures) {
