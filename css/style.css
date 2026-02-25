@@ -487,6 +487,10 @@ body.dark-mode {
   color: #e2e8f0;
 }
 
+html:has(body.dark-mode) {
+  background: #0b1220;
+}
+
 body.dark-mode .auth-gate {
   background: linear-gradient(180deg, #0f172a 0%, #111827 100%);
 }
@@ -547,6 +551,10 @@ body.dark-mode .data-card {
   border-color: #334155;
 }
 
+body.dark-mode .data-page {
+  background: transparent;
+}
+
 body.dark-mode .data-title {
   color: #f1f5f9;
 }
@@ -554,6 +562,17 @@ body.dark-mode .data-title {
 body.dark-mode .data-summary,
 body.dark-mode .data-list {
   color: #cbd5e1;
+}
+
+body.dark-mode .data-list code {
+  color: #e2e8f0;
+  background: #0f172a;
+  padding: 1px 4px;
+  border-radius: 4px;
+}
+
+body.dark-mode .table-wrap {
+  background: #111827;
 }
 
 body.dark-mode .data-table th,
@@ -565,6 +584,10 @@ body.dark-mode .data-table td {
 body.dark-mode .data-table th {
   background: #0f172a;
   color: #f1f5f9;
+}
+
+body.dark-mode .data-table tr {
+  background: #111827;
 }
 
 body.dark-mode .zoek-button,
