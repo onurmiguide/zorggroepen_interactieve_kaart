@@ -1,57 +1,74 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="nl">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Data Overzicht - Zorggroepen Kaart</title>
   <link rel="icon" type="image/svg+xml" href="zg-data/map-find-search-svgrepo-com.svg" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { darkMode: "class" };
+  </script>
   <link rel="stylesheet" href="css/style.css" />
 </head>
-<body>
-  <div class="topbar">
-    <img
-      class="site-logo"
-      id="siteLogo"
-      src="zg-data/MiGuide_Logo_Nieuw.png"
-      data-logo-light="zg-data/MiGuide_Logo_Nieuw.png"
-      data-logo-dark="zg-data/MiGuide_Logo_White.png"
-      alt="MiGuide logo"
-    />
-    <div class="title-wrap">
-      <div class="title">Data Overzicht</div>
-      <div class="subtitle">Gebruikte bronnen en mappings per categorie</div>
+<body class="min-h-full bg-slate-100 text-slate-800 antialiased dark:bg-slate-950 dark:text-slate-200">
+  <div class="sticky top-0 z-[1000] flex items-center gap-3 border-b border-slate-200 bg-white/95 px-4 py-3 shadow-sm backdrop-blur dark:border-slate-800 dark:bg-slate-900/95">
+    <a href="index.html" aria-label="Ga naar hoofdpagina">
+      <img
+        class="h-auto w-[120px] object-contain"
+        id="siteLogo"
+        src="zg-data/MiGuide_Logo_Nieuw.png"
+        data-logo-light="zg-data/MiGuide_Logo_Nieuw.png"
+        data-logo-dark="zg-data/MiGuide_Logo_White.png"
+        alt="MiGuide logo"
+      />
+    </a>
+    <div class="min-w-0">
+      <div class="truncate text-[1.05rem] font-extrabold leading-tight tracking-tight text-slate-900 dark:text-slate-100">Data Overzicht</div>
+      <div class="truncate text-xs font-medium text-slate-500 dark:text-slate-400">Gebruikte bronnen en mappings per categorie</div>
     </div>
-    <button id="themeToggle" class="theme-toggle" type="button" aria-label="Schakel dark mode" title="Schakel dark mode">
+    <button id="themeToggle" class="theme-toggle ml-auto inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-400 bg-white text-slate-900 transition hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800" type="button" aria-label="Schakel dark mode" title="Schakel dark mode">
       <span id="themeToggleIcon" aria-hidden="true">🌙</span>
     </button>
-    <a class="data-link-button" href="index.html" title="Terug naar kaart">Kaart</a>
-    <div class="demo-badge">Concept / Demo · Work in progress</div>
+    <details class="topbar-dropdown inline-block">
+      <summary class="inline-flex items-center justify-center gap-x-1.5 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-900 shadow-sm hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800">
+        Menu
+        <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" class="-mr-1 size-5 text-slate-400 dark:text-slate-500">
+          <path d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" fill-rule="evenodd" />
+        </svg>
+      </summary>
+      <ul role="listbox" class="w-56 rounded-md bg-white p-1 shadow-xl outline-1 -outline-offset-1 outline-slate-200 dark:bg-slate-900 dark:outline-slate-700">
+        <li><a href="index.html" title="Terug naar kaart" class="block rounded px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 focus:bg-slate-100 focus:text-slate-900 focus:outline-none dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white dark:focus:bg-slate-800 dark:focus:text-white">Kaart</a></li>
+        <li><a href="https://github.com/onurmiguide/zorggroepen_interactieve_kaart" target="_blank" rel="noopener noreferrer" class="block rounded px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 focus:bg-slate-100 focus:text-slate-900 focus:outline-none dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white dark:focus:bg-slate-800 dark:focus:text-white">GitHub repo</a></li>
+      </ul>
+    </details>
+    <div class="hidden whitespace-nowrap rounded-lg border border-red-300 bg-red-50 px-2.5 py-1 text-[11px] font-bold text-red-800 lg:block dark:border-red-500/50 dark:bg-red-950/40 dark:text-red-200">Concept / Demo · Work in progress</div>
   </div>
 
-  <main class="data-page">
-    <section class="data-card">
-      <h2 class="data-title">Betekenis OCR detectie</h2>
-      <div class="data-summary">
+  <main class="mx-auto my-4 grid w-[96%] max-w-[1280px] gap-4">
+    <section class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+      <h2 class="mb-2 text-base font-bold text-slate-900 dark:text-slate-100">Betekenis OCR detectie</h2>
+      <div class="text-sm text-slate-600 dark:text-slate-300">
         <strong>Ja</strong> = de term/regel is (redelijk) herkend in de OCR van de screenshot.<br />
         <strong>Nee</strong> = niet duidelijk herkend; waarde is ingevuld via bekende mapping / handmatige interpretatie.
       </div>
     </section>
 
-    <section class="data-card">
-      <h2 class="data-title">Bronbestanden</h2>
-      <ul class="data-list">
-        <li><code>zg-data/zorggroepen.json</code></li>
-        <li><code>zg-data/declaratiestroomfoto_ocr.json</code></li>
-        <li><code>zg-data/declaratiestroom_samenvatting.txt</code></li>
-        <li><code>zg-data/zorggroepen.geojson</code> (legacy/placeholder bestand)</li>
+    <section class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+      <h2 class="mb-2 text-base font-bold text-slate-900 dark:text-slate-100">Bronbestanden</h2>
+      <ul class="data-list list-disc space-y-1 pl-5 text-sm text-slate-700 dark:text-slate-300">
+        <li><code class="rounded bg-slate-100 px-1 py-0.5 text-slate-800 dark:bg-slate-950 dark:text-slate-100">zg-data/zorggroepen.json</code></li>
+        <li><code class="rounded bg-slate-100 px-1 py-0.5 text-slate-800 dark:bg-slate-950 dark:text-slate-100">zg-data/declaratiestroomfoto_ocr.json</code></li>
+        <li><code class="rounded bg-slate-100 px-1 py-0.5 text-slate-800 dark:bg-slate-950 dark:text-slate-100">zg-data/declaratiestroom_samenvatting.txt</code></li>
+        <li><code class="rounded bg-slate-100 px-1 py-0.5 text-slate-800 dark:bg-slate-950 dark:text-slate-100">zg-data/zorggroepen.geojson</code> (legacy/placeholder bestand)</li>
       </ul>
     </section>
 
-    <section class="data-card">
-      <h2 class="data-title">Zorggroepen</h2>
-      <div id="zorggroepenSummary" class="data-summary">Laden...</div>
-      <div class="table-wrap">
-        <table class="data-table" id="zorggroepenTable">
+    <section class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+      <h2 class="mb-2 text-base font-bold text-slate-900 dark:text-slate-100">Zorggroepen</h2>
+      <div id="zorggroepenSummary" class="mb-2 text-sm text-slate-600 dark:text-slate-300">Laden...</div>
+      <div class="table-wrap overflow-auto rounded-lg border border-slate-200 dark:border-slate-700">
+        <table class="data-table w-full border-collapse text-sm" id="zorggroepenTable">
           <thead>
             <tr>
               <th>Zorggroep</th>
@@ -65,10 +82,10 @@
       </div>
     </section>
 
-    <section class="data-card">
-      <h2 class="data-title">Zorgverzekeraar → Facturatiestroom</h2>
-      <div class="table-wrap">
-        <table class="data-table" id="verzekeraarsTable">
+    <section class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+      <h2 class="mb-2 text-base font-bold text-slate-900 dark:text-slate-100">Zorgverzekeraar → Facturatiestroom</h2>
+      <div class="table-wrap overflow-auto rounded-lg border border-slate-200 dark:border-slate-700">
+        <table class="data-table w-full border-collapse text-sm" id="verzekeraarsTable">
           <thead>
             <tr>
               <th>Zorgverzekeraar</th>
@@ -81,10 +98,10 @@
       </div>
     </section>
 
-    <section class="data-card">
-      <h2 class="data-title">Zorggroep → Facturatiestroom</h2>
-      <div class="table-wrap">
-        <table class="data-table" id="zorggroepStromenTable">
+    <section class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+      <h2 class="mb-2 text-base font-bold text-slate-900 dark:text-slate-100">Zorggroep → Facturatiestroom</h2>
+      <div class="table-wrap overflow-auto rounded-lg border border-slate-200 dark:border-slate-700">
+        <table class="data-table w-full border-collapse text-sm" id="zorggroepStromenTable">
           <thead>
             <tr>
               <th>Zorggroep</th>
@@ -97,10 +114,10 @@
       </div>
     </section>
 
-    <section class="data-card">
-      <h2 class="data-title">Facturatiemodule templates</h2>
-      <div class="table-wrap">
-        <table class="data-table" id="templatesTable">
+    <section class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+      <h2 class="mb-2 text-base font-bold text-slate-900 dark:text-slate-100">Facturatiemodule templates</h2>
+      <div class="table-wrap overflow-auto rounded-lg border border-slate-200 dark:border-slate-700">
+        <table class="data-table w-full border-collapse text-sm" id="templatesTable">
           <thead>
             <tr>
               <th>Naam</th>
@@ -113,9 +130,9 @@
       </div>
     </section>
 
-    <section class="data-card">
-      <h2 class="data-title">OCR Warnings</h2>
-      <ul id="warningsList" class="data-list"></ul>
+    <section class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+      <h2 class="mb-2 text-base font-bold text-slate-900 dark:text-slate-100">OCR Warnings</h2>
+      <ul id="warningsList" class="data-list list-disc space-y-1 pl-5 text-sm text-slate-700 dark:text-slate-300"></ul>
     </section>
   </main>
 

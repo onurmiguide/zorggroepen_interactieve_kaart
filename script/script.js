@@ -193,6 +193,7 @@ let messageTimer;
 let postcodePanelRequestId = 0;
 const gemeentePostcodeCache = new Map();
 const zorggroepPostcodeRangeCache = new Map();
+const customSelectObservers = new Map();
 
 function createMap() {
   if (map) {
@@ -242,16 +243,20 @@ function applyMapTheme() {
 function setTheme(mode) {
   const nextMode = mode === "dark" ? "dark" : "light";
   document.body.classList.toggle("dark-mode", nextMode === "dark");
+  document.body.classList.toggle("dark", nextMode === "dark");
+  document.documentElement.classList.toggle("dark", nextMode === "dark");
+  document.body.setAttribute("data-theme", nextMode);
+  document.documentElement.setAttribute("data-theme", nextMode);
   localStorage.setItem(THEME_STORAGE_KEY, nextMode);
 
   const toggle = document.getElementById("themeToggle");
   const toggleIcon = document.getElementById("themeToggleIcon");
   if (toggle) {
-    toggle.setAttribute("aria-label", nextMode === "dark" ? "Schakel naar light mode" : "Schakel naar dark mode");
-    toggle.setAttribute("title", nextMode === "dark" ? "Light mode" : "Dark mode");
+    toggle.setAttribute("aria-label", nextMode === "dark" ? "Dark mode actief" : "Light mode actief");
+    toggle.setAttribute("title", nextMode === "dark" ? "Dark mode" : "Light mode");
   }
   if (toggleIcon) {
-    toggleIcon.textContent = nextMode === "dark" ? "☀" : "🌙";
+    toggleIcon.textContent = nextMode === "dark" ? "🌙" : "☀";
   }
 
   const siteLogo = document.getElementById("siteLogo");
@@ -270,7 +275,8 @@ function initThemeToggle() {
   const preferred = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
   setTheme(saved || preferred);
 
-  if (toggle) {
+  if (toggle && !toggle.dataset.themeBound) {
+    toggle.dataset.themeBound = "1";
     toggle.addEventListener("click", () => {
       setTheme(isDarkModeActive() ? "light" : "dark");
     });
@@ -300,6 +306,7 @@ function unlockApp() {
   const appShell = document.getElementById("appShell");
   gate.hidden = true;
   appShell.hidden = false;
+  initThemeToggle();
   sessionStorage.setItem(AUTH_SESSION_KEY, "1");
 }
 
@@ -943,6 +950,122 @@ function showStatus(message) {
   }, 4500);
 }
 
+function closeAllCustomSelectMenus(exceptSelectId = "") {
+  document.querySelectorAll("[data-custom-select]").forEach((root) => {
+    const selectId = root.getAttribute("data-custom-select") || "";
+    if (exceptSelectId && selectId === exceptSelectId) {
+      return;
+    }
+    const menu = root.querySelector("[data-custom-select-menu]");
+    if (menu) {
+      menu.hidden = true;
+    }
+  });
+}
+
+function renderCustomSelect(select) {
+  if (!select) {
+    return;
+  }
+  const root = document.querySelector(`[data-custom-select="${select.id}"]`);
+  if (!root) {
+    return;
+  }
+
+  const button = root.querySelector("[data-custom-select-button]");
+  const label = root.querySelector("[data-custom-select-label]");
+  const menu = root.querySelector("[data-custom-select-menu]");
+  if (!button || !label || !menu) {
+    return;
+  }
+
+  const selectedOption = select.options[select.selectedIndex] || select.options[0];
+  label.textContent = selectedOption ? selectedOption.textContent : "";
+
+  button.disabled = !!select.disabled;
+  button.classList.toggle("opacity-50", !!select.disabled);
+  button.classList.toggle("cursor-not-allowed", !!select.disabled);
+
+  menu.innerHTML = "";
+  [...select.options].forEach((opt) => {
+    const item = document.createElement("button");
+    item.type = "button";
+    item.className = "block w-full rounded px-3 py-2 text-left text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 focus:bg-slate-100 focus:text-slate-900 focus:outline-none dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white dark:focus:bg-slate-800 dark:focus:text-white";
+    item.textContent = opt.textContent;
+    item.disabled = !!opt.disabled;
+    item.dataset.value = opt.value;
+    if (opt.value === select.value) {
+      item.classList.add("bg-slate-100", "text-slate-900", "dark:bg-slate-800", "dark:text-white");
+    }
+    item.addEventListener("click", () => {
+      if (select.disabled || opt.disabled) {
+        return;
+      }
+      if (select.value !== opt.value) {
+        select.value = opt.value;
+        select.dispatchEvent(new Event("change", { bubbles: true }));
+      } else {
+        renderCustomSelect(select);
+      }
+      menu.hidden = true;
+    });
+    menu.appendChild(item);
+  });
+
+  if (!menu.children.length) {
+    const empty = document.createElement("div");
+    empty.className = "px-3 py-2 text-sm text-slate-400 dark:text-slate-500";
+    empty.textContent = "Geen opties";
+    menu.appendChild(empty);
+  }
+}
+
+function initCustomSelect(selectId) {
+  const select = document.getElementById(selectId);
+  const root = document.querySelector(`[data-custom-select="${selectId}"]`);
+  if (!select || !root) {
+    return;
+  }
+  const button = root.querySelector("[data-custom-select-button]");
+  const menu = root.querySelector("[data-custom-select-menu]");
+  if (!button || !menu) {
+    return;
+  }
+
+  if (!root.dataset.customSelectBound) {
+    root.dataset.customSelectBound = "1";
+
+    menu.hidden = true;
+
+    button.addEventListener("click", (event) => {
+      event.preventDefault();
+      if (select.disabled) {
+        return;
+      }
+      const willOpen = menu.hidden;
+      closeAllCustomSelectMenus(selectId);
+      menu.hidden = !willOpen;
+      if (!menu.hidden) {
+        renderCustomSelect(select);
+      }
+    });
+
+    select.addEventListener("change", () => {
+      renderCustomSelect(select);
+    });
+
+    const observer = new MutationObserver(() => renderCustomSelect(select));
+    observer.observe(select, { childList: true, subtree: true, attributes: true, attributeFilter: ["disabled", "selected"] });
+    customSelectObservers.set(selectId, observer);
+  }
+
+  renderCustomSelect(select);
+}
+
+function initAllCustomSelects() {
+  ["zorgverzekeraarFilter", "zorggroepFilter", "declaratiestroomFilter"].forEach(initCustomSelect);
+}
+
 function setPostcodePanelState(metaText, items = []) {
   const metaEl = document.getElementById("postcodeListMeta");
   const listEl = document.getElementById("postcodeList");
@@ -1282,6 +1405,7 @@ function refreshDependentFilters() {
   populateZorggroepOptions(scoped);
   populateDeclaratiestroomOptions(scoped);
   autoSelectSingleDependentOptions(scoped);
+  initAllCustomSelects();
   updateFacturatiemoduleContext();
 }
 
@@ -1383,6 +1507,7 @@ function setupFilterControls() {
   });
 
   refreshDependentFilters();
+  initAllCustomSelects();
 }
 
 function collectGemeenten(features) {
@@ -1900,3 +2025,16 @@ async function init() {
 
 initThemeToggle();
 initAuthGate();
+
+document.addEventListener("click", (event) => {
+  const target = event.target;
+  if (!(target instanceof Element) || !target.closest("[data-custom-select]")) {
+    closeAllCustomSelectMenus();
+  }
+});
+
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") {
+    closeAllCustomSelectMenus();
+  }
+});
