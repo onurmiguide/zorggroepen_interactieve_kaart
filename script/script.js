@@ -20,6 +20,14 @@ const DEFAULT_ZORGVERZEKERAARS = [
   "Zorg & Zekerheid"
 ];
 
+const FACTURATIESTROMEN = {
+  STROOM_1: "Stroom 1 - Zorggroep declaraties",
+  STROOM_2: "Stroom 2 - VECOZO Gecontracteerde Zorg",
+  STROOM_3: "Stroom 3 - Niet gecontracteerde Zorg - Losse Facturen",
+  STROOM_4: "Stroom 4 - Gezondheid Amsterdam GA",
+  STROOM_5: "Stroom 5 - ZoHealthy"
+};
+
 const ZORGGROEP_DECLARATIESTROOM_FALLBACK = {
   "zorggroep almere": "Op factuur achteraf",
   "almere": "Op factuur achteraf",
@@ -53,16 +61,24 @@ const ZORGGROEP_DECLARATIESTROOM_FALLBACK = {
 };
 
 const DECLARATIE_PER_VERZEKERAAR_OUTPUT = {
-  "a s r": "VECOZO",
-  "menzis digitaal 2026": "VECOZO",
-  "onvz": "VECOZO",
-  "vgz": "VECOZO",
-  "zilveren kruis achmea": "VECOZO",
-  "aevitae eucare": "Losse facturen & ZoHealthy",
-  "cz": "Losse facturen & ZoHealthy",
-  "dsw": "Losse facturen & ZoHealthy",
-  "salland": "Losse facturen & ZoHealthy",
-  "zorg zekerheid": "Losse facturen & ZoHealthy"
+  "a s r": FACTURATIESTROMEN.STROOM_2,
+  "menzis digitaal 2026": FACTURATIESTROMEN.STROOM_2,
+  "onvz": FACTURATIESTROMEN.STROOM_2,
+  "vgz": FACTURATIESTROMEN.STROOM_2,
+  "zilveren kruis achmea": FACTURATIESTROMEN.STROOM_2,
+  "aevitae eucare": FACTURATIESTROMEN.STROOM_3,
+  "cz": FACTURATIESTROMEN.STROOM_3,
+  "dsw": FACTURATIESTROMEN.STROOM_3,
+  "salland": FACTURATIESTROMEN.STROOM_3,
+  "zorg zekerheid": FACTURATIESTROMEN.STROOM_3
+};
+
+const FACTURATIESTROOM_CONTEXT = {
+  [FACTURATIESTROMEN.STROOM_1]: "Zorggroepdeclaraties via zorggroepsystemen. Bekende modules/omgevingen: VIPLive, cBoards, Medix, Nis, Kysios.",
+  [FACTURATIESTROMEN.STROOM_2]: "Gecontracteerde zorg via VECOZO voor Menzis, VGZ, a.s.r., Achmea/Zilveren Kruis en ONVZ.",
+  [FACTURATIESTROMEN.STROOM_3]: "Niet-gecontracteerde zorg via losse facturen (CZ, DSW, Zorg & Zekerheid, Aevitae Eucare, Salland).",
+  [FACTURATIESTROMEN.STROOM_4]: "Gezondheid Amsterdam (GA)-route voor de GA-context.",
+  [FACTURATIESTROMEN.STROOM_5]: "ZoHealthy-route voor specifieke deelnemers/cohorten (zoals HHT/HZGB en periodegebonden groepen)."
 };
 
 const FACTURATIEMODULE_TEMPLATES = {
@@ -166,6 +182,7 @@ const CITY_TO_GEMEENTE = {
 let map;
 let baseTileLayer;
 let geoLayer;
+let overlapOutlineLayer;
 let allFeatures = [];
 let currentFilter = "ALL";
 let currentGemeente = "";
@@ -173,6 +190,9 @@ let currentZorgverzekeraar = "ALL";
 let currentDeclaratiestroom = "ALL";
 let gemeenteFeaturesStore = [];
 let messageTimer;
+let postcodePanelRequestId = 0;
+const gemeentePostcodeCache = new Map();
+const zorggroepPostcodeRangeCache = new Map();
 
 function createMap() {
   if (map) {
@@ -191,6 +211,7 @@ function createMap() {
     if (filterSelect) {
       filterSelect.value = "ALL";
     }
+    setPostcodePanelState("Klik op een zorggroep op de kaart om postcodes te laden.", []);
     applyActiveFilters();
   });
 }
@@ -340,6 +361,46 @@ function getZorggroepName(feature) {
   return feature?.properties?.zorggroep || "Onbekend";
 }
 
+function normalizeFacturatiestroom(value, feature = null, insurerName = "") {
+  const raw = String(value || "").trim() || "Onbekend";
+  const rawNorm = normalizeText(raw);
+  const zorggroepNorm = normalizeText(getZorggroepName(feature));
+  const insurerNorm = normalizeText(insurerName);
+
+  if (Object.values(FACTURATIESTROMEN).includes(raw)) {
+    return raw;
+  }
+
+  if (rawNorm === "declaratiestromen per zorgverzekeraar") {
+    if (zorggroepNorm.includes("gezondheid amsterdam")) {
+      return FACTURATIESTROMEN.STROOM_4;
+    }
+    return DECLARATIE_PER_VERZEKERAAR_OUTPUT[insurerNorm] || "Onbekend";
+  }
+
+  if (rawNorm === "vecozo") {
+    return FACTURATIESTROMEN.STROOM_2;
+  }
+  if (rawNorm.includes("losse facturen")) {
+    return FACTURATIESTROMEN.STROOM_3;
+  }
+  if (rawNorm.includes("zohealthy")) {
+    return FACTURATIESTROMEN.STROOM_5;
+  }
+  if (rawNorm.includes("gezondheid amsterdam") || rawNorm === "ga") {
+    return FACTURATIESTROMEN.STROOM_4;
+  }
+
+  if (["viplive", "boards", "cboards", "medix", "nis", "kysios", "monter", "evry"].some((token) => rawNorm.includes(token))) {
+    return FACTURATIESTROMEN.STROOM_1;
+  }
+  if (rawNorm.includes("op factuur achteraf") || rawNorm.includes("extern monter")) {
+    return FACTURATIESTROMEN.STROOM_1;
+  }
+
+  return raw;
+}
+
 function resolveFacturatiemoduleName(rawStroom, feature, insurerName = "") {
   const raw = String(rawStroom || "").trim() || "Onbekend";
   const rawNorm = normalizeText(raw);
@@ -348,6 +409,25 @@ function resolveFacturatiemoduleName(rawStroom, feature, insurerName = "") {
 
   if (FACTURATIEMODULE_TEMPLATES[raw]) {
     return raw;
+  }
+
+  if (raw === FACTURATIESTROMEN.STROOM_1) {
+    return "Zorggroep";
+  }
+  if (raw === FACTURATIESTROMEN.STROOM_2) {
+    if (zorggroepNorm.includes("gezondheid amsterdam")) {
+      return "Gezondheid Amsterdam (GA)";
+    }
+    return insurerNorm === "vgz" ? "MiGuide - VGZ" : "MiGuide";
+  }
+  if (raw === FACTURATIESTROMEN.STROOM_3) {
+    return "ZoHealthy";
+  }
+  if (raw === FACTURATIESTROMEN.STROOM_4) {
+    return "Gezondheid Amsterdam (GA)";
+  }
+  if (raw === FACTURATIESTROMEN.STROOM_5) {
+    return "ZoHealthy";
   }
 
   if (zorggroepNorm === "zuid holland zuid" && insurerNorm === "cz") {
@@ -421,12 +501,16 @@ function updateFacturatiemoduleContext() {
     return featureMatchesInsurer(feature, currentZorgverzekeraar);
   }) || allFeatures[0];
 
+  const stroomDescription = FACTURATIESTROOM_CONTEXT[currentDeclaratiestroom] || "";
   const moduleName = resolveFacturatiemoduleName(currentDeclaratiestroom, representativeFeature, currentZorgverzekeraar);
-  const description = getFacturatiemoduleDescription(moduleName);
+  const moduleDescription = getFacturatiemoduleDescription(moduleName);
 
-  box.innerHTML = description
-    ? `<strong>${moduleName}</strong>${description}`
-    : `<strong>${moduleName}</strong>Geen beschrijving beschikbaar.`;
+  box.innerHTML = `
+    <strong>${currentDeclaratiestroom}</strong>
+    ${stroomDescription || "Geen samenvatting beschikbaar."}
+    <div style="margin-top:6px;"><strong>Module:</strong> ${moduleName}</div>
+    <div>${moduleDescription || "Geen modulebeschrijving beschikbaar."}</div>
+  `;
   box.hidden = false;
 }
 
@@ -452,7 +536,7 @@ function fallbackDeclaratiestroomForFeature(feature, insurerName = "") {
   const normalized = normalizeText(zorggroep);
   const raw = ZORGGROEP_DECLARATIESTROOM_FALLBACK[normalized] || "Onbekend";
   if (normalizeText(raw) !== "declaratiestromen per zorgverzekeraar") {
-    return raw;
+    return normalizeFacturatiestroom(raw, feature, insurerName);
   }
 
   const insurerKey = normalizeText(insurerName);
@@ -495,9 +579,10 @@ function extractContracts(item) {
       continue;
     }
 
-    const declaratiestroom = typeof row === "string"
+    const declaratiestroomRaw = typeof row === "string"
       ? "Onbekend"
       : (row.declaratiestroom || row.declaratie_stroom || row.stroom || "Onbekend");
+    const declaratiestroom = normalizeFacturatiestroom(declaratiestroomRaw, null, zorgverzekeraar);
 
     const contractValue = typeof row === "string"
       ? null
@@ -547,7 +632,11 @@ function extractContractsByZorggroep(rootData) {
       const existing = map.get(key) || [];
       existing.push({
         zorgverzekeraar,
-        declaratiestroom: row.declaratiestroom || row.declaratie_stroom || row.stroom || "Onbekend",
+        declaratiestroom: normalizeFacturatiestroom(
+          row.declaratiestroom || row.declaratie_stroom || row.stroom || "Onbekend",
+          { properties: { zorggroep } },
+          zorgverzekeraar
+        ),
         contract: normalizeContractValue(row.contract ?? row.gecontracteerd ?? row.status)
       });
       map.set(key, existing);
@@ -610,7 +699,8 @@ function style(feature) {
     weight: 1,
     opacity: 1,
     color: "#334155",
-    fillOpacity: 0.5,
+    dashArray: null,
+    fillOpacity: 0.45,
     fillColor: colorFromString(getZorggroepName(feature))
   };
 }
@@ -620,7 +710,8 @@ function highlightFeature(e) {
   layer.setStyle({
     weight: 3,
     color: "#0f172a",
-    fillOpacity: 0.7
+    dashArray: null,
+    fillOpacity: 0.65
   });
 
   if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
@@ -640,6 +731,7 @@ function popupContent(feature) {
   const regio = props.regio || "Onbekend";
   const website = props.website || "";
   const gemeenten = Array.isArray(props.gemeenten) ? props.gemeenten : [];
+  const overlapGemeenten = Array.isArray(props.overlapGemeenten) ? props.overlapGemeenten : [];
   const contracts = Array.isArray(props.contracts) ? props.contracts : [];
   const websiteRow = website
     ? `<div><a href="${website}" target="_blank" rel="noopener noreferrer">${website}</a></div>`
@@ -652,16 +744,17 @@ function popupContent(feature) {
     if (insurerRows.length > 0) {
       const yesRow = insurerRows.find((row) => row.contract !== false);
       if (yesRow) {
-        const moduleName = resolveFacturatiemoduleName(yesRow.declaratiestroom || "Onbekend", feature, currentZorgverzekeraar);
+        const stroomName = normalizeFacturatiestroom(yesRow.declaratiestroom || "Onbekend", feature, currentZorgverzekeraar);
+        const moduleName = resolveFacturatiemoduleName(stroomName, feature, currentZorgverzekeraar);
         contractRow = `<div>Contract ${currentZorgverzekeraar}: Ja</div>`;
-        moduleRow = `<div>Facturatiestroom: ${moduleName}</div>`;
+        moduleRow = `<div>Facturatiestroom: ${stroomName}</div><div>Module: ${moduleName}</div>`;
       } else {
         contractRow = `<div>Contract ${currentZorgverzekeraar}: Nee</div>`;
       }
     } else {
-      const rawStroom = fallbackDeclaratiestroomForFeature(feature, currentZorgverzekeraar);
-      const moduleName = resolveFacturatiemoduleName(rawStroom, feature, currentZorgverzekeraar);
-      moduleRow = `<div>Facturatiestroom: ${moduleName}</div>`;
+      const stroomName = fallbackDeclaratiestroomForFeature(feature, currentZorgverzekeraar);
+      const moduleName = resolveFacturatiemoduleName(stroomName, feature, currentZorgverzekeraar);
+      moduleRow = `<div>Facturatiestroom: ${stroomName}</div><div>Module: ${moduleName}</div>`;
       contractRow = "<div>Contract: Onbekend</div>";
     }
   } else if (contracts.length > 0) {
@@ -674,6 +767,7 @@ function popupContent(feature) {
       <strong>${zorggroep}</strong>
       <div>Regio: ${regio}</div>
       <div>Gemeenten: ${gemeenten.length}</div>
+      ${overlapGemeenten.length ? `<div style="color:#dc2626;"><strong>Overlap:</strong> ${overlapGemeenten.join(", ")}</div>` : ""}
       ${contractRow}
       ${moduleRow}
       ${websiteRow}
@@ -703,11 +797,43 @@ function onEachFeature(feature, layer) {
 
       refreshDependentFilters();
       applyActiveFilters();
+      loadPostcodesForFeature(feature);
     }
   });
 
-  layer.bindTooltip(getZorggroepName(feature), { sticky: true });
+  const overlapGemeenten = Array.isArray(feature?.properties?.overlapGemeenten) ? feature.properties.overlapGemeenten : [];
+  const tooltipText = overlapGemeenten.length
+    ? `${getZorggroepName(feature)}<br><small>Overlap: ${overlapGemeenten.join(", ")}</small>`
+    : getZorggroepName(feature);
+  layer.bindTooltip(tooltipText, { sticky: true });
   layer.bindPopup(popupContent(feature));
+}
+
+function annotateOverlappingGemeenten(features) {
+  const gemeenteOwners = new Map();
+
+  for (const feature of features) {
+    const zorggroep = getZorggroepName(feature);
+    const gemeenten = Array.isArray(feature?.properties?.gemeenten) ? feature.properties.gemeenten : [];
+    for (const gemeente of gemeenten) {
+      const key = normalizeText(gemeente);
+      if (!key) {
+        continue;
+      }
+      const owners = gemeenteOwners.get(key) || { name: gemeente, zorggroepen: new Set() };
+      owners.zorggroepen.add(zorggroep);
+      gemeenteOwners.set(key, owners);
+    }
+  }
+
+  for (const feature of features) {
+    const gemeenten = Array.isArray(feature?.properties?.gemeenten) ? feature.properties.gemeenten : [];
+    const overlapGemeenten = gemeenten.filter((gemeente) => {
+      const owners = gemeenteOwners.get(normalizeText(gemeente));
+      return owners && owners.zorggroepen.size > 1;
+    });
+    feature.properties.overlapGemeenten = overlapGemeenten;
+  }
 }
 
 function renderLayer(features, options = {}) {
@@ -716,11 +842,17 @@ function renderLayer(features, options = {}) {
   if (geoLayer) {
     map.removeLayer(geoLayer);
   }
+  if (overlapOutlineLayer) {
+    map.removeLayer(overlapOutlineLayer);
+    overlapOutlineLayer = null;
+  }
 
   geoLayer = L.geoJSON(features, {
     style,
     onEachFeature
   }).addTo(map);
+
+  renderOverlapOutlines(features);
 
   if (geoLayer.getLayers().length > 0) {
     if (useNetherlandsDefaultView) {
@@ -729,6 +861,46 @@ function renderLayer(features, options = {}) {
       map.fitBounds(geoLayer.getBounds(), { padding: [16, 16] });
     }
   }
+}
+
+function renderOverlapOutlines(features) {
+  if (!map || !Array.isArray(features) || features.length === 0 || !Array.isArray(gemeenteFeaturesStore) || gemeenteFeaturesStore.length === 0) {
+    return;
+  }
+
+  const overlappingNames = new Set();
+  for (const feature of features) {
+    const overlapGemeenten = Array.isArray(feature?.properties?.overlapGemeenten) ? feature.properties.overlapGemeenten : [];
+    for (const gemeente of overlapGemeenten) {
+      const key = normalizeText(gemeente);
+      if (key) {
+        overlappingNames.add(key);
+      }
+    }
+  }
+
+  if (overlappingNames.size === 0) {
+    return;
+  }
+
+  const overlapGemeenteFeatures = gemeenteFeaturesStore.filter((gemeenteFeature) => {
+    const naam = gemeenteFeature?.properties?.naam;
+    return overlappingNames.has(normalizeText(naam));
+  });
+
+  if (overlapGemeenteFeatures.length === 0) {
+    return;
+  }
+
+  overlapOutlineLayer = L.geoJSON(overlapGemeenteFeatures, {
+    interactive: false,
+    style: {
+      color: "#dc2626",
+      weight: 4,
+      opacity: 0.9,
+      fillOpacity: 0
+    }
+  }).addTo(map);
 }
 
 function updateCityList(features) {
@@ -769,6 +941,213 @@ function showStatus(message) {
     el.hidden = true;
     el.textContent = "";
   }, 4500);
+}
+
+function setPostcodePanelState(metaText, items = []) {
+  const metaEl = document.getElementById("postcodeListMeta");
+  const listEl = document.getElementById("postcodeList");
+  if (!metaEl || !listEl) {
+    return;
+  }
+  metaEl.textContent = metaText || "";
+  listEl.innerHTML = items.length
+    ? items.map((item) => `<li>${item}</li>`).join("")
+    : "<li>Geen postcodes geladen</li>";
+}
+
+function geometryBounds4326(geometry) {
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+
+  function walk(coords) {
+    if (!Array.isArray(coords)) {
+      return;
+    }
+    if (typeof coords[0] === "number" && typeof coords[1] === "number") {
+      minX = Math.min(minX, coords[0]);
+      minY = Math.min(minY, coords[1]);
+      maxX = Math.max(maxX, coords[0]);
+      maxY = Math.max(maxY, coords[1]);
+      return;
+    }
+    for (const part of coords) {
+      walk(part);
+    }
+  }
+
+  walk(geometry?.coordinates);
+  if (![minX, minY, maxX, maxY].every(Number.isFinite)) {
+    return null;
+  }
+  return [minX, minY, maxX, maxY];
+}
+
+async function queryPostcodesByBbox(bbox, maxFeatures = 4000) {
+  // WFS 1.1.0 with EPSG:4326 expects axis order lat,lon in BBOX.
+  const bboxWfs11Epsg4326 = `${bbox[1]},${bbox[0]},${bbox[3]},${bbox[2]},EPSG:4326`;
+  const params = new URLSearchParams({
+    service: "WFS",
+    version: "1.1.0",
+    request: "GetFeature",
+    typeName: "postcode6:postcode6",
+    outputFormat: "application/json",
+    srsName: "EPSG:4326",
+    propertyName: "postcode6",
+    maxFeatures: String(maxFeatures),
+    bbox: bboxWfs11Epsg4326
+  });
+
+  const response = await fetch(`${PDOK_POSTCODE_WFS_URL}?${params.toString()}`);
+  if (!response.ok) {
+    throw new Error(`Postcode bbox lookup mislukt (${response.status})`);
+  }
+  const data = await response.json();
+  return Array.isArray(data.features) ? data.features : [];
+}
+
+function summarizePostcodeRange(postcodes) {
+  const pc6List = [...new Set((postcodes || []).filter(Boolean).map((v) => String(v).toUpperCase()))]
+    .sort((a, b) => a.localeCompare(b, "nl"));
+  const pc4List = [...new Set(pc6List.map((pc6) => pc6.slice(0, 4)).filter((pc4) => formatPostcode4(pc4)))]
+    .sort((a, b) => a.localeCompare(b, "nl"));
+
+  return {
+    pc4Count: pc4List.length,
+    pc6Count: pc6List.length,
+    pc4Start: pc4List[0] || null,
+    pc4End: pc4List[pc4List.length - 1] || null,
+    pc6Start: pc6List[0] || null,
+    pc6End: pc6List[pc6List.length - 1] || null
+  };
+}
+
+function formatCompactRangeLine(summary) {
+  if (!summary) {
+    return null;
+  }
+  if (summary.pc4Start && summary.pc4End) {
+    return `${summary.pc4Start} t/m ${summary.pc4End}`;
+  }
+  if (summary.pc6Start && summary.pc6End) {
+    return `${summary.pc6Start} t/m ${summary.pc6End}`;
+  }
+  return null;
+}
+
+async function fetchPostcodesForGemeente(gemeenteNaam) {
+  const key = normalizeText(gemeenteNaam);
+  if (!key) {
+    return { postcode4: [], postcode6: [] };
+  }
+  if (gemeentePostcodeCache.has(key)) {
+    return gemeentePostcodeCache.get(key);
+  }
+
+  const gemeenteFeature = gemeenteFeaturesStore.find((f) => normalizeText(f?.properties?.naam) === key);
+  if (!gemeenteFeature) {
+    const empty = { postcode4: [], postcode6: [] };
+    gemeentePostcodeCache.set(key, empty);
+    return empty;
+  }
+
+  const bbox = geometryBounds4326(gemeenteFeature.geometry);
+  if (!bbox) {
+    const empty = { postcode4: [], postcode6: [] };
+    gemeentePostcodeCache.set(key, empty);
+    return empty;
+  }
+
+  const wfsFeatures = await queryPostcodesByBbox(bbox);
+  const pc4Set = new Set();
+  const pc6Set = new Set();
+
+  for (const feature of wfsFeatures) {
+    const code = feature?.properties?.postcode6;
+    const fbbox = feature?.bbox;
+    if (!code || !Array.isArray(fbbox) || fbbox.length < 4) {
+      continue;
+    }
+    const center = [(fbbox[0] + fbbox[2]) / 2, (fbbox[1] + fbbox[3]) / 2];
+    const ownerGemeente = municipalityForPoint(center);
+    if (normalizeText(ownerGemeente) !== key) {
+      continue;
+    }
+    pc6Set.add(code);
+    const pc4 = String(code).slice(0, 4);
+    if (formatPostcode4(pc4)) {
+      pc4Set.add(pc4);
+    }
+  }
+
+  const result = {
+    postcode4: [...pc4Set].sort((a, b) => a.localeCompare(b, "nl")),
+    postcode6: [...pc6Set].sort((a, b) => a.localeCompare(b, "nl"))
+  };
+  gemeentePostcodeCache.set(key, result);
+  return result;
+}
+
+async function loadPostcodesForFeature(feature) {
+  const requestId = ++postcodePanelRequestId;
+  const zorggroep = getZorggroepName(feature);
+  const gemeenten = Array.isArray(feature?.properties?.gemeenten) ? feature.properties.gemeenten : [];
+
+  if (!gemeenten.length) {
+    setPostcodePanelState(`Geen gemeenten gevonden voor ${zorggroep}.`, []);
+    return;
+  }
+
+  setPostcodePanelState(`Postcodes laden voor ${zorggroep}...`, ["Laden..."]);
+
+  try {
+    const cacheKey = normalizeText(zorggroep);
+    let summary = zorggroepPostcodeRangeCache.get(cacheKey);
+    let truncated = false;
+
+    if (!summary) {
+      const bbox = geometryBounds4326(feature?.geometry);
+      if (!bbox) {
+        setPostcodePanelState(`Geen geldige kaart-omtrek gevonden voor ${zorggroep}.`, []);
+        return;
+      }
+      const wfsFeatures = await queryPostcodesByBbox(bbox, 2500);
+      if (requestId !== postcodePanelRequestId) {
+        return;
+      }
+      const postcodes = wfsFeatures
+        .map((f) => f?.properties?.postcode6)
+        .filter(Boolean);
+      summary = summarizePostcodeRange(postcodes);
+      truncated = wfsFeatures.length >= 2500;
+      zorggroepPostcodeRangeCache.set(cacheKey, { summary, truncated });
+    } else {
+      truncated = Boolean(summary.truncated);
+      summary = summary.summary;
+    }
+
+    if (requestId !== postcodePanelRequestId) {
+      return;
+    }
+
+    const compactRange = formatCompactRangeLine(summary);
+    const items = compactRange ? [compactRange] : ["Geen postcode-range gevonden"];
+    if (truncated) {
+      items.push("Let op: range is indicatief (PDOK querylimiet bereikt).");
+    }
+
+    setPostcodePanelState(
+      `${zorggroep}: postcode-range${truncated ? " (snelle indicatie)" : ""}`,
+      items
+    );
+  } catch (error) {
+    console.error(error);
+    if (requestId !== postcodePanelRequestId) {
+      return;
+    }
+    setPostcodePanelState(`Postcodes laden mislukt voor ${zorggroep}.`, []);
+  }
 }
 
 function applyActiveFilters() {
@@ -991,6 +1370,9 @@ function setupFilterControls() {
 
   zorggroepSelect.addEventListener("change", (event) => {
     currentFilter = event.target.value;
+    if (currentFilter === "ALL") {
+      setPostcodePanelState("Klik op een zorggroep op de kaart om postcodes te laden.", []);
+    }
     applyActiveFilters();
   });
 
@@ -1253,6 +1635,14 @@ function setupGemeenteSearch(features) {
         input.value = normalizedInput;
         refreshDependentFilters();
         applyActiveFilters();
+        if (Array.isArray(result.postcodes) && result.postcodes.length) {
+          const range = summarizePostcodeRange(result.postcodes);
+          const compactRange = formatCompactRangeLine(range);
+          setPostcodePanelState(
+            `Postcodezoekresultaat ${normalizedInput} (${gemeenteNaam})`,
+            compactRange ? [compactRange] : ["Geen postcode-range gevonden"]
+          );
+        }
         showStatus(`Postcode ${normalizedInput} gevonden in gemeente ${gemeenteNaam}.`);
         return;
       } catch (error) {
@@ -1270,6 +1660,7 @@ function setupGemeenteSearch(features) {
       showStatus("");
       refreshDependentFilters();
       applyActiveFilters();
+      setPostcodePanelState("Klik op een zorggroep op de kaart om postcodes te laden.", []);
     } else {
       currentGemeente = input.value.trim();
       refreshDependentFilters();
@@ -1319,6 +1710,7 @@ function setupGemeenteSearch(features) {
 
       refreshDependentFilters();
       applyActiveFilters();
+      setPostcodePanelState("Klik op een zorggroep op de kaart om postcodes te laden.", []);
     });
   }
 
@@ -1473,6 +1865,7 @@ function buildZorggroepFeatures(zorggroepen, gemeenteFeatures, contractsByZorggr
     });
   }
 
+  annotateOverlappingGemeenten(features);
   return features;
 }
 
@@ -1497,6 +1890,7 @@ async function init() {
     gemeenteFeaturesStore = gemeenteFeatures;
     setupFilterControls();
     setupGemeenteSearch(allFeatures);
+    setPostcodePanelState("Klik op een zorggroep op de kaart om postcodes te laden.", []);
     applyActiveFilters();
   } catch (error) {
     console.error(error);

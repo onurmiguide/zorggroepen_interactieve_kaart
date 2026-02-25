@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Zorggroepen Choropleth</title>
-  <link rel="icon" type="image/png" href="zg-data/MiGuide_Logo_Nieuw.png" />
+  <link rel="icon" type="image/svg+xml" href="zg-data/map-find-search-svgrepo-com.svg" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="css/style.css" />
 </head>
@@ -53,6 +53,9 @@
           <div class="city-list-block">
             <div class="filter-label">Plaatsenlijst</div>
             <ul id="cityList" class="city-list"></ul>
+            <div class="filter-label">Postcodes (selectie)</div>
+            <div id="postcodeListMeta" class="postcode-list-meta">Klik op een zorggroep op de kaart om postcodes te laden.</div>
+            <ul id="postcodeList" class="postcode-list"></ul>
           </div>
           <div class="filter-controls">
             <label class="filter-label" for="gemeenteSearch">Zoek gemeente / postcode</label>
