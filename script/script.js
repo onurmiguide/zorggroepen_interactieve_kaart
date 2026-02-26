@@ -535,6 +535,25 @@ function updateFacturatiemoduleContext() {
   if (!box) {
     return;
   }
+  const renderResultBox = (moduleName = "", prestatiecode = "") => {
+    if (!moduleName && !prestatiecode) {
+      box.innerHTML = "";
+      return;
+    }
+    box.innerHTML = `
+      <div><strong>Facturatiemodule:</strong> ${moduleName}</div>
+      <div style="margin-top:14px; padding-top:12px; border-top:1px solid rgba(148,163,184,0.45);"><strong>Prestatiecode:</strong> ${prestatiecode}</div>
+    `;
+  };
+
+  const hasUserSelection = Boolean(currentGemeente)
+    || currentZorgverzekeraar !== "ALL"
+    || currentFilter !== "ALL"
+    || currentDeclaratiestroom !== "ALL";
+  if (!hasUserSelection) {
+    renderResultBox("", "");
+    return;
+  }
 
   let scoped = allFeatures.slice();
   if (currentGemeente) {
@@ -555,8 +574,7 @@ function updateFacturatiemoduleContext() {
 
   const representativeFeature = scoped[0] || allFeatures[0];
   if (!representativeFeature) {
-    box.hidden = true;
-    box.innerHTML = "";
+    renderResultBox("", "");
     return;
   }
 
@@ -581,18 +599,13 @@ function updateFacturatiemoduleContext() {
   }
 
   if (!zorgproduct || zorgproduct === "ALL") {
-    box.hidden = true;
-    box.innerHTML = "";
+    renderResultBox("", "");
     return;
   }
 
   const moduleName = resolveFacturatiemoduleName(zorgproduct, representativeFeature, currentZorgverzekeraar);
   const prestatiecode = resolvePrestatiecodeByFacturatiemodule(moduleName || "");
-  box.innerHTML = `
-    <div><strong>Facturatiemodule:</strong> ${moduleName || "Onbekend"}</div>
-    <div style="margin-top:14px; padding-top:12px; border-top:1px solid rgba(148,163,184,0.45);"><strong>Prestatiecode:</strong> ${prestatiecode}</div>
-  `;
-  box.hidden = false;
+  renderResultBox(moduleName || "Onbekend", prestatiecode);
 }
 
 function normalizeContractValue(value) {

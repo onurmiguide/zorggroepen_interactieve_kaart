@@ -47,6 +47,16 @@ body.dark-mode .sticky.top-0 {
   background: #e9f0f5;
 }
 
+.leaflet-container:focus,
+.leaflet-container *:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.leaflet-interactive:focus {
+  outline: none !important;
+}
+
 .dark .leaflet-container {
   background: #1e293b;
 }
