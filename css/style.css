@@ -6,6 +6,24 @@
   --main-panel-height: calc(100vh - 250px);
 }
 
+.status-toast {
+  opacity: 0;
+  transform: translate(-50%, -14px) scale(0.98);
+  pointer-events: none;
+  transition: opacity 220ms ease, transform 260ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.status-toast.is-visible {
+  opacity: 1;
+  transform: translate(-50%, 0) scale(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .status-toast {
+    transition: none;
+  }
+}
+
 html,
 body {
   min-height: 100%;
