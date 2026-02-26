@@ -6,6 +6,19 @@
   --main-panel-height: calc(100vh - 250px);
 }
 
+/* Make bold text slightly lighter across the app without changing layout sizes. */
+.font-extrabold {
+  font-weight: 700 !important;
+}
+
+.font-bold {
+  font-weight: 600 !important;
+}
+
+.font-semibold {
+  font-weight: 500 !important;
+}
+
 .status-toast {
   opacity: 0;
   transform: translate(-50%, -14px) scale(0.98);
