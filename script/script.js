@@ -284,8 +284,7 @@ function setTheme(mode) {
 function initThemeToggle() {
   const toggle = document.getElementById("themeToggle");
   const saved = localStorage.getItem(THEME_STORAGE_KEY);
-  const preferred = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-  setTheme(saved || preferred);
+  setTheme(saved || "light");
 
   if (toggle && !toggle.dataset.themeBound) {
     toggle.dataset.themeBound = "1";
