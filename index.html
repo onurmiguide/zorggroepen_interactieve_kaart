@@ -30,10 +30,10 @@
   </div>
 
   <div id="appShell" hidden>
-    <div class="sticky top-0 z-[1000] flex items-center gap-3 border-b border-slate-200 bg-white/95 px-4 py-3 shadow-sm backdrop-blur dark:border-slate-800 dark:bg-slate-900/95">
+    <div class="app-topbar sticky top-0 z-[1000] flex flex-wrap items-center gap-2 border-b border-slate-200 bg-white/95 px-3 py-2.5 shadow-sm backdrop-blur sm:gap-3 sm:px-4 sm:py-3 dark:border-slate-800 dark:bg-slate-900/95">
       <a href="index.html" aria-label="Ga naar hoofdpagina">
         <img
-          class="h-auto w-[120px] object-contain"
+          class="h-auto w-[104px] object-contain sm:w-[120px]"
           id="siteLogo"
           src="zg-data/MiGuide_Logo_Nieuw.png"
           data-logo-light="zg-data/MiGuide_Logo_Nieuw.png"
@@ -42,13 +42,13 @@
         />
       </a>
       <div class="min-w-0">
-        <div class="truncate text-[1.12rem] font-semibold leading-tight tracking-tight text-slate-900 dark:text-slate-100">Zorggroepen Interactieve Kaart</div>
-        <div class="truncate text-xs font-medium text-slate-500 dark:text-slate-400">Zoek snel op gemeente, postcode en zorggroep</div>
+        <div class="truncate text-[1rem] font-semibold leading-tight tracking-tight text-slate-900 sm:text-[1.12rem] dark:text-slate-100">Zorggroepen Interactieve Kaart</div>
+        <div class="hidden truncate text-xs font-medium text-slate-500 sm:block dark:text-slate-400">Zoek snel op gemeente, postcode en zorggroep</div>
       </div>
-      <button id="themeToggle" class="theme-toggle ml-auto inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-400 bg-white text-slate-900 transition hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800" type="button" aria-label="Schakel dark mode" title="Schakel dark mode">
+      <button id="themeToggle" class="theme-toggle ml-auto inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-slate-400 bg-white text-slate-900 transition hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800" type="button" aria-label="Schakel dark mode" title="Schakel dark mode">
         <span id="themeToggleIcon" aria-hidden="true">🌙</span>
       </button>
-      <details class="topbar-dropdown inline-block">
+      <details class="topbar-dropdown inline-block shrink-0">
         <summary class="inline-flex items-center justify-center gap-x-1.5 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-900 shadow-sm hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800">
           Menu
         </summary>
@@ -61,16 +61,16 @@
     </div>
     <div id="statusMessage" class="status-toast fixed left-1/2 top-3 z-[2500] w-fit max-w-[92vw] -translate-x-1/2 rounded-xl border border-amber-300 bg-amber-50 px-4 py-2.5 text-sm font-medium text-amber-800 shadow-lg shadow-slate-900/10 dark:border-amber-700 dark:bg-amber-950/90 dark:text-amber-100" hidden></div>
 
-    <div class="mx-auto mt-8 mb-4 grid w-[96%] max-w-[1320px] grid-cols-1 gap-4 lg:grid-cols-[500px_minmax(0,1fr)] xl:grid-cols-[540px_minmax(0,1fr)]">
-      <aside class="h-[var(--main-panel-height)] min-h-[340px] overflow-hidden rounded-xl border border-slate-200 bg-white p-3 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-        <div class="grid h-full min-h-0 grid-cols-1 gap-3 md:grid-cols-[0.9fr_1.1fr] md:grid-rows-[minmax(0,1fr)_auto]">
+    <div class="app-grid mx-auto mt-8 mb-4 grid w-[96%] max-w-[1320px] grid-cols-1 gap-4 xl:grid-cols-[540px_minmax(0,1fr)]">
+      <aside class="app-aside h-[var(--main-panel-height)] min-h-[340px] overflow-hidden rounded-xl border border-slate-200 bg-white p-3 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+        <div class="app-aside-inner grid h-full min-h-0 grid-cols-1 gap-3 md:grid-cols-[0.9fr_1.1fr] md:grid-rows-[minmax(0,1fr)_auto]">
           <div class="flex min-h-0 flex-col gap-2 overflow-hidden">
             <div class="text-sm font-bold text-slate-800 dark:text-slate-100">Plaatsenlijst</div>
             <div class="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-slate-200 bg-slate-50 p-2.5 dark:border-slate-700 dark:bg-slate-950">
               <ul id="cityList" class="city-list min-h-0 flex-1 overflow-y-auto overflow-x-hidden text-[0.92rem] text-slate-800 dark:text-slate-100"></ul>
             </div>
           </div>
-          <div class="flex min-w-0 flex-col gap-2 overflow-visible pr-1 md:row-span-1">
+          <div class="app-filter-col flex min-w-0 flex-col gap-2 overflow-visible pr-1 md:row-span-1">
             <label class="mt-0.5 text-sm font-bold text-slate-800 dark:text-slate-100" for="gemeenteSearch">Zoek gemeente / postcode</label>
             <div class="search-wrap relative">
               <input id="gemeenteSearch" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none shadow-sm placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/15 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100" type="text" placeholder="Zoek gemeente of postcode..." autocomplete="off" />
@@ -114,13 +114,13 @@
               </select>
             </div>
           </div>
-          <div class="md:col-span-2 grid grid-cols-1 gap-2 md:grid-cols-[0.9fr_1.1fr]">
-            <div class="flex h-[210px] min-h-0 flex-col rounded-lg border border-slate-200 bg-slate-50 p-2.5 dark:border-slate-700 dark:bg-slate-950">
+          <div class="app-bottom-panels md:col-span-2 grid grid-cols-1 gap-2 md:grid-cols-[0.9fr_1.1fr]">
+            <div class="app-panel-fixed flex h-[210px] min-h-0 flex-col rounded-lg border border-slate-200 bg-slate-50 p-2.5 dark:border-slate-700 dark:bg-slate-950">
               <div class="text-sm font-bold text-slate-800 dark:text-slate-100">Postcodes (selectie)</div>
               <div id="postcodeListMeta" class="postcode-list-meta mt-1 h-8 overflow-hidden text-xs leading-4 text-slate-500 dark:text-slate-400">Klik op een zorggroep op de kaart om postcodes te laden.</div>
               <ul id="postcodeList" class="postcode-list mt-2 min-h-0 flex-1 overflow-y-auto overflow-x-hidden rounded-md border border-slate-200 bg-white p-2 text-sm text-slate-800 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"></ul>
             </div>
-            <div class="flex h-[210px] min-h-0 flex-col rounded-lg border border-slate-200 bg-slate-50 p-2.5 dark:border-slate-700 dark:bg-slate-950">
+            <div class="app-panel-fixed flex h-[210px] min-h-0 flex-col rounded-lg border border-slate-200 bg-slate-50 p-2.5 dark:border-slate-700 dark:bg-slate-950">
               <div id="facturatiemoduleContext" class="module-context h-full min-h-[110px] rounded-md border border-slate-200 bg-white p-2.5 text-sm leading-6 text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
               </div>
             </div>
