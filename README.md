@@ -1,4 +1,14 @@
-﻿# Zorggroepen Interactieve Kaart
+﻿# MiGuide Zorgtools
+
+Deze repository bevat inmiddels meer dan 1 webapp binnen dezelfde toolset.
+
+Huidige apps:
+- `Zorggroepen Interactieve Kaart`
+- `Losse verwijzing verwerken` (in opbouw)
+
+De landing page in `index.html` laat na inloggen kiezen tussen deze apps.
+
+## App 1: Zorggroepen Interactieve Kaart
 
 Interactieve webapp (Leaflet.js) voor het tonen en filteren van Nederlandse zorggroep-domeinen op basis van officiele bestuurlijke gebieden en lokale zorggroepdata.
 
@@ -7,7 +17,7 @@ Interactieve webapp (Leaflet.js) voor het tonen en filteren van Nederlandse zorg
 - Choropleth-kaart met zorggroepgebieden (Leaflet + OpenStreetMap tiles)
 - Domeinfilter (`Alle zorggroepen` of 1 specifieke zorggroep)
 - Zorgverzekeraar-filter
-- Declaratiestroom-filter (afhankelijk van geselecteerde zorgverzekeraar)
+- Facturatiestroom-filter (afhankelijk van geselecteerde zorgverzekeraar)
 - Zoekveld voor:
   - Gemeente
   - Plaats/stad/dorp
@@ -39,15 +49,50 @@ Interactieve webapp (Leaflet.js) voor het tonen en filteren van Nederlandse zorg
 - CBS Postcode6 WFS (postcode-lookup):
   - `https://service.pdok.nl/cbs/postcode6/2024/wfs/v1_0`
 
+## App 2: Losse verwijzing verwerken
+
+Tweede app in deze repository:
+- doel: inkomende verwijzingen uit PDF of afbeelding omzetten naar gestructureerde data
+- huidige status: in opbouw / concept
+- huidige richting: frontend reviewtool + Python backend voor documentverwerking
+
+Wat er nu onder valt:
+- upload van PDF of afbeelding
+- document preview
+- ruwe tekstextractie
+- automatische veldextractie naar gestructureerde data
+- validatie en JSON export
+
+De losse verwijzing-app staat in:
+- `losse-verwijzing-tool/`
+
+De backend van deze app staat in:
+- `losse-verwijzing-tool/backend/`
+
+Meer details en startinstructies:
+- `losse-verwijzing-tool/README.md`
+
 ## Projectstructuur
 
 ```text
 .
 |- index.html
+|- README.md
 |- css/
 |  |- style.css
 |- script/
 |  |- script.js
+|- losse-verwijzing-tool/
+|  |- index.html
+|  |- style.css
+|  |- script.js
+|  |- README.md
+|  |- backend/
+|  |  |- app.py
+|  |  |- service.py
+|  |  |- requirements.txt
+|  |- data/
+|     |- referral-schema.json
 |- zg-data/
 |  |- zorggroepen.json
 |  |- zorggroepen.geojson
@@ -89,7 +134,7 @@ Bewerk `zg-data/zorggroepen.json`:
 
 Na opslaan en refresh in browser worden wijzigingen direct gebruikt.
 
-### Contractdata (zorgverzekeraar + declaratiestroom)
+### Contractdata (zorgverzekeraar + facturatiestroom)
 
 De app ondersteunt contractdata per zorggroep via 2 opties:
 
@@ -122,6 +167,7 @@ De app ondersteunt contractdata per zorggroep via 2 opties:
 
 - Plaatsnamen met varianten/afkortingen worden deels via alias-mapping opgelost in `script/script.js`.
 - Resultaten van postcodezoeking hangen af van beschikbaarheid/kwaliteit van PDOK dataset.
+- De verwijzing-tool heeft voor documentverwerking een aparte Python backend nodig.
 
 ## Contact
 
