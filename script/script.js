@@ -330,16 +330,17 @@ function showAppView(view) {
   const landingView = document.getElementById("landingView");
   const mapView = document.getElementById("kaartView");
   const wipView = document.getElementById("wipView");
+  const setVisible = (element, visible) => {
+    if (!element) {
+      return;
+    }
+    element.hidden = !visible;
+    element.classList.toggle("hidden", !visible);
+  };
 
-  if (landingView) {
-    landingView.hidden = view !== APP_VIEWS.LANDING;
-  }
-  if (mapView) {
-    mapView.hidden = view !== APP_VIEWS.MAP;
-  }
-  if (wipView) {
-    wipView.hidden = view !== APP_VIEWS.WIP;
-  }
+  setVisible(landingView, view === APP_VIEWS.LANDING);
+  setVisible(mapView, view === APP_VIEWS.MAP);
+  setVisible(wipView, view === APP_VIEWS.WIP);
 
   updateAppHeader(view);
 

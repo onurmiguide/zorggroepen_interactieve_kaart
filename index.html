@@ -10,7 +10,7 @@
     tailwind.config = { darkMode: "class" };
   </script>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/style.css?v=20260310-landing" />
 </head>
 <body class="min-h-full bg-slate-100 text-slate-800 antialiased dark:bg-slate-950 dark:text-slate-200">
   <div id="authGate" class="grid min-h-screen place-items-center bg-gradient-to-b from-slate-50 to-slate-200 p-4 dark:from-slate-900 dark:to-slate-950">
@@ -102,7 +102,7 @@
       </div>
     </section>
 
-    <section id="wipView" class="mx-auto mt-8 mb-4 hidden w-[96%] max-w-[980px]">
+    <section id="wipView" class="mx-auto mt-8 mb-4 w-[96%] max-w-[980px]" hidden>
       <div class="overflow-hidden rounded-[28px] border border-slate-200 bg-white/90 p-6 shadow-xl shadow-slate-900/5 backdrop-blur sm:p-8 dark:border-slate-700 dark:bg-slate-900/80">
         <div class="inline-flex rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-medium uppercase tracking-[0.18em] text-amber-700 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-300">Projectstatus</div>
         <h2 class="mt-4 text-2xl font-semibold text-slate-900 dark:text-slate-100">Losse verwijzing verwerken</h2>
@@ -216,6 +216,6 @@
   </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="script/script.js"></script>
+  <script src="script/script.js?v=20260310-landing"></script>
 </body>
 </html>
