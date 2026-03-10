@@ -42,8 +42,8 @@
         />
       </a>
       <div class="min-w-0">
-        <div class="truncate text-[1rem] font-semibold leading-tight tracking-tight text-slate-900 sm:text-[1.12rem] dark:text-slate-100">Zorggroepen Interactieve Kaart</div>
-        <div class="hidden truncate text-xs font-medium text-slate-500 sm:block dark:text-slate-400">Zoek snel op gemeente, postcode en zorggroep</div>
+        <div id="appTitle" class="truncate text-[1rem] font-semibold leading-tight tracking-tight text-slate-900 sm:text-[1.12rem] dark:text-slate-100">MiGuide Zorg Tools</div>
+        <div id="appSubtitle" class="hidden truncate text-xs font-medium text-slate-500 sm:block dark:text-slate-400">Kies een tool om verder te gaan</div>
       </div>
       <button id="themeToggle" class="theme-toggle ml-auto inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-slate-400 bg-white text-slate-900 transition hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800" type="button" aria-label="Schakel dark mode" title="Schakel dark mode">
         <span id="themeToggleIcon" aria-hidden="true">🌙</span>
@@ -53,6 +53,7 @@
           Menu
         </summary>
         <ul role="listbox" class="w-56 rounded-md bg-white p-1 shadow-xl outline-1 -outline-offset-1 outline-slate-200 dark:bg-slate-900 dark:outline-slate-700">
+          <li><button id="menuHomeButton" type="button" class="block w-full rounded px-3 py-2 text-left text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 focus:bg-slate-100 focus:text-slate-900 focus:outline-none dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white dark:focus:bg-slate-800 dark:focus:text-white">Landing page</button></li>
           <li><a href="data-overzicht.html" title="Bekijk alle gebruikte data" class="block rounded px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 focus:bg-slate-100 focus:text-slate-900 focus:outline-none dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white dark:focus:bg-slate-800 dark:focus:text-white">Data-overzicht</a></li>
           <li><a href="https://github.com/onurmiguide/zorggroepen_interactieve_kaart" target="_blank" rel="noopener noreferrer" class="block rounded px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 focus:bg-slate-100 focus:text-slate-900 focus:outline-none dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white dark:focus:bg-slate-800 dark:focus:text-white">GitHub repo</a></li>
         </ul>
@@ -61,83 +62,138 @@
     </div>
     <div id="statusMessage" class="status-toast fixed left-1/2 top-3 z-[2500] w-fit max-w-[92vw] -translate-x-1/2 rounded-xl border border-amber-300 bg-amber-50 px-4 py-2.5 text-sm font-medium text-amber-800 shadow-lg shadow-slate-900/10 dark:border-amber-700 dark:bg-amber-950/90 dark:text-amber-100" hidden></div>
 
-    <div class="app-grid mx-auto mt-8 mb-4 grid w-[96%] max-w-[1320px] grid-cols-1 gap-4 xl:grid-cols-[540px_minmax(0,1fr)]">
-      <aside class="app-aside h-[var(--main-panel-height)] min-h-[340px] overflow-hidden rounded-xl border border-slate-200 bg-white p-3 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-        <div class="app-aside-inner grid h-full min-h-0 grid-cols-1 gap-3 md:grid-cols-[0.9fr_1.1fr] md:grid-rows-[minmax(0,1fr)_auto]">
-          <div class="flex min-h-0 flex-col gap-2 overflow-hidden">
-            <div class="text-sm font-bold text-slate-800 dark:text-slate-100">Plaatsenlijst</div>
-            <div class="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-slate-200 bg-slate-50 p-2.5 dark:border-slate-700 dark:bg-slate-950">
-              <ul id="cityList" class="city-list min-h-0 flex-1 overflow-y-auto overflow-x-hidden text-[0.92rem] text-slate-800 dark:text-slate-100"></ul>
+    <section id="landingView" class="mx-auto mt-8 mb-4 w-[96%] max-w-[1320px]">
+      <div class="landing-shell overflow-hidden rounded-[28px] border border-slate-200 bg-white/90 shadow-xl shadow-slate-900/5 backdrop-blur dark:border-slate-700 dark:bg-slate-900/80">
+        <div class="grid gap-0 lg:grid-cols-[1.1fr_0.9fr]">
+          <div class="landing-copy border-b border-slate-200 p-6 sm:p-8 lg:border-b-0 lg:border-r dark:border-slate-700">
+            <div class="inline-flex rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-medium uppercase tracking-[0.18em] text-sky-700 dark:border-sky-900 dark:bg-sky-950/40 dark:text-sky-300">MiGuide intern</div>
+            <h1 class="mt-4 max-w-[12ch] text-3xl font-semibold leading-tight text-slate-900 sm:text-4xl dark:text-slate-100">Kies een tool om verder te gaan.</h1>
+            <p class="mt-4 max-w-xl text-sm leading-7 text-slate-600 sm:text-base dark:text-slate-300">
+              Deze omgeving bundelt interne zorgtools op een centrale plek. Open de interactieve kaart of bekijk alvast de volgende tool die in ontwikkeling is.
+            </p>
+            <div class="mt-8 flex flex-wrap gap-3 text-sm text-slate-500 dark:text-slate-400">
+              <div class="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 dark:border-slate-700 dark:bg-slate-950">Kaart, filters en postcode-logica</div>
+              <div class="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 dark:border-slate-700 dark:bg-slate-950">Work in progress modules</div>
             </div>
           </div>
-          <div class="app-filter-col flex min-w-0 flex-col gap-2 overflow-visible pr-1 md:row-span-1">
-            <label class="mt-0.5 text-sm font-bold text-slate-800 dark:text-slate-100" for="gemeenteSearch">Zoek gemeente / postcode</label>
-            <div class="search-wrap relative">
-              <input id="gemeenteSearch" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none shadow-sm placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/15 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100" type="text" placeholder="Zoek gemeente of postcode..." autocomplete="off" />
-              <div id="gemeenteSuggestions" class="suggestions absolute left-0 right-0 top-[calc(100%+4px)] z-[2000] max-h-[220px] overflow-y-auto rounded-lg border border-slate-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-950" hidden></div>
-            </div>
-            <label class="mt-0.5 text-sm font-bold text-slate-800 dark:text-slate-100" for="zorgverzekeraarFilter">Zorgverzekeraar</label>
-            <div class="relative" data-custom-select="zorgverzekeraarFilter">
-              <button type="button" data-custom-select-button class="inline-flex w-full items-center justify-between gap-x-2 rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-left text-sm font-medium text-slate-900 shadow-sm transition hover:bg-slate-50 focus:outline-none focus:ring-4 focus:ring-blue-500/15 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800">
-                <span data-custom-select-label>Alle zorgverzekeraars</span>
-                <svg viewBox="0 0 20 20" fill="currentColor" class="size-4 text-slate-400 dark:text-slate-500" aria-hidden="true"><path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" /></svg>
-              </button>
-              <div data-custom-select-menu class="absolute left-0 right-0 top-[calc(100%+4px)] z-[2100] max-h-64 overflow-auto rounded-lg border border-slate-200 bg-white p-1 shadow-xl dark:border-slate-700 dark:bg-slate-900"></div>
-              <select id="zorgverzekeraarFilter" class="sr-only">
-                <option value="ALL">Alle zorgverzekeraars</option>
-              </select>
-            </div>
-            <div class="grid grid-cols-[4fr_1fr] gap-2">
-              <button id="zoekButton" class="w-full rounded-xl border border-slate-900 bg-white px-3 py-2.5 text-sm font-semibold text-slate-900 transition hover:bg-slate-50 active:translate-y-px dark:border-slate-500 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800" type="button">Zoek</button>
-              <button id="resetButton" class="w-full rounded-xl border border-slate-400 bg-white px-2 py-2.5 text-sm font-semibold text-slate-900 transition hover:bg-slate-50 active:translate-y-px dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800" type="button">Reset</button>
-            </div>
-            <label class="mt-7 text-sm font-bold text-slate-800 dark:text-slate-100" for="zorggroepFilter">Zorggroep</label>
-            <div class="relative" data-custom-select="zorggroepFilter">
-              <button type="button" data-custom-select-button class="inline-flex w-full items-center justify-between gap-x-2 rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-left text-sm font-medium text-slate-900 shadow-sm transition hover:bg-slate-50 focus:outline-none focus:ring-4 focus:ring-blue-500/15 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800">
-                <span data-custom-select-label>Alle zorggroepen</span>
-                <svg viewBox="0 0 20 20" fill="currentColor" class="size-4 text-slate-400 dark:text-slate-500" aria-hidden="true"><path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" /></svg>
-              </button>
-              <div data-custom-select-menu class="absolute left-0 right-0 top-[calc(100%+4px)] z-[2100] max-h-64 overflow-auto rounded-lg border border-slate-200 bg-white p-1 shadow-xl dark:border-slate-700 dark:bg-slate-900"></div>
-              <select id="zorggroepFilter" class="sr-only">
-                <option value="ALL">Alle zorggroepen</option>
-              </select>
-            </div>
-            <label class="mt-0.5 text-sm font-bold text-slate-800 dark:text-slate-100" for="declaratiestroomFilter">Facturatiestroom</label>
-            <div class="relative" data-custom-select="declaratiestroomFilter">
-              <button type="button" data-custom-select-button class="inline-flex w-full items-center justify-between gap-x-2 rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-left text-sm font-medium text-slate-900 shadow-sm transition hover:bg-slate-50 focus:outline-none focus:ring-4 focus:ring-blue-500/15 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800">
-                <span data-custom-select-label>Alle facturatiestromen</span>
-                <svg viewBox="0 0 20 20" fill="currentColor" class="size-4 text-slate-400 dark:text-slate-500" aria-hidden="true"><path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" /></svg>
-              </button>
-              <div data-custom-select-menu class="absolute left-0 right-0 top-[calc(100%+4px)] z-[2100] max-h-64 overflow-auto rounded-lg border border-slate-200 bg-white p-1 shadow-xl dark:border-slate-700 dark:bg-slate-900"></div>
-              <select id="declaratiestroomFilter" class="sr-only">
-                <option value="ALL">Alle facturatiestromen</option>
-              </select>
-            </div>
+          <div class="grid gap-4 p-6 sm:p-8">
+            <button id="openMapTool" type="button" class="tool-card group rounded-[24px] border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg dark:border-slate-700 dark:from-slate-900 dark:to-slate-950">
+              <div class="flex items-start justify-between gap-3">
+                <div>
+                  <div class="text-lg font-semibold text-slate-900 dark:text-slate-100">Zorggroepen Interactieve Kaart</div>
+                  <div class="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">Zoek op gemeente, postcode en zorgverzekeraar en bekijk direct de juiste zorggroepcontext.</div>
+                </div>
+                <div class="rounded-2xl bg-sky-100 px-3 py-2 text-sm font-medium text-sky-700 dark:bg-sky-950/40 dark:text-sky-300">Live</div>
+              </div>
+              <div class="mt-6 inline-flex items-center gap-2 text-sm font-medium text-sky-700 dark:text-sky-300">Open kaart <span aria-hidden="true">-></span></div>
+            </button>
+            <button id="openReferralTool" type="button" class="tool-card group rounded-[24px] border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg dark:border-slate-700 dark:from-slate-900 dark:to-slate-950">
+              <div class="flex items-start justify-between gap-3">
+                <div>
+                  <div class="text-lg font-semibold text-slate-900 dark:text-slate-100">Losse verwijzing verwerken</div>
+                  <div class="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">Volgende tool in opbouw voor losse verwijzingen, routering en vervolgacties.</div>
+                </div>
+                <div class="rounded-2xl bg-amber-100 px-3 py-2 text-sm font-medium text-amber-800 dark:bg-amber-950/40 dark:text-amber-300">Work in progress</div>
+              </div>
+              <div class="mt-6 inline-flex items-center gap-2 text-sm font-medium text-amber-700 dark:text-amber-300">Bekijk status <span aria-hidden="true">-></span></div>
+            </button>
           </div>
-          <div class="app-bottom-panels md:col-span-2 grid grid-cols-1 gap-2 md:grid-cols-[0.9fr_1.1fr]">
-            <div class="app-panel-fixed flex h-[210px] min-h-0 flex-col rounded-lg border border-slate-200 bg-slate-50 p-2.5 dark:border-slate-700 dark:bg-slate-950">
-              <div class="text-sm font-bold text-slate-800 dark:text-slate-100">Postcodes (selectie)</div>
-              <div id="postcodeListMeta" class="postcode-list-meta mt-1 h-8 overflow-hidden text-xs leading-4 text-slate-500 dark:text-slate-400">Klik op een zorggroep op de kaart om postcodes te laden.</div>
-              <ul id="postcodeList" class="postcode-list mt-2 min-h-0 flex-1 overflow-y-auto overflow-x-hidden rounded-md border border-slate-200 bg-white p-2 text-sm text-slate-800 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"></ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="wipView" class="mx-auto mt-8 mb-4 hidden w-[96%] max-w-[980px]">
+      <div class="overflow-hidden rounded-[28px] border border-slate-200 bg-white/90 p-6 shadow-xl shadow-slate-900/5 backdrop-blur sm:p-8 dark:border-slate-700 dark:bg-slate-900/80">
+        <div class="inline-flex rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-medium uppercase tracking-[0.18em] text-amber-700 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-300">Under construction</div>
+        <h2 class="mt-4 text-2xl font-semibold text-slate-900 dark:text-slate-100">Losse verwijzing verwerken</h2>
+        <p class="mt-3 max-w-2xl text-sm leading-7 text-slate-600 sm:text-base dark:text-slate-300">
+          Deze tool krijgt een eigen workflow voor intake, routing en opvolging van losse verwijzingen. De technische en inhoudelijke logica is nog in opbouw.
+        </p>
+        <div class="mt-6 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4 text-sm text-slate-600 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300">
+          Status: nog niet beschikbaar voor gebruik. Gebruik voorlopig de kaarttool of keer terug naar de landing page.
+        </div>
+      </div>
+    </section>
+
+    <div id="kaartView" hidden>
+      <div class="app-grid mx-auto mt-8 mb-4 grid w-[96%] max-w-[1320px] grid-cols-1 gap-4 xl:grid-cols-[540px_minmax(0,1fr)]">
+        <aside class="app-aside h-[var(--main-panel-height)] min-h-[340px] overflow-hidden rounded-xl border border-slate-200 bg-white p-3 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+          <div class="app-aside-inner grid h-full min-h-0 grid-cols-1 gap-3 md:grid-cols-[0.9fr_1.1fr] md:grid-rows-[minmax(0,1fr)_auto]">
+            <div class="flex min-h-0 flex-col gap-2 overflow-hidden">
+              <div class="text-sm font-bold text-slate-800 dark:text-slate-100">Plaatsenlijst</div>
+              <div class="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-slate-200 bg-slate-50 p-2.5 dark:border-slate-700 dark:bg-slate-950">
+                <ul id="cityList" class="city-list min-h-0 flex-1 overflow-y-auto overflow-x-hidden text-[0.92rem] text-slate-800 dark:text-slate-100"></ul>
+              </div>
             </div>
-            <div class="app-panel-fixed flex h-[210px] min-h-0 flex-col rounded-lg border border-slate-200 bg-slate-50 p-2.5 dark:border-slate-700 dark:bg-slate-950">
-              <div id="facturatiemoduleContext" class="module-context h-full min-h-[110px] rounded-md border border-slate-200 bg-white p-2.5 text-sm leading-6 text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
+            <div class="app-filter-col flex min-w-0 flex-col gap-2 overflow-visible pr-1 md:row-span-1">
+              <label class="mt-0.5 text-sm font-bold text-slate-800 dark:text-slate-100" for="gemeenteSearch">Zoek gemeente / postcode</label>
+              <div class="search-wrap relative">
+                <input id="gemeenteSearch" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none shadow-sm placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/15 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100" type="text" placeholder="Zoek gemeente of postcode..." autocomplete="off" />
+                <div id="gemeenteSuggestions" class="suggestions absolute left-0 right-0 top-[calc(100%+4px)] z-[2000] max-h-[220px] overflow-y-auto rounded-lg border border-slate-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-950" hidden></div>
+              </div>
+              <label class="mt-0.5 text-sm font-bold text-slate-800 dark:text-slate-100" for="zorgverzekeraarFilter">Zorgverzekeraar</label>
+              <div class="relative" data-custom-select="zorgverzekeraarFilter">
+                <button type="button" data-custom-select-button class="inline-flex w-full items-center justify-between gap-x-2 rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-left text-sm font-medium text-slate-900 shadow-sm transition hover:bg-slate-50 focus:outline-none focus:ring-4 focus:ring-blue-500/15 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800">
+                  <span data-custom-select-label>Alle zorgverzekeraars</span>
+                  <svg viewBox="0 0 20 20" fill="currentColor" class="size-4 text-slate-400 dark:text-slate-500" aria-hidden="true"><path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" /></svg>
+                </button>
+                <div data-custom-select-menu class="absolute left-0 right-0 top-[calc(100%+4px)] z-[2100] max-h-64 overflow-auto rounded-lg border border-slate-200 bg-white p-1 shadow-xl dark:border-slate-700 dark:bg-slate-900"></div>
+                <select id="zorgverzekeraarFilter" class="sr-only">
+                  <option value="ALL">Alle zorgverzekeraars</option>
+                </select>
+              </div>
+              <div class="grid grid-cols-[4fr_1fr] gap-2">
+                <button id="zoekButton" class="w-full rounded-xl border border-slate-900 bg-white px-3 py-2.5 text-sm font-semibold text-slate-900 transition hover:bg-slate-50 active:translate-y-px dark:border-slate-500 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800" type="button">Zoek</button>
+                <button id="resetButton" class="w-full rounded-xl border border-slate-400 bg-white px-2 py-2.5 text-sm font-semibold text-slate-900 transition hover:bg-slate-50 active:translate-y-px dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800" type="button">Reset</button>
+              </div>
+              <label class="mt-7 text-sm font-bold text-slate-800 dark:text-slate-100" for="zorggroepFilter">Zorggroep</label>
+              <div class="relative" data-custom-select="zorggroepFilter">
+                <button type="button" data-custom-select-button class="inline-flex w-full items-center justify-between gap-x-2 rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-left text-sm font-medium text-slate-900 shadow-sm transition hover:bg-slate-50 focus:outline-none focus:ring-4 focus:ring-blue-500/15 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800">
+                  <span data-custom-select-label>Alle zorggroepen</span>
+                  <svg viewBox="0 0 20 20" fill="currentColor" class="size-4 text-slate-400 dark:text-slate-500" aria-hidden="true"><path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" /></svg>
+                </button>
+                <div data-custom-select-menu class="absolute left-0 right-0 top-[calc(100%+4px)] z-[2100] max-h-64 overflow-auto rounded-lg border border-slate-200 bg-white p-1 shadow-xl dark:border-slate-700 dark:bg-slate-900"></div>
+                <select id="zorggroepFilter" class="sr-only">
+                  <option value="ALL">Alle zorggroepen</option>
+                </select>
+              </div>
+              <label class="mt-0.5 text-sm font-bold text-slate-800 dark:text-slate-100" for="declaratiestroomFilter">Facturatiestroom</label>
+              <div class="relative" data-custom-select="declaratiestroomFilter">
+                <button type="button" data-custom-select-button class="inline-flex w-full items-center justify-between gap-x-2 rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-left text-sm font-medium text-slate-900 shadow-sm transition hover:bg-slate-50 focus:outline-none focus:ring-4 focus:ring-blue-500/15 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800">
+                  <span data-custom-select-label>Alle facturatiestromen</span>
+                  <svg viewBox="0 0 20 20" fill="currentColor" class="size-4 text-slate-400 dark:text-slate-500" aria-hidden="true"><path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" /></svg>
+                </button>
+                <div data-custom-select-menu class="absolute left-0 right-0 top-[calc(100%+4px)] z-[2100] max-h-64 overflow-auto rounded-lg border border-slate-200 bg-white p-1 shadow-xl dark:border-slate-700 dark:bg-slate-900"></div>
+                <select id="declaratiestroomFilter" class="sr-only">
+                  <option value="ALL">Alle facturatiestromen</option>
+                </select>
+              </div>
+            </div>
+            <div class="app-bottom-panels md:col-span-2 grid grid-cols-1 gap-2 md:grid-cols-[0.9fr_1.1fr]">
+              <div class="app-panel-fixed flex h-[210px] min-h-0 flex-col rounded-lg border border-slate-200 bg-slate-50 p-2.5 dark:border-slate-700 dark:bg-slate-950">
+                <div class="text-sm font-bold text-slate-800 dark:text-slate-100">Postcodes (selectie)</div>
+                <div id="postcodeListMeta" class="postcode-list-meta mt-1 h-8 overflow-hidden text-xs leading-4 text-slate-500 dark:text-slate-400">Klik op een zorggroep op de kaart om postcodes te laden.</div>
+                <ul id="postcodeList" class="postcode-list mt-2 min-h-0 flex-1 overflow-y-auto overflow-x-hidden rounded-md border border-slate-200 bg-white p-2 text-sm text-slate-800 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"></ul>
+              </div>
+              <div class="app-panel-fixed flex h-[210px] min-h-0 flex-col rounded-lg border border-slate-200 bg-slate-50 p-2.5 dark:border-slate-700 dark:bg-slate-950">
+                <div id="facturatiemoduleContext" class="module-context h-full min-h-[110px] rounded-md border border-slate-200 bg-white p-2.5 text-sm leading-6 text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </aside>
-      <div id="map" class="h-[var(--main-panel-height)] min-h-[340px] w-full overflow-hidden rounded-xl shadow-sm"></div>
-    </div>
+        </aside>
+        <div id="map" class="h-[var(--main-panel-height)] min-h-[340px] w-full overflow-hidden rounded-xl shadow-sm"></div>
+      </div>
 
-    <footer class="mx-auto mb-3 w-[96%] max-w-[1320px] text-xs leading-5 text-slate-500 dark:text-slate-400">
-      If there is something wrong or an update is needed, please send an email to
-      <a class="underline underline-offset-2" href="mailto:info@miguide.nl">info@miguide.nl</a> or send an internal message to Onur.
-      Repository:
-      <a class="underline underline-offset-2" href="https://github.com/onurmiguide/zorggroepen_interactieve_kaart" target="_blank" rel="noopener noreferrer">
-        github.com/onurmiguide/zorggroepen_interactieve_kaart
-      </a>
-    </footer>
+      <footer class="mx-auto mb-3 w-[96%] max-w-[1320px] text-xs leading-5 text-slate-500 dark:text-slate-400">
+        If there is something wrong or an update is needed, please send an email to
+        <a class="underline underline-offset-2" href="mailto:info@miguide.nl">info@miguide.nl</a> or send an internal message to Onur.
+        Repository:
+        <a class="underline underline-offset-2" href="https://github.com/onurmiguide/zorggroepen_interactieve_kaart" target="_blank" rel="noopener noreferrer">
+          github.com/onurmiguide/zorggroepen_interactieve_kaart
+        </a>
+      </footer>
+    </div>
   </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>

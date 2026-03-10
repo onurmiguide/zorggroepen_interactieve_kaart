@@ -105,6 +105,12 @@ const FACTURATIEMODULE_PRESTATIECODE = {
   "Zuid Holland Zuid - VGZ": "CoOL-MiGuide"
 };
 
+const APP_VIEWS = {
+  LANDING: "landing",
+  MAP: "map",
+  WIP: "wip"
+};
+
 const CITY_TO_GEMEENTE = {
   "capelle a d ijssel": "Capelle aan den IJssel",
   "berken en rodenrijs": "Lansingerland",
@@ -206,6 +212,8 @@ let postcodePanelRequestId = 0;
 const gemeentePostcodeCache = new Map();
 const zorggroepPostcodeRangeCache = new Map();
 const customSelectObservers = new Map();
+let appInitialized = false;
+let currentAppView = APP_VIEWS.LANDING;
 
 function createMap() {
   if (map) {
@@ -294,6 +302,88 @@ function initThemeToggle() {
   }
 }
 
+function updateAppHeader(view) {
+  const title = document.getElementById("appTitle");
+  const subtitle = document.getElementById("appSubtitle");
+  if (!title || !subtitle) {
+    return;
+  }
+
+  if (view === APP_VIEWS.MAP) {
+    title.textContent = "Zorggroepen Interactieve Kaart";
+    subtitle.textContent = "Zoek snel op gemeente, postcode en zorggroep";
+    return;
+  }
+
+  if (view === APP_VIEWS.WIP) {
+    title.textContent = "Losse verwijzing verwerken";
+    subtitle.textContent = "Work in progress";
+    return;
+  }
+
+  title.textContent = "MiGuide Zorg Tools";
+  subtitle.textContent = "Kies een tool om verder te gaan";
+}
+
+function showAppView(view) {
+  currentAppView = view;
+  const landingView = document.getElementById("landingView");
+  const mapView = document.getElementById("kaartView");
+  const wipView = document.getElementById("wipView");
+
+  if (landingView) {
+    landingView.hidden = view !== APP_VIEWS.LANDING;
+  }
+  if (mapView) {
+    mapView.hidden = view !== APP_VIEWS.MAP;
+  }
+  if (wipView) {
+    wipView.hidden = view !== APP_VIEWS.WIP;
+  }
+
+  updateAppHeader(view);
+
+  if (view === APP_VIEWS.MAP && map) {
+    setTimeout(() => {
+      map.invalidateSize();
+    }, 80);
+  }
+}
+
+function initLandingPage() {
+  const openMapTool = document.getElementById("openMapTool");
+  const openReferralTool = document.getElementById("openReferralTool");
+  const menuHomeButton = document.getElementById("menuHomeButton");
+
+  if (openMapTool && !openMapTool.dataset.bound) {
+    openMapTool.dataset.bound = "1";
+    openMapTool.addEventListener("click", async () => {
+      showAppView(APP_VIEWS.MAP);
+      await ensureMapAppInitialized();
+    });
+  }
+
+  if (openReferralTool && !openReferralTool.dataset.bound) {
+    openReferralTool.dataset.bound = "1";
+    openReferralTool.addEventListener("click", () => {
+      showAppView(APP_VIEWS.WIP);
+    });
+  }
+
+  if (menuHomeButton && !menuHomeButton.dataset.bound) {
+    menuHomeButton.dataset.bound = "1";
+    menuHomeButton.addEventListener("click", () => {
+      showAppView(APP_VIEWS.LANDING);
+      const menu = menuHomeButton.closest("details");
+      if (menu) {
+        menu.open = false;
+      }
+    });
+  }
+
+  showAppView(APP_VIEWS.LANDING);
+}
+
 async function sha256Hex(input) {
   if (!window.crypto || !window.crypto.subtle) {
     throw new Error("Crypto API unavailable");
@@ -330,7 +420,7 @@ function initAuthGate() {
 
   const openApp = () => {
     unlockApp();
-    init();
+    initLandingPage();
   };
 
   if (sessionStorage.getItem(AUTH_SESSION_KEY) === "1") {
@@ -2159,6 +2249,9 @@ function buildZorggroepFeatures(zorggroepen, gemeenteFeatures, contractsByZorggr
 }
 
 async function init() {
+  if (appInitialized) {
+    return;
+  }
   try {
     createMap();
 
@@ -2181,9 +2274,16 @@ async function init() {
     setupGemeenteSearch(allFeatures);
     setPostcodePanelState("Klik op een zorggroep op de kaart om postcodes te laden.", []);
     applyActiveFilters();
+    appInitialized = true;
   } catch (error) {
     console.error(error);
     alert("Kon zorggroepdata of PDOK gemeentegebieden niet laden. Controleer Live Server en internetverbinding.");
+  }
+}
+
+async function ensureMapAppInitialized() {
+  if (!appInitialized) {
+    await init();
   }
 }
 
