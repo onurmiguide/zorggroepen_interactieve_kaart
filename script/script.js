@@ -79,6 +79,11 @@ const ZOHEALTHY_INSURERS = new Set(
     .map(([name]) => name)
 );
 
+const DIRECT_INSURER_ZORGGROEPEN = new Set([
+  "zorggroep almere",
+  "almere"
+]);
+
 const FACTURATIESTROOM_CONTEXT = {
   [FACTURATIESTROMEN.STROOM_1]: "Zorggroepdeclaraties via zorggroepsystemen. Bekende modules/omgevingen: VIPLive, cBoards, Medix, Nis, Kysios.",
   [FACTURATIESTROMEN.STROOM_2]: "Gecontracteerde zorg via VECOZO voor Menzis, VGZ, a.s.r., Achmea/Zilveren Kruis en ONVZ.",
@@ -725,9 +730,30 @@ function fallbackDeclaratiestroomForFeature(feature, insurerName = "") {
   const zorggroep = getZorggroepName(feature);
   const normalized = normalizeText(zorggroep);
   const raw = ZORGGROEP_DECLARATIESTROOM_FALLBACK[normalized] || "Onbekend";
+  const insurerKey = normalizeText(insurerName);
+
+  // Beslisboom 20260204:
+  // GA regio heeft altijd de GA-module als primaire route
+  // (met aparte Menzis-uitzondering die we later nog specifieker kunnen modelleren).
+  if (normalized.includes("gezondheid amsterdam")) {
+    return FACTURATIESTROMEN.STROOM_4;
+  }
+
+  // Beslisboom 20260204:
+  // sommige regio's lopen niet via een zorggroepsmodule maar rechtstreeks via verzekeraar.
+  // Voor Almere moet VGZ dus op MiGuide - VGZ uitkomen i.p.v. Zorggroep.
+  if (DIRECT_INSURER_ZORGGROEPEN.has(normalized)) {
+    if (!insurerKey || insurerKey === "all") {
+      return "Declaratiestromen per zorgverzekeraar";
+    }
+    if (ZOHEALTHY_INSURERS.has(insurerKey)) {
+      return FACTURATIESTROMEN.STROOM_5;
+    }
+    return FACTURATIESTROMEN.STROOM_2;
+  }
+
   if (normalizeText(raw) !== "declaratiestromen per zorgverzekeraar") {
     const normalizedFallback = normalizeFacturatiestroom(raw, feature, insurerName);
-    const insurerKey = normalizeText(insurerName);
     const isGenericZorggroepRoute = normalizedFallback === FACTURATIESTROMEN.STROOM_1
       || [
         "viplive",
@@ -753,9 +779,12 @@ function fallbackDeclaratiestroomForFeature(feature, insurerName = "") {
     return normalizedFallback;
   }
 
-  const insurerKey = normalizeText(insurerName);
   if (!insurerKey || insurerKey === "all") {
     return raw;
+  }
+
+  if (normalized.includes("gezondheid amsterdam")) {
+    return FACTURATIESTROMEN.STROOM_4;
   }
 
   return DECLARATIE_PER_VERZEKERAAR_OUTPUT[insurerKey] || "Onbekend";
