@@ -9,15 +9,40 @@ const NL_DEFAULT_ZOOM = 8;
 const THEME_STORAGE_KEY = "miguide_theme";
 const DEFAULT_ZORGVERZEKERAARS = [
   "a.s.r.",
+  "Ik kies zelf",
   "Menzis Digitaal 2026",
+  "Menzis",
+  "Anderzorg",
+  "VinkVink",
   "ONVZ",
+  "VvAA",
   "VGZ",
+  "IZA",
+  "UMC Zorgverzekering",
+  "Unive",
+  "Zekur",
+  "VGZbewuzt",
+  "IZZ door VGZ",
   "Zilveren Kruis (Achmea)",
+  "FBTO",
+  "De Friesland",
+  "Interpolis",
+  "ZieZo",
+  "De christelijke zorgverzekeraar",
   "Aevitae (Eucare)",
+  "Aevitae",
+  "Eucare",
+  "Care4Life",
   "CZ",
+  "Nationale-Nederlanden",
+  "OHRA",
+  "Just",
+  "CZ direct",
   "DSW",
+  "Stad Holland",
   "Salland",
-  "Zorg & Zekerheid"
+  "Zorg & Zekerheid",
+  "AZVZ"
 ];
 
 const FACTURATIESTROMEN = {
@@ -27,6 +52,53 @@ const FACTURATIESTROMEN = {
   STROOM_4: "Stroom 4 - Gezondheid Amsterdam GA",
   STROOM_5: "Stroom 5 - ZoHealthy"
 };
+
+const INSURER_LABEL_TO_CONCERN = new Map([
+  ["a s r", "a s r"],
+  ["asr", "a s r"],
+  ["a.s.r.", "a s r"],
+  ["ik kies zelf", "a s r"],
+  ["menzis digitaal 2026", "menzis digitaal 2026"],
+  ["menzis", "menzis digitaal 2026"],
+  ["anderzorg", "menzis digitaal 2026"],
+  ["vinkvink", "menzis digitaal 2026"],
+  ["onvz", "onvz"],
+  ["vvaa", "onvz"],
+  ["vgz", "vgz"],
+  ["iza", "vgz"],
+  ["umc zorgverzekering", "vgz"],
+  ["umc", "vgz"],
+  ["unive", "vgz"],
+  ["zekur", "vgz"],
+  ["vgzbewuzt", "vgz"],
+  ["vgz bewuzt", "vgz"],
+  ["izz door vgz", "vgz"],
+  ["izz", "vgz"],
+  ["zilveren kruis achmea", "zilveren kruis achmea"],
+  ["achmea", "zilveren kruis achmea"],
+  ["zilveren kruis", "zilveren kruis achmea"],
+  ["fbto", "zilveren kruis achmea"],
+  ["de friesland", "zilveren kruis achmea"],
+  ["interpolis", "zilveren kruis achmea"],
+  ["ziezo", "zilveren kruis achmea"],
+  ["de christelijke zorgverzekeraar", "zilveren kruis achmea"],
+  ["aevitae eucare", "aevitae eucare"],
+  ["aevitae", "aevitae eucare"],
+  ["eucare", "aevitae eucare"],
+  ["care4life", "aevitae eucare"],
+  ["cz", "cz"],
+  ["nationale nederlanden", "cz"],
+  ["ohra", "cz"],
+  ["just", "cz"],
+  ["cz direct", "cz"],
+  ["dsw", "dsw"],
+  ["stad holland", "dsw"],
+  ["salland", "salland"],
+  ["zorg zekerheid", "zorg zekerheid"],
+  ["zorg en zekerheid", "zorg zekerheid"],
+  ["zorg zekerheid av", "zorg zekerheid"],
+  ["azvz", "zorg zekerheid"]
+]);
 
 const ZORGGROEP_DECLARATIESTROOM_FALLBACK = {
   "zorggroep almere": "Op factuur achteraf",
@@ -60,6 +132,37 @@ const ZORGGROEP_DECLARATIESTROOM_FALLBACK = {
   "zio": "Medix"
 };
 
+// Kleurgedreven interpretatie van 20260204 BESLISBOOM MIGUIDE - FACTURATIEMODULES:
+// - Blauw in 2026-tabel = expliciet MiGuide-kant
+// - Rood in 2026-tabel = expliciet ZoHealthy-kant
+// - 2025 gebruiken we alleen als fallback waar 2026 nog onzeker is
+const DIRECT_MIGUIDE_INSURERS_2026_CONFIRMED = new Set([
+  "a s r",
+  "asr",
+  "menzis digitaal 2026",
+  "menzis"
+]);
+
+const DIRECT_MIGUIDE_INSURERS_2025_FALLBACK = new Set([
+  "onvz",
+  "zilveren kruis achmea",
+  "achmea zilveren kruis",
+  "zilverenkruis achmea",
+  "zk"
+]);
+
+const DIRECT_VGZ_INSURERS_2026 = new Set([
+  "vgz"
+]);
+
+const ZOHEALTHY_INSURERS_2026_CONFIRMED = new Set([
+  "aevitae eucare",
+  "cz",
+  "dsw",
+  "salland",
+  "zorg zekerheid"
+]);
+
 const DECLARATIE_PER_VERZEKERAAR_OUTPUT = {
   "a s r": FACTURATIESTROMEN.STROOM_2,
   "menzis digitaal 2026": FACTURATIESTROMEN.STROOM_2,
@@ -73,27 +176,7 @@ const DECLARATIE_PER_VERZEKERAAR_OUTPUT = {
   "zorg zekerheid": FACTURATIESTROMEN.STROOM_3
 };
 
-const ZOHEALTHY_INSURERS = new Set(
-  Object.entries(DECLARATIE_PER_VERZEKERAAR_OUTPUT)
-    .filter(([, stroom]) => stroom === FACTURATIESTROMEN.STROOM_3)
-    .map(([name]) => name)
-);
-
-const DIRECT_MIGUIDE_INSURERS_2026 = new Set([
-  "a s r",
-  "asr",
-  "menzis digitaal 2026",
-  "menzis",
-  "onvz",
-  "zilveren kruis achmea",
-  "achmea zilveren kruis",
-  "zilverenkruis achmea",
-  "zk"
-]);
-
-const DIRECT_VGZ_INSURERS_2026 = new Set([
-  "vgz"
-]);
+const ZOHEALTHY_INSURERS = new Set(ZOHEALTHY_INSURERS_2026_CONFIRMED);
 
 const DIRECT_INSURER_ZORGGROEPEN = new Set([
   "zorggroep almere",
@@ -525,6 +608,31 @@ function normalizeText(value) {
     .trim();
 }
 
+function normalizeInsurerKey(value) {
+  const normalized = normalizeText(value);
+  return INSURER_LABEL_TO_CONCERN.get(normalized) || normalized;
+}
+
+function defaultStroomForInsurer(insurerName = "") {
+  const insurerKey = normalizeInsurerKey(insurerName);
+  if (!insurerKey || insurerKey === "all") {
+    return "Onbekend";
+  }
+  if (DIRECT_VGZ_INSURERS_2026.has(insurerKey)) {
+    return FACTURATIESTROMEN.STROOM_2;
+  }
+  if (DIRECT_MIGUIDE_INSURERS_2026_CONFIRMED.has(insurerKey)) {
+    return FACTURATIESTROMEN.STROOM_2;
+  }
+  if (ZOHEALTHY_INSURERS_2026_CONFIRMED.has(insurerKey)) {
+    return FACTURATIESTROMEN.STROOM_3;
+  }
+  if (DIRECT_MIGUIDE_INSURERS_2025_FALLBACK.has(insurerKey)) {
+    return FACTURATIESTROMEN.STROOM_2;
+  }
+  return DECLARATIE_PER_VERZEKERAAR_OUTPUT[insurerKey] || "Onbekend";
+}
+
 function getZorggroepName(feature) {
   return feature?.properties?.zorggroep || "Onbekend";
 }
@@ -533,7 +641,7 @@ function normalizeFacturatiestroom(value, feature = null, insurerName = "") {
   const raw = String(value || "").trim() || "Onbekend";
   const rawNorm = normalizeText(raw);
   const zorggroepNorm = normalizeText(getZorggroepName(feature));
-  const insurerNorm = normalizeText(insurerName);
+  const insurerNorm = normalizeInsurerKey(insurerName);
 
   if (Object.values(FACTURATIESTROMEN).includes(raw)) {
     return raw;
@@ -543,7 +651,7 @@ function normalizeFacturatiestroom(value, feature = null, insurerName = "") {
     if (zorggroepNorm.includes("gezondheid amsterdam")) {
       return FACTURATIESTROMEN.STROOM_4;
     }
-    return DECLARATIE_PER_VERZEKERAAR_OUTPUT[insurerNorm] || "Onbekend";
+    return defaultStroomForInsurer(insurerNorm);
   }
 
   if (rawNorm === "vecozo") {
@@ -572,7 +680,7 @@ function normalizeFacturatiestroom(value, feature = null, insurerName = "") {
 function resolveFacturatiemoduleName(rawStroom, feature, insurerName = "") {
   const raw = String(rawStroom || "").trim() || "Onbekend";
   const rawNorm = normalizeText(raw);
-  const insurerNorm = normalizeText(insurerName);
+  const insurerNorm = normalizeInsurerKey(insurerName);
   const zorggroepNorm = normalizeText(getZorggroepName(feature));
   const decisionTreeRoute = resolveDecisionTreeRouting2026(feature, insurerName);
 
@@ -669,7 +777,7 @@ function resolveZorgproductName(moduleName, rawStroom = "", feature = null, insu
   const moduleNorm = normalizeText(moduleName);
   const stroomNorm = normalizeText(rawStroom);
   const zorggroepNorm = normalizeText(getZorggroepName(feature));
-  const insurerNorm = normalizeText(insurerName);
+  const insurerNorm = normalizeInsurerKey(insurerName);
 
   // Per facturatiemodule-template tabel: MiGuide - VGZ gebruikt prestatiecode CoOL.
   if (moduleNorm === "miguide vgz") {
@@ -781,7 +889,7 @@ function normalizeContractValue(value) {
 
 function resolveDecisionTreeRouting2026(feature, insurerName = "") {
   const zorggroepNorm = normalizeText(getZorggroepName(feature));
-  const insurerNorm = normalizeText(insurerName);
+  const insurerNorm = normalizeInsurerKey(insurerName);
   const routeType = BESLISBOOM_ROUTE_BY_ZORGGROEP_2026.get(zorggroepNorm) || null;
 
   if (!routeType) {
@@ -813,7 +921,15 @@ function resolveDecisionTreeRouting2026(feature, insurerName = "") {
       };
     }
 
-    if (DIRECT_MIGUIDE_INSURERS_2026.has(insurerNorm)) {
+    if (DIRECT_MIGUIDE_INSURERS_2026_CONFIRMED.has(insurerNorm)) {
+      return {
+        routeType,
+        moduleName: "MiGuide",
+        stroom: FACTURATIESTROMEN.STROOM_2
+      };
+    }
+
+    if (DIRECT_MIGUIDE_INSURERS_2025_FALLBACK.has(insurerNorm)) {
       return {
         routeType,
         moduleName: "MiGuide",
@@ -907,7 +1023,7 @@ function fallbackDeclaratiestroomForFeature(feature, insurerName = "") {
   const zorggroep = getZorggroepName(feature);
   const normalized = normalizeText(zorggroep);
   const raw = ZORGGROEP_DECLARATIESTROOM_FALLBACK[normalized] || "Onbekend";
-  const insurerKey = normalizeText(insurerName);
+  const insurerKey = normalizeInsurerKey(insurerName);
   const decisionTreeRoute = resolveDecisionTreeRouting2026(feature, insurerName);
 
   if (decisionTreeRoute?.stroom) {
@@ -969,7 +1085,7 @@ function fallbackDeclaratiestroomForFeature(feature, insurerName = "") {
     return FACTURATIESTROMEN.STROOM_4;
   }
 
-  return DECLARATIE_PER_VERZEKERAAR_OUTPUT[insurerKey] || "Onbekend";
+  return defaultStroomForInsurer(insurerKey);
 }
 
 function extractContracts(item) {
@@ -1013,7 +1129,7 @@ function extractContracts(item) {
       ? null
       : normalizeContractValue(row.contract ?? row.gecontracteerd ?? row.status);
 
-    const key = `${normalizeText(zorgverzekeraar)}|${normalizeText(declaratiestroom)}`;
+    const key = `${normalizeInsurerKey(zorgverzekeraar)}|${normalizeText(declaratiestroom)}`;
     if (dedupe.has(key)) {
       continue;
     }
@@ -1073,8 +1189,8 @@ function extractContractsByZorggroep(rootData) {
 
 function contractsForInsurer(feature, insurerName) {
   const contracts = Array.isArray(feature?.properties?.contracts) ? feature.properties.contracts : [];
-  const target = normalizeText(insurerName);
-  return contracts.filter((row) => normalizeText(row.zorgverzekeraar) === target);
+  const target = normalizeInsurerKey(insurerName);
+  return contracts.filter((row) => normalizeInsurerKey(row.zorgverzekeraar) === target);
 }
 
 function featureMatchesInsurer(feature, insurerName) {
