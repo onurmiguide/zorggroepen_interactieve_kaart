@@ -79,9 +79,57 @@ const ZOHEALTHY_INSURERS = new Set(
     .map(([name]) => name)
 );
 
+const DIRECT_MIGUIDE_INSURERS_2026 = new Set([
+  "a s r",
+  "asr",
+  "menzis digitaal 2026",
+  "menzis",
+  "onvz",
+  "zilveren kruis achmea",
+  "achmea zilveren kruis",
+  "zilverenkruis achmea",
+  "zk"
+]);
+
+const DIRECT_VGZ_INSURERS_2026 = new Set([
+  "vgz"
+]);
+
 const DIRECT_INSURER_ZORGGROEPEN = new Set([
   "zorggroep almere",
   "almere"
+]);
+
+const BESLISBOOM_ROUTE_BY_ZORGGROEP_2026 = new Map([
+  ["zorggroep gezondheid amsterdam", "ga"],
+  ["gezondheid amsterdam", "ga"],
+  ["zorggroep almere", "direct_insurer"],
+  ["almere", "direct_insurer"],
+  ["zuid holland zuid", "zhz"],
+  ["rijnmond dokters", "zorggroep"],
+  ["west friesland", "zorggroep"],
+  ["ketenzorg friesland", "zorggroep"],
+  ["zio", "zorggroep"],
+  ["zorg in ontwikkeling", "zorggroep"],
+  ["rhogo", "zorggroep"],
+  ["rhogo regionale huisartsen organisatie gooi en omstreken bv", "zorggroep"],
+  ["unicum", "zorggroep"],
+  ["hoog", "zorggroep"],
+  ["medita", "zorggroep"],
+  ["meditta", "zorggroep"],
+  ["hozl", "zorggroep"],
+  ["rijn en duin", "zorggroep"],
+  ["amstelland", "zorggroep"],
+  ["amstelland zorg", "zorggroep"],
+  ["hadoks", "zorggroep"],
+  ["eemland", "zorggroep"],
+  ["eemland huisartsen", "zorggroep"],
+  ["kennemerland", "zorggroep"],
+  ["kop noord holland", "zorggroep"],
+  ["kop noordholland", "zorggroep"],
+  ["stroomz", "zorggroep"],
+  ["post z naam in zorgtraject stroomz", "zorggroep"],
+  ["postz", "zorggroep"]
 ]);
 
 const FACTURATIESTROOM_CONTEXT = {
@@ -526,6 +574,11 @@ function resolveFacturatiemoduleName(rawStroom, feature, insurerName = "") {
   const rawNorm = normalizeText(raw);
   const insurerNorm = normalizeText(insurerName);
   const zorggroepNorm = normalizeText(getZorggroepName(feature));
+  const decisionTreeRoute = resolveDecisionTreeRouting2026(feature, insurerName);
+
+  if (decisionTreeRoute?.moduleName) {
+    return decisionTreeRoute.moduleName;
+  }
 
   if (FACTURATIEMODULE_TEMPLATES[raw]) {
     return raw;
@@ -726,11 +779,140 @@ function normalizeContractValue(value) {
   return null;
 }
 
+function resolveDecisionTreeRouting2026(feature, insurerName = "") {
+  const zorggroepNorm = normalizeText(getZorggroepName(feature));
+  const insurerNorm = normalizeText(insurerName);
+  const routeType = BESLISBOOM_ROUTE_BY_ZORGGROEP_2026.get(zorggroepNorm) || null;
+
+  if (!routeType) {
+    return null;
+  }
+
+  if (routeType === "ga") {
+    return {
+      routeType,
+      moduleName: "Gezondheid Amsterdam (GA)",
+      stroom: FACTURATIESTROMEN.STROOM_4
+    };
+  }
+
+  if (routeType === "direct_insurer") {
+    if (!insurerNorm || insurerNorm === "all") {
+      return {
+        routeType,
+        moduleName: "",
+        stroom: "Declaratiestromen per zorgverzekeraar"
+      };
+    }
+
+    if (DIRECT_VGZ_INSURERS_2026.has(insurerNorm)) {
+      return {
+        routeType,
+        moduleName: "MiGuide - VGZ",
+        stroom: FACTURATIESTROMEN.STROOM_2
+      };
+    }
+
+    if (DIRECT_MIGUIDE_INSURERS_2026.has(insurerNorm)) {
+      return {
+        routeType,
+        moduleName: "MiGuide",
+        stroom: FACTURATIESTROMEN.STROOM_2
+      };
+    }
+
+    if (ZOHEALTHY_INSURERS.has(insurerNorm)) {
+      return {
+        routeType,
+        moduleName: "ZoHealthy",
+        stroom: FACTURATIESTROMEN.STROOM_3
+      };
+    }
+
+    return {
+      routeType,
+      moduleName: "MiGuide",
+      stroom: FACTURATIESTROMEN.STROOM_2
+    };
+  }
+
+  if (routeType === "zhz") {
+    if (!insurerNorm || insurerNorm === "all") {
+      return {
+        routeType,
+        moduleName: "",
+        stroom: "Declaratiestromen per zorgverzekeraar"
+      };
+    }
+
+    if (insurerNorm === "cz") {
+      return {
+        routeType,
+        moduleName: "Zuid Holland Zuid - CZ",
+        stroom: FACTURATIESTROMEN.STROOM_2
+      };
+    }
+
+    if (DIRECT_VGZ_INSURERS_2026.has(insurerNorm)) {
+      return {
+        routeType,
+        moduleName: "Zuid Holland Zuid - VGZ",
+        stroom: FACTURATIESTROMEN.STROOM_2
+      };
+    }
+
+    if (ZOHEALTHY_INSURERS.has(insurerNorm)) {
+      return {
+        routeType,
+        moduleName: "ZoHealthy",
+        stroom: FACTURATIESTROMEN.STROOM_3
+      };
+    }
+
+    return {
+      routeType,
+      moduleName: "MiGuide",
+      stroom: FACTURATIESTROMEN.STROOM_2
+    };
+  }
+
+  if (routeType === "zorggroep") {
+    if (!insurerNorm || insurerNorm === "all") {
+      return {
+        routeType,
+        moduleName: "Zorggroep",
+        stroom: FACTURATIESTROMEN.STROOM_1
+      };
+    }
+
+    if (ZOHEALTHY_INSURERS.has(insurerNorm)) {
+      return {
+        routeType,
+        moduleName: "ZoHealthy",
+        stroom: FACTURATIESTROMEN.STROOM_5
+      };
+    }
+
+    return {
+      routeType,
+      moduleName: "Zorggroep",
+      stroom: FACTURATIESTROMEN.STROOM_1
+    };
+  }
+
+  return null;
+}
+
 function fallbackDeclaratiestroomForFeature(feature, insurerName = "") {
   const zorggroep = getZorggroepName(feature);
   const normalized = normalizeText(zorggroep);
   const raw = ZORGGROEP_DECLARATIESTROOM_FALLBACK[normalized] || "Onbekend";
   const insurerKey = normalizeText(insurerName);
+  const decisionTreeRoute = resolveDecisionTreeRouting2026(feature, insurerName);
+
+  if (decisionTreeRoute?.stroom) {
+    return decisionTreeRoute.stroom;
+  }
 
   // Beslisboom 20260204:
   // GA regio heeft altijd de GA-module als primaire route
