@@ -73,6 +73,12 @@ const DECLARATIE_PER_VERZEKERAAR_OUTPUT = {
   "zorg zekerheid": FACTURATIESTROMEN.STROOM_3
 };
 
+const ZOHEALTHY_INSURERS = new Set(
+  Object.entries(DECLARATIE_PER_VERZEKERAAR_OUTPUT)
+    .filter(([, stroom]) => stroom === FACTURATIESTROMEN.STROOM_3)
+    .map(([name]) => name)
+);
+
 const FACTURATIESTROOM_CONTEXT = {
   [FACTURATIESTROMEN.STROOM_1]: "Zorggroepdeclaraties via zorggroepsystemen. Bekende modules/omgevingen: VIPLive, cBoards, Medix, Nis, Kysios.",
   [FACTURATIESTROMEN.STROOM_2]: "Gecontracteerde zorg via VECOZO voor Menzis, VGZ, a.s.r., Achmea/Zilveren Kruis en ONVZ.",
@@ -367,7 +373,7 @@ function initLandingPage() {
   if (openReferralTool && !openReferralTool.dataset.bound) {
     openReferralTool.dataset.bound = "1";
     openReferralTool.addEventListener("click", () => {
-      showAppView(APP_VIEWS.WIP);
+      window.location.href = "losse-verwijzing-tool/index.html";
     });
   }
 
@@ -720,7 +726,31 @@ function fallbackDeclaratiestroomForFeature(feature, insurerName = "") {
   const normalized = normalizeText(zorggroep);
   const raw = ZORGGROEP_DECLARATIESTROOM_FALLBACK[normalized] || "Onbekend";
   if (normalizeText(raw) !== "declaratiestromen per zorgverzekeraar") {
-    return normalizeFacturatiestroom(raw, feature, insurerName);
+    const normalizedFallback = normalizeFacturatiestroom(raw, feature, insurerName);
+    const insurerKey = normalizeText(insurerName);
+    const isGenericZorggroepRoute = normalizedFallback === FACTURATIESTROMEN.STROOM_1
+      || [
+        "viplive",
+        "boards",
+        "cboards",
+        "medix",
+        "nis",
+        "kysios",
+        "monter",
+        "evry",
+        "op factuur achteraf",
+        "extern monter",
+        "was boards"
+      ].some((token) => normalizeText(raw).includes(token));
+
+    // Beslisboom 20260204:
+    // bij zorggroep-afspraken, maar geen afspraak met gekozen verzekeraar,
+    // gaat de route naar ZoHealthy voor DSW/CZ/Zorg & Zekerheid/Salland/Aevitae.
+    if (insurerKey && ZOHEALTHY_INSURERS.has(insurerKey) && isGenericZorggroepRoute) {
+      return FACTURATIESTROMEN.STROOM_5;
+    }
+
+    return normalizedFallback;
   }
 
   const insurerKey = normalizeText(insurerName);
