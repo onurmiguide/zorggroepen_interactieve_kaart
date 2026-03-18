@@ -3,6 +3,9 @@ const THEME_STORAGE_KEY = "miguide_theme";
 const REFERRAL_API_BASE = window.REFERRAL_API_BASE || "http://127.0.0.1:8001";
 const PDFJS_CDN_URL = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
 const TESSERACT_CDN_URL = "https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js";
+const APIFREELLM_API_KEY = window.APIFREELLM_API_KEY || "";
+const APIFREELLM_API_URL = "https://apifreellm.com/api/v1/chat";
+const APIFREELLM_MODEL = "apifreellm";
 
 const FALLBACK_SCHEMA = {
   status: "draft",
@@ -921,6 +924,200 @@ function extractClinicalInformation(lines) {
   return normalizeExtractedText(lines.join("\n"));
 }
 
+function extractJsonObjectFromText(text) {
+  const rawInput = String(text || "").trim()
+    .replace(/^```(?:json)?\s*/i, "")
+    .replace(/\s*```$/, "");
+
+  if (!rawInput) {
+    return {};
+  }
+
+  for (let startIndex = 0; startIndex < rawInput.length; startIndex += 1) {
+    if (rawInput[startIndex] !== "{") {
+      continue;
+    }
+    try {
+      return JSON.parse(rawInput.slice(startIndex));
+    } catch {
+      continue;
+    }
+  }
+  return {};
+}
+
+function normalizeAiSection(sectionName, sectionPayload) {
+  if (!sectionPayload || typeof sectionPayload !== "object") {
+    return {};
+  }
+
+  const normalized = {};
+  for (const [key, value] of Object.entries(sectionPayload)) {
+    const textValue = value == null ? "" : String(value).trim();
+    if (!textValue) {
+      continue;
+    }
+    normalized[String(key)] = textValue;
+  }
+
+  if (sectionName === "person" && normalized.bsn) {
+    normalized.bsn = cleanBsn(normalized.bsn);
+  }
+  if (sectionName === "contact") {
+    if (normalized.phone) {
+      normalized.phone = cleanPhoneNumber(normalized.phone);
+    }
+    if (normalized.email) {
+      normalized.email = cleanEmail(normalized.email);
+    }
+    if (normalized.postal_code) {
+      normalized.postal_code = splitPostalCodeAndCity(`${normalized.postal_code} x`).postal_code;
+    }
+  }
+
+  return normalized;
+}
+
+function mergeAiIntoExtracted(extracted, aiPayload) {
+  const merged = deepClone(extracted);
+  let aiUsed = false;
+
+  for (const sectionName of ["sender", "person", "contact", "referral", "insurance"]) {
+    const aiSection = normalizeAiSection(sectionName, aiPayload?.[sectionName]);
+    if (!Object.keys(aiSection).length) {
+      continue;
+    }
+    if (!merged[sectionName]) {
+      merged[sectionName] = {};
+    }
+    for (const [key, value] of Object.entries(aiSection)) {
+      if (!value || String(merged[sectionName][key] || "").trim()) {
+        continue;
+      }
+      merged[sectionName][key] = value;
+      aiUsed = true;
+    }
+  }
+
+  return { extracted: merged, aiUsed };
+}
+
+function shouldUseAi(extracted, ocrUsed) {
+  if (!APIFREELLM_API_KEY) {
+    return false;
+  }
+
+  const missingRequired = getMissingRequiredFields({ meta: {}, ...extracted });
+  if (ocrUsed || missingRequired.length) {
+    return true;
+  }
+
+  return [
+    extracted.person?.last_name,
+    extracted.person?.date_of_birth,
+    extracted.person?.bsn,
+    extracted.contact?.phone,
+    extracted.insurance?.insurer,
+    extracted.referral?.care_product_name
+  ].some((value) => !String(value || "").trim());
+}
+
+function buildAiPrompt(text, extracted) {
+  const example = {
+    sender: {
+      name: "",
+      agb_code: "",
+      organization: "",
+      organization_agb_code: "",
+      street: "",
+      house_number: "",
+      postal_code: "",
+      city: ""
+    },
+    person: {
+      initials: "",
+      first_name: "",
+      last_name: "",
+      date_of_birth: "",
+      gender: "",
+      bsn: ""
+    },
+    contact: {
+      street: "",
+      house_number: "",
+      postal_code: "",
+      city: "",
+      phone: "",
+      email: ""
+    },
+    referral: {
+      referral_date: "",
+      zd_number: "",
+      gp_name: "",
+      practice_name: "",
+      agb_code: "",
+      care_product_name: "",
+      care_question: "",
+      reason: "",
+      clinical_information: "",
+      referral_type: ""
+    },
+    insurance: {
+      insurer: "",
+      policy_number: "",
+      insured_number: ""
+    }
+  };
+
+  return [
+    "Haal gestructureerde verwijzingsdata uit de onderstaande Nederlandse medische verwijsbrief.",
+    "Geef alleen geldige JSON terug, zonder uitleg of markdown.",
+    "Gebruik exact deze top-level keys: sender, person, contact, referral, insurance.",
+    "Vul onbekende velden met een lege string.",
+    "Voor telefoonnummers: geef Nederlandse mobiele nummers terug als 06XXXXXXXX.",
+    "Voor BSN: alleen cijfers. Voor postcode: formaat 1234 AB.",
+    "",
+    `Bestaande rule-based extractie:\n${JSON.stringify(extracted)}`,
+    "",
+    `Gewenste JSON-vorm:\n${JSON.stringify(example)}`,
+    "",
+    `Documenttekst:\n${text}`
+  ].join("\n");
+}
+
+async function callAiExtractorDirect(text, extracted) {
+  if (!APIFREELLM_API_KEY) {
+    return {};
+  }
+
+  const response = await fetch(APIFREELLM_API_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${APIFREELLM_API_KEY}`
+    },
+    body: JSON.stringify({
+      message: buildAiPrompt(text, extracted),
+      model: APIFREELLM_MODEL
+    })
+  });
+
+  const payload = await response.json();
+  if (!response.ok) {
+    throw new Error(payload?.detail || payload?.message || `ApiFreeLLM fout (${response.status})`);
+  }
+
+  const content = typeof payload?.response === "string"
+    ? payload.response
+    : typeof payload?.message === "string"
+      ? payload.message
+      : Array.isArray(payload?.choices) && payload.choices[0]?.message?.content
+        ? payload.choices[0].message.content
+        : "";
+
+  return extractJsonObjectFromText(content);
+}
+
 function extractStructuredFields(text) {
   const sections = splitIntoSections(text);
   const senderFields = parseSectionFields(sections.sender);
@@ -1200,7 +1397,9 @@ function buildExtractionValidationMessages(result, extracted) {
   return messages;
 }
 
-function createLocalExtractionPayload(result, extracted) {
+function createLocalExtractionPayload(result, extracted, options = {}) {
+  const aiUsed = Boolean(options.aiUsed);
+  const aiError = options.aiError ? String(options.aiError) : "";
   const schema = state.schema || FALLBACK_SCHEMA;
   const output = getEmptyOutput(schema);
 
@@ -1223,6 +1422,8 @@ function createLocalExtractionPayload(result, extracted) {
     extraction_method: result.extractionMethod,
     page_count: result.pageCount,
     confidence,
+    ai_used: aiUsed,
+    ai_provider: aiUsed ? "apifreellm" : "",
     review_required: true,
     review_completed_at: "",
     review_status: "open",
@@ -1237,11 +1438,25 @@ function createLocalExtractionPayload(result, extracted) {
     ...buildExtractionValidationMessages(result, extracted)
   ];
 
+  if (aiUsed) {
+    validation.unshift({
+      className: "validation-ok",
+      text: "ApiFreeLLM gebruikt als AI-aanvulling op de lokale extractie."
+    });
+  }
+
+  if (aiError) {
+    validation.unshift({
+      className: "validation-warn",
+      text: `AI-aanvulling overgeslagen: ${aiError}`
+    });
+  }
+
   return {
     raw_text: result.text,
     output,
     validation,
-    source_badge: result.extractionMethod === "pdf_text" ? "PDF tekst (lokaal)" : "OCR (lokaal)",
+    source_badge: `${result.extractionMethod === "pdf_text" ? "PDF tekst (lokaal)" : "OCR (lokaal)"}${aiUsed ? " + AI" : ""}`,
     confidence_badge: {
       high: "Hoge match",
       medium: "Middelmatige match",
@@ -1265,8 +1480,23 @@ async function processDocumentLocally(file) {
       ocr_used: result.ocrUsed
     });
   } catch (apiError) {
-    const extracted = extractStructuredFields(result.text);
-    const localPayload = createLocalExtractionPayload(result, extracted);
+    let extracted = extractStructuredFields(result.text);
+    let aiUsed = false;
+    let aiError = "";
+
+    if (shouldUseAi(extracted, result.ocrUsed)) {
+      try {
+        setStatus("ApiFreeLLM AI-aanvulling uitvoeren...", "processing");
+        const aiPayload = await callAiExtractorDirect(result.text, extracted);
+        const merged = mergeAiIntoExtracted(extracted, aiPayload);
+        extracted = merged.extracted;
+        aiUsed = merged.aiUsed;
+      } catch (directAiError) {
+        aiError = directAiError.message || "onbekende fout";
+      }
+    }
+
+    const localPayload = createLocalExtractionPayload(result, extracted, { aiUsed, aiError });
     localPayload.validation.unshift({
       className: "validation-warn",
       text: `Serverstructurering niet beschikbaar. Lokale fallback gebruikt (${apiError.message || "onbekende fout"}).`
@@ -1283,6 +1513,8 @@ function shouldTryLocalFallback(error) {
   const message = String(error && error.message ? error.message : error || "").toLowerCase();
   return Boolean(
     message.includes("backend fout")
+    || message.includes("not found")
+    || message.includes("(404)")
     || message.includes("verwerking mislukt")
     || message.includes("ocr")
     || message.includes("pymupdf")
