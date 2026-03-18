@@ -922,6 +922,196 @@ function extractClinicalInformation(lines) {
   return normalizeExtractedText(lines.join("\n"));
 }
 
+const PHONE_CANDIDATE_PATTERN = /(?<!\d)(?:(?:\+|00)?31[\s()./\-]*\(?(?:0)?\)?[\s()./\-]*6|0?6)(?:[\s()./\-]*\d){8}(?!\d)/gi;
+const LABELED_PHONE_PATTERN = /(?:^|\b)(?:tel|telefoon|telefoonnummer|mobiel)\.?\s*:?\s*(?:\n\s*)?((?:(?:\+|00)?31[\s()./\-]*\(?(?:0)?\)?[\s()./\-]*6|0?6)(?:[\s()./\-]*\d){8})/gi;
+
+function extractPhoneCandidates(...chunks) {
+  const combined = chunks.filter(Boolean).join("\n");
+  if (!combined) {
+    return [];
+  }
+
+  const candidates = [];
+  const seen = new Set();
+
+  const addCandidate = (rawValue) => {
+    const cleaned = cleanPhoneNumber(rawValue);
+    if (cleaned && !seen.has(cleaned)) {
+      seen.add(cleaned);
+      candidates.push(cleaned);
+    }
+  };
+
+  for (const match of combined.matchAll(LABELED_PHONE_PATTERN)) {
+    addCandidate(match[1]);
+  }
+  for (const match of combined.matchAll(PHONE_CANDIDATE_PATTERN)) {
+    addCandidate(match[0]);
+  }
+
+  return candidates;
+}
+
+function extractPhoneFromText(...chunks) {
+  const candidates = extractPhoneCandidates(...chunks);
+  return candidates[0] || "";
+}
+
+function normalizeFlatReferralText(text) {
+  let normalized = normalizeExtractedText(text)
+    .replace(/\t/g, " ")
+    .replace(/ \n/g, "\n")
+    .trim();
+
+  const replacements = {
+    "Verzekeringsnum\nmer:": "Verzekeringsnummer:",
+    "Naam\nzorgproduct:": "Naam zorgproduct:",
+    "PatiÃ«nt-ID\nzorginstelling:": "PatiÃ«nt-ID zorginstelling:",
+    "Intercollegiaal\noverleg:": "Intercollegiaal overleg:",
+    "Reden van verwijzing,\nvraagstelling": "Reden van verwijzing, vraagstelling",
+    "Relevante probleem-\n/episodelijst": "Relevante probleem-/episodelijst"
+  };
+
+  for (const [source, target] of Object.entries(replacements)) {
+    normalized = normalized.replaceAll(source, target);
+  }
+
+  return normalized;
+}
+
+function getLabelValueMatches(text, labelPattern) {
+  const pattern = new RegExp(`${labelPattern}\\s*\\n?([^\\n]+)`, "gi");
+  return [...text.matchAll(pattern)]
+    .map((match) => String(match[1] || "").trim())
+    .filter(Boolean);
+}
+
+function extractBetween(text, startPattern, endPatterns) {
+  const startRegex = new RegExp(startPattern, "i");
+  const startMatch = text.match(startRegex);
+  if (!startMatch || typeof startMatch.index !== "number") {
+    return "";
+  }
+
+  const remainder = text.slice(startMatch.index + startMatch[0].length);
+  let endIndex = remainder.length;
+
+  for (const pattern of endPatterns) {
+    const match = remainder.match(new RegExp(pattern, "i"));
+    if (match && typeof match.index === "number") {
+      endIndex = Math.min(endIndex, match.index);
+    }
+  }
+
+  return normalizeExtractedText(remainder.slice(0, endIndex))
+    .replace(/\t/g, " ")
+    .replace(/ \n/g, "\n")
+    .trim();
+}
+
+function mergeMissingValues(base, supplement) {
+  const merged = deepClone(base);
+  for (const [sectionName, sectionValues] of Object.entries(supplement || {})) {
+    if (!sectionValues || typeof sectionValues !== "object") {
+      continue;
+    }
+    if (!merged[sectionName]) {
+      merged[sectionName] = {};
+    }
+    for (const [key, value] of Object.entries(sectionValues)) {
+      if (!String(merged[sectionName][key] || "").trim() && String(value || "").trim()) {
+        merged[sectionName][key] = value;
+      }
+    }
+  }
+  return merged;
+}
+
+function extractFlatReferralFields(text) {
+  const normalized = normalizeFlatReferralText(text);
+  const nameMatches = getLabelValueMatches(normalized, "Naam:");
+  const addressMatches = getLabelValueMatches(normalized, "Adres:");
+  const cityMatches = getLabelValueMatches(normalized, "Woonplaats:");
+  const organizationMatches = getLabelValueMatches(normalized, "Organisatie:");
+  const orgAgbMatches = getLabelValueMatches(normalized, "Org\\.\\s*AGB-code:");
+
+  const patientNameRaw = nameMatches.find((value) => /\b(dhr|mevr|mevrouw|de heer)\b/i.test(value))
+    || nameMatches[1]
+    || "";
+  const senderNameRaw = nameMatches.find((value) => /\b(dr\.?|huisarts)\b/i.test(value))
+    || nameMatches[0]
+    || "";
+
+  const patientAddress = splitStreetAndHouseNumber(addressMatches[0] || "");
+  const senderAddress = splitStreetAndHouseNumber(addressMatches[1] || "");
+  const patientCity = splitPostalCodeAndCity(cityMatches[0] || "");
+  const senderCity = splitPostalCodeAndCity(cityMatches[1] || "");
+  const personName = splitPersonName(patientNameRaw);
+
+  const careProductLines = getLabelValueMatches(normalized, "Naam zorgproduct:");
+  const careProduct = careProductLines[0] || "";
+  const clinicalInformation = extractBetween(
+    normalized,
+    "Reden van verwijzing,\\s*vraagstelling",
+    ["\\bJournaal\\b", "\\bRelevante probleem", "\\bMedicatie actueel\\b", "\\bBesproken met pati"]
+  );
+  const careQuestionMatches = getLabelValueMatches(normalized, "Zorgvraag:");
+  const patientPhone = extractPhoneFromText(
+    getLabelValueMatches(normalized, "Tel mobiel:").join("\n"),
+    getLabelValueMatches(normalized, "Telefoonnummer:").join("\n"),
+    normalized
+  );
+
+  const referralDateMatch = normalized.match(/Verwijzing\s+Datum:\s*\n?([^\n]+)/i);
+  const referralDate = referralDateMatch?.[1]?.trim() || (getLabelValueMatches(normalized, "Datum:").slice(-1)[0] || "");
+
+  return {
+    sender: {
+      name: senderNameRaw,
+      agb_code: (getLabelValueMatches(normalized, "AGB-code:")[0] || ""),
+      organization: organizationMatches[0] || "",
+      organization_agb_code: orgAgbMatches[0] || "",
+      street: senderAddress.street,
+      house_number: senderAddress.house_number,
+      postal_code: senderCity.postal_code,
+      city: senderCity.city
+    },
+    person: {
+      initials: personName.initials,
+      first_name: personName.first_name,
+      last_name: personName.last_name,
+      date_of_birth: (getLabelValueMatches(normalized, "Geboortedatum:")[0] || ""),
+      gender: inferGender(patientNameRaw),
+      bsn: cleanBsn(getLabelValueMatches(normalized, "BSN:")[0] || "")
+    },
+    contact: {
+      street: patientAddress.street,
+      house_number: patientAddress.house_number,
+      postal_code: patientCity.postal_code,
+      city: patientCity.city,
+      phone: patientPhone,
+      email: cleanEmail(getLabelValueMatches(normalized, "E-mailadres:")[0] || "")
+    },
+    referral: {
+      referral_date: referralDate,
+      zd_number: (getLabelValueMatches(normalized, "ZD-nummer:")[0] || ""),
+      gp_name: senderNameRaw,
+      practice_name: organizationMatches[0] || "",
+      agb_code: (getLabelValueMatches(normalized, "AGB-code:")[0] || ""),
+      care_product_name: careProduct,
+      care_question: careQuestionMatches[0] || "",
+      reason: clinicalInformation,
+      clinical_information: clinicalInformation,
+      referral_type: inferReferralType(careProduct, careQuestionMatches[0] || "", clinicalInformation)
+    },
+    insurance: {
+      insurer: (getLabelValueMatches(normalized, "Zorgverzekeraar:")[0] || ""),
+      policy_number: (getLabelValueMatches(normalized, "Verzekeringsnummer:")[0] || ""),
+      insured_number: (getLabelValueMatches(normalized, "Verzekeringsnummer:")[0] || "")
+    }
+  };
+}
+
 function extractJsonObjectFromText(text) {
   const rawInput = String(text || "").trim()
     .replace(/^```(?:json)?\s*/i, "")
@@ -1087,7 +1277,7 @@ function extractStructuredFields(text) {
   const careQuestion = referralFields["zorgvraag"] || "";
   const clinicalReason = [careQuestion, clinicalInformation].filter(Boolean).join("\n\n");
 
-  return {
+  let extracted = {
     sender: {
       name: senderFields["naam"] || "",
       agb_code: senderFields["agb code"] || "",
@@ -1137,6 +1327,27 @@ function extractStructuredFields(text) {
       insured_number: patientFields["verzekeringsnummer"] || ""
     }
   };
+
+  const coreHits = [
+    extracted.person.last_name,
+    extracted.person.date_of_birth,
+    extracted.person.bsn,
+    extracted.contact.postal_code,
+    extracted.insurance.insurer,
+    extracted.referral.care_product_name
+  ].filter((value) => String(value || "").trim()).length;
+
+  if (coreHits <= 2) {
+    extracted = mergeMissingValues(extracted, extractFlatReferralFields(text));
+  }
+
+  extracted.contact.phone = (
+    extracted.contact.phone
+    || extractPhoneFromText(sections.patient.join("\n"))
+    || extractPhoneFromText(text)
+  );
+
+  return extracted;
 }
 
 function mergeExtractedFields(extracted) {
