@@ -58,11 +58,18 @@ De frontend verwacht standaard de backend op:
 http://127.0.0.1:8001
 ```
 
+Voor AI-aanvulling via ApiFreeLLM:
+
+- zet environment variable `APIFREELLM_API_KEY`
+- lokaal in je shell of in je deployplatform
+- op Vercel via `Project Settings > Environment Variables`
+
 ## API
 
 - `GET /api/health`
 - `GET /api/schema`
 - `POST /api/process-referral`
+- `POST /api/process-referral-text`
 
 `POST /api/process-referral` verwacht `multipart/form-data` met veld:
 - `file`

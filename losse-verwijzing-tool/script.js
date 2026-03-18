@@ -1251,11 +1251,28 @@ function createLocalExtractionPayload(result, extracted) {
 }
 
 async function processDocumentLocally(file) {
-  setStatus("Lokale verwerking wordt gestart...", "processing");
+  setStatus("Document lokaal uitlezen...", "processing");
   await ensureFrontendProcessingLibraries();
   const result = await extractDocumentText(file);
-  const extracted = extractStructuredFields(result.text);
-  return createLocalExtractionPayload(result, extracted);
+  try {
+    setStatus("Ruwe tekst naar serververwerking sturen...", "processing");
+    return await processExtractedTextViaApi({
+      raw_text: result.text,
+      filename: file?.name || "verwijzing",
+      source_type: getSourceType(file),
+      extraction_method: result.extractionMethod,
+      page_count: result.pageCount,
+      ocr_used: result.ocrUsed
+    });
+  } catch (apiError) {
+    const extracted = extractStructuredFields(result.text);
+    const localPayload = createLocalExtractionPayload(result, extracted);
+    localPayload.validation.unshift({
+      className: "validation-warn",
+      text: `Serverstructurering niet beschikbaar. Lokale fallback gebruikt (${apiError.message || "onbekende fout"}).`
+    });
+    return localPayload;
+  }
 }
 
 function shouldTryLocalFallback(error) {
@@ -1349,6 +1366,34 @@ async function processDocumentViaApi(file) {
   }
 
   return payload;
+}
+
+async function processExtractedTextViaApi(payload) {
+  let response;
+  try {
+    response = await fetch(`${REFERRAL_API_BASE}/api/process-referral-text`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    });
+  } catch (error) {
+    const networkError = new Error(`Backend niet bereikbaar op ${REFERRAL_API_BASE}.`);
+    networkError.code = "BACKEND_UNREACHABLE";
+    throw networkError;
+  }
+
+  const contentType = response.headers.get("content-type") || "";
+  const result = contentType.includes("application/json")
+    ? await response.json()
+    : { detail: await response.text() };
+
+  if (!response.ok) {
+    throw new Error(result.detail || `Backend fout (${response.status})`);
+  }
+
+  return result;
 }
 
 function isBackendUnavailableError(error) {
