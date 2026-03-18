@@ -42,9 +42,20 @@ body {
   min-height: 100%;
 }
 
+body {
+  background-image:
+    radial-gradient(circle at top left, rgba(14, 165, 233, 0.08), transparent 26%),
+    radial-gradient(circle at bottom right, rgba(16, 185, 129, 0.08), transparent 24%);
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
 body[data-theme="dark"] {
   background: #020617;
   color: #e2e8f0;
+  background-image:
+    radial-gradient(circle at top left, rgba(37, 99, 235, 0.15), transparent 24%),
+    radial-gradient(circle at bottom right, rgba(5, 150, 105, 0.12), transparent 22%);
 }
 
 body.dark-mode .sticky.top-0 {
@@ -115,8 +126,8 @@ body.dark-mode .sticky.top-0 {
 }
 
 #cityList {
-  height: 260px;
-  max-height: 260px;
+  height: 100%;
+  max-height: none;
 }
 
 .city-list li,
@@ -445,11 +456,12 @@ body.dark-mode .sticky.top-0 {
 
   .app-aside-inner > div:first-child {
     order: 3 !important;
+    min-height: 0 !important;
   }
 
   .app-aside-inner > div:first-child .city-list {
-    height: 230px;
-    max-height: 230px;
+    height: 100% !important;
+    max-height: none !important;
   }
 
   .app-panel-fixed {

@@ -1327,6 +1327,7 @@ function onEachFeature(feature, layer) {
       const selectedDomain = getZorggroepName(feature);
       currentFilter = selectedDomain;
       currentGemeente = "";
+      updateGemeenteFoundDisplay();
 
       const filterSelect = document.getElementById("zorggroepFilter");
       if (filterSelect) {
@@ -1497,6 +1498,22 @@ function showStatus(message) {
       el.textContent = "";
     }, 240);
   }, 4500);
+}
+
+function updateGemeenteFoundDisplay() {
+  const el = document.getElementById("gemeenteFoundDisplay");
+  if (!el) {
+    return;
+  }
+
+  if (!currentGemeente) {
+    el.hidden = true;
+    el.textContent = "";
+    return;
+  }
+
+  el.hidden = false;
+  el.textContent = `Gevonden gemeente: ${currentGemeente}`;
 }
 
 function closeAllCustomSelectMenus(exceptSelectId = "") {
@@ -2292,6 +2309,7 @@ function setupGemeenteSearch(features) {
 
   function applySuggestion(value) {
     currentGemeente = value;
+    updateGemeenteFoundDisplay();
     input.value = value;
     hideSuggestions();
     showStatus("");
@@ -2304,6 +2322,7 @@ function setupGemeenteSearch(features) {
     if (!q) {
       hideSuggestions();
       currentGemeente = "";
+      updateGemeenteFoundDisplay();
       refreshDependentFilters();
       applyActiveFilters();
       return;
@@ -2349,6 +2368,7 @@ function setupGemeenteSearch(features) {
 
         if (!gemeenteNaam) {
           currentGemeente = "";
+          updateGemeenteFoundDisplay();
           refreshDependentFilters();
           applyActiveFilters();
           showStatus(`Postcode ${normalizedInput} niet gevonden in de PDOK postcode6 data.`);
@@ -2362,6 +2382,7 @@ function setupGemeenteSearch(features) {
 
         if (!hasDomain) {
           currentGemeente = "";
+          updateGemeenteFoundDisplay();
           refreshDependentFilters();
           applyActiveFilters();
           showStatus(`Postcode ${normalizedInput} valt niet binnen een zorggroep domein in je lijst.`);
@@ -2369,6 +2390,7 @@ function setupGemeenteSearch(features) {
         }
 
         currentGemeente = gemeenteNaam;
+        updateGemeenteFoundDisplay();
         input.value = normalizedInput;
         refreshDependentFilters();
         applyActiveFilters();
@@ -2394,12 +2416,14 @@ function setupGemeenteSearch(features) {
       applySuggestion(first.dataset.gemeente);
     } else if (input.value.trim() === "") {
       currentGemeente = "";
+      updateGemeenteFoundDisplay();
       showStatus("");
       refreshDependentFilters();
       applyActiveFilters();
       setPostcodePanelState("Klik op een zorggroep op de kaart om postcodes te laden.", []);
     } else {
       currentGemeente = input.value.trim();
+      updateGemeenteFoundDisplay();
       refreshDependentFilters();
       applyActiveFilters();
     }
@@ -2427,6 +2451,7 @@ function setupGemeenteSearch(features) {
       currentZorgverzekeraar = "ALL";
       currentFilter = "ALL";
       currentDeclaratiestroom = "ALL";
+      updateGemeenteFoundDisplay();
 
       input.value = "";
       hideSuggestions();
@@ -2631,6 +2656,7 @@ async function init() {
     setupFilterControls();
     setupGemeenteSearch(allFeatures);
     setPostcodePanelState("Klik op een zorggroep op de kaart om postcodes te laden.", []);
+    updateGemeenteFoundDisplay();
     applyActiveFilters();
     appInitialized = true;
   } catch (error) {
