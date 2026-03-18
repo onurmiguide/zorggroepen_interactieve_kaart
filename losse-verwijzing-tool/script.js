@@ -1251,11 +1251,26 @@ function createLocalExtractionPayload(result, extracted) {
 }
 
 async function processDocumentLocally(file) {
-  setStatus("Backend niet bereikbaar. Lokale verwerking wordt gestart...", "processing");
+  setStatus("Lokale verwerking wordt gestart...", "processing");
   await ensureFrontendProcessingLibraries();
   const result = await extractDocumentText(file);
   const extracted = extractStructuredFields(result.text);
   return createLocalExtractionPayload(result, extracted);
+}
+
+function shouldTryLocalFallback(error) {
+  if (isBackendUnavailableError(error)) {
+    return true;
+  }
+
+  const message = String(error && error.message ? error.message : error || "").toLowerCase();
+  return Boolean(
+    message.includes("backend fout")
+    || message.includes("verwerking mislukt")
+    || message.includes("ocr")
+    || message.includes("pymupdf")
+    || message.includes("tesseract")
+  );
 }
 
 function applyExtractionResult(payload) {
@@ -1426,11 +1441,11 @@ async function handleProcess() {
     applyExtractionResult(result);
     setStatus("Document verwerkt. Ruwe tekst staat klaar voor review.", "success");
   } catch (error) {
-    if (isBackendUnavailableError(error)) {
+    if (shouldTryLocalFallback(error)) {
       try {
         const localResult = await processDocumentLocally(state.selectedFile);
         applyExtractionResult(localResult);
-        setStatus("Document lokaal verwerkt in de browser. Backend was niet bereikbaar.", "success");
+        setStatus("Document lokaal verwerkt in de browser. Serververwerking was niet beschikbaar.", "success");
         return;
       } catch (fallbackError) {
         console.error("Lokale fallback mislukt:", fallbackError);
@@ -1443,7 +1458,7 @@ async function handleProcess() {
             text: `Lokale extractie mislukt: ${fallbackError.message || "onbekende fout"}`
           }
         ]);
-        setStatus("Verwerking mislukt. Backend is niet bereikbaar en lokale fallback kon niet starten.", "error");
+        setStatus("Verwerking mislukt. Serververwerking en lokale fallback konden niet afronden.", "error");
         return;
       }
     }

@@ -1,0 +1,8 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "functions": {
+    "api/**/*.py": {
+      "excludeFiles": "{.git/**,css/**,imageonline/**,script/**,scripts/**,zg-data/**,**/__pycache__/**,**/*.pyc,frontend-server*.log,losse-verwijzing-tool/backend-server*.log}"
+    }
+  }
+}

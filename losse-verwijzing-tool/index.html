@@ -12,7 +12,8 @@
   <link rel="stylesheet" href="../css/style.css?v=20260311-referral" />
   <link rel="stylesheet" href="style.css?v=20260311-referral" />
   <script>
-    window.REFERRAL_API_BASE = "http://127.0.0.1:8001";
+    const isLocalReferralHost = ["127.0.0.1", "localhost"].includes(window.location.hostname);
+    window.REFERRAL_API_BASE = isLocalReferralHost ? "http://127.0.0.1:8001" : window.location.origin;
   </script>
 </head>
 <body class="min-h-full bg-slate-100 text-slate-800 antialiased dark:bg-slate-950 dark:text-slate-200">
