@@ -1,6 +1,8 @@
 ﻿const AUTH_SESSION_KEY = "miguide_auth_ok";
 const THEME_STORAGE_KEY = "miguide_theme";
 const REFERRAL_API_BASE = window.REFERRAL_API_BASE || "http://127.0.0.1:8001";
+const PDFJS_CDN_URL = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
+const TESSERACT_CDN_URL = "https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js";
 
 const FALLBACK_SCHEMA = {
   status: "draft",
@@ -89,6 +91,7 @@ const REQUIRED_FIELD_PATHS = [
   "referral.practice_name",
   "referral.care_product_name"
 ];
+const externalScriptPromises = new Map();
 
 function deepClone(value) {
   return JSON.parse(JSON.stringify(value));
@@ -154,6 +157,52 @@ function initThemeToggle() {
 
 function getPdfLib() {
   return window.pdfjsLib || window["pdfjs-dist/build/pdf"] || null;
+}
+
+function loadExternalScript(url, isReady, label) {
+  if (typeof isReady === "function" && isReady()) {
+    return Promise.resolve();
+  }
+
+  if (externalScriptPromises.has(url)) {
+    return externalScriptPromises.get(url);
+  }
+
+  const promise = new Promise((resolve, reject) => {
+    const existing = document.querySelector(`script[data-external-src="${url}"]`);
+    if (existing) {
+      existing.addEventListener("load", () => resolve(), { once: true });
+      existing.addEventListener("error", () => reject(new Error(`${label} laden mislukt.`)), { once: true });
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.src = url;
+    script.async = true;
+    script.dataset.externalSrc = url;
+    script.addEventListener("load", () => resolve(), { once: true });
+    script.addEventListener("error", () => reject(new Error(`${label} laden mislukt.`)), { once: true });
+    document.head.appendChild(script);
+  }).then(() => {
+    if (typeof isReady === "function" && !isReady()) {
+      throw new Error(`${label} is geladen, maar niet beschikbaar in de pagina.`);
+    }
+  });
+
+  externalScriptPromises.set(url, promise);
+  return promise;
+}
+
+async function ensureFrontendProcessingLibraries() {
+  if (!getPdfLib()) {
+    setStatus("Lokale PDF-verwerking laden...", "processing");
+    await loadExternalScript(PDFJS_CDN_URL, () => Boolean(getPdfLib()), "PDF.js");
+  }
+
+  if (!window.Tesseract) {
+    setStatus("Lokale OCR laden...", "processing");
+    await loadExternalScript(TESSERACT_CDN_URL, () => Boolean(window.Tesseract), "Tesseract.js");
+  }
 }
 
 function setNestedValue(target, path, value) {
@@ -955,10 +1004,10 @@ function getFieldInput(path) {
   return refs.reviewForm.querySelector(`[data-path="${path}"]`);
 }
 
-function getMissingRequiredFields() {
+function getMissingRequiredFields(fieldsSource = state.output?.fields || {}) {
   const missing = [];
   for (const path of REQUIRED_FIELD_PATHS) {
-    const value = getNestedValue(state.output.fields, path);
+    const value = getNestedValue(fieldsSource, path);
     if (!String(value || "").trim()) {
       missing.push(path);
     }
@@ -1151,6 +1200,64 @@ function buildExtractionValidationMessages(result, extracted) {
   return messages;
 }
 
+function createLocalExtractionPayload(result, extracted) {
+  const schema = state.schema || FALLBACK_SCHEMA;
+  const output = getEmptyOutput(schema);
+
+  for (const [sectionName, sectionValues] of Object.entries(extracted)) {
+    if (!output.fields[sectionName]) {
+      output.fields[sectionName] = {};
+    }
+    for (const [key, value] of Object.entries(sectionValues)) {
+      output.fields[sectionName][key] = value || "";
+    }
+  }
+
+  const confidence = determineConfidence(extracted, result.ocrUsed);
+  const missing = getMissingRequiredFields(output.fields);
+  output.fields.meta = {
+    ...(output.fields.meta || {}),
+    source_file: state.selectedFile ? state.selectedFile.name : "",
+    source_type: getSourceType(state.selectedFile),
+    ocr_used: result.ocrUsed,
+    extraction_method: result.extractionMethod,
+    page_count: result.pageCount,
+    confidence,
+    review_required: true,
+    review_completed_at: "",
+    review_status: "open",
+    next_action: determineNextAction(missing.length)
+  };
+
+  const validation = [
+    {
+      className: "validation-warn",
+      text: "Backend niet bereikbaar. Lokale browserverwerking gebruikt."
+    },
+    ...buildExtractionValidationMessages(result, extracted)
+  ];
+
+  return {
+    raw_text: result.text,
+    output,
+    validation,
+    source_badge: result.extractionMethod === "pdf_text" ? "PDF tekst (lokaal)" : "OCR (lokaal)",
+    confidence_badge: {
+      high: "Hoge match",
+      medium: "Middelmatige match",
+      low: "Lage match"
+    }[confidence] || "Review nodig"
+  };
+}
+
+async function processDocumentLocally(file) {
+  setStatus("Backend niet bereikbaar. Lokale verwerking wordt gestart...", "processing");
+  await ensureFrontendProcessingLibraries();
+  const result = await extractDocumentText(file);
+  const extracted = extractStructuredFields(result.text);
+  return createLocalExtractionPayload(result, extracted);
+}
+
 function applyExtractionResult(payload) {
   refs.rawText.value = payload.raw_text || "";
   state.output = deepClone(payload.output || getEmptyOutput(state.schema || FALLBACK_SCHEMA));
@@ -1212,7 +1319,9 @@ async function processDocumentViaApi(file) {
       body: formData
     });
   } catch (error) {
-    throw new Error(`Backend niet bereikbaar op ${REFERRAL_API_BASE}. Start eerst de Python API.`);
+    const networkError = new Error(`Backend niet bereikbaar op ${REFERRAL_API_BASE}.`);
+    networkError.code = "BACKEND_UNREACHABLE";
+    throw networkError;
   }
 
   const contentType = response.headers.get("content-type") || "";
@@ -1225,6 +1334,10 @@ async function processDocumentViaApi(file) {
   }
 
   return payload;
+}
+
+function isBackendUnavailableError(error) {
+  return Boolean(error && error.code === "BACKEND_UNREACHABLE");
 }
 
 
@@ -1313,6 +1426,28 @@ async function handleProcess() {
     applyExtractionResult(result);
     setStatus("Document verwerkt. Ruwe tekst staat klaar voor review.", "success");
   } catch (error) {
+    if (isBackendUnavailableError(error)) {
+      try {
+        const localResult = await processDocumentLocally(state.selectedFile);
+        applyExtractionResult(localResult);
+        setStatus("Document lokaal verwerkt in de browser. Backend was niet bereikbaar.", "success");
+        return;
+      } catch (fallbackError) {
+        console.error("Lokale fallback mislukt:", fallbackError);
+        refs.rawText.value = `Verwerking mislukt.\n\nTechnische melding:\n${fallbackError && fallbackError.message ? fallbackError.message : String(fallbackError)}`;
+        syncFullscreenPreview();
+        renderValidation([
+          ...getBaseValidationMessages(),
+          {
+            className: "validation-error",
+            text: `Lokale extractie mislukt: ${fallbackError.message || "onbekende fout"}`
+          }
+        ]);
+        setStatus("Verwerking mislukt. Backend is niet bereikbaar en lokale fallback kon niet starten.", "error");
+        return;
+      }
+    }
+
     console.error(error);
     refs.rawText.value = `Verwerking mislukt.\n\nTechnische melding:\n${error && error.message ? error.message : String(error)}`;
     syncFullscreenPreview();
