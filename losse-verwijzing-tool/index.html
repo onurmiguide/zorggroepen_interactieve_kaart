@@ -1,0 +1,257 @@
+﻿<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Losse verwijzing verwerken</title>
+  <link rel="icon" type="image/svg+xml" href="../zg-data/map-find-search-svgrepo-com.svg" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { darkMode: "class" };
+  </script>
+  <link rel="stylesheet" href="../css/style.css?v=20260311-referral" />
+  <link rel="stylesheet" href="style.css?v=20260311-referral" />
+  <script>
+    window.REFERRAL_API_BASE = "http://127.0.0.1:8001";
+  </script>
+</head>
+<body class="min-h-full bg-slate-100 text-slate-800 antialiased dark:bg-slate-950 dark:text-slate-200">
+  <div class="app-topbar sticky top-0 z-[1000] flex flex-wrap items-center gap-2 border-b border-slate-200 bg-white/95 px-3 py-2.5 shadow-sm backdrop-blur sm:gap-3 sm:px-4 sm:py-3 dark:border-slate-800 dark:bg-slate-900/95">
+    <a href="../index.html" aria-label="Ga naar hoofdpagina">
+      <img
+        class="h-auto w-[104px] object-contain sm:w-[120px]"
+        id="siteLogo"
+        src="../zg-data/MiGuide_Logo_Nieuw.png"
+        data-logo-light="../zg-data/MiGuide_Logo_Nieuw.png"
+        data-logo-dark="../zg-data/MiGuide_Logo_White.png"
+        alt="MiGuide logo"
+      />
+    </a>
+    <div class="min-w-0">
+      <div class="truncate text-[1rem] font-semibold leading-tight tracking-tight text-slate-900 sm:text-[1.08rem] dark:text-slate-100">Losse verwijzing verwerken</div>
+      <div class="hidden truncate text-xs font-medium text-slate-500 sm:block dark:text-slate-400">PDF, OCR, review en JSON-export voor losse verwijzingen</div>
+    </div>
+    <button id="themeToggle" class="theme-toggle ml-auto inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-slate-400 bg-white text-slate-900 transition hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800" type="button" aria-label="Schakel dark mode" title="Schakel dark mode">
+      <span id="themeToggleIcon" aria-hidden="true">&#9728;</span>
+    </button>
+    <details class="topbar-dropdown inline-block shrink-0">
+      <summary class="inline-flex items-center justify-center gap-x-1.5 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-900 shadow-sm hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800">
+        Menu
+      </summary>
+      <ul role="listbox" class="w-56 rounded-md bg-white p-1 shadow-xl outline-1 -outline-offset-1 outline-slate-200 dark:bg-slate-900 dark:outline-slate-700">
+        <li><a href="../index.html" class="block rounded px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 focus:bg-slate-100 focus:text-slate-900 focus:outline-none dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white dark:focus:bg-slate-800 dark:focus:text-white">Landing page</a></li>
+        <li><a href="../index.html" class="block rounded px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 focus:bg-slate-100 focus:text-slate-900 focus:outline-none dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white dark:focus:bg-slate-800 dark:focus:text-white">Zorggroepen kaart</a></li>
+        <li><a href="../data-overzicht.html" class="block rounded px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 focus:bg-slate-100 focus:text-slate-900 focus:outline-none dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white dark:focus:bg-slate-800 dark:focus:text-white">Data-overzicht</a></li>
+        <li><a href="https://github.com/onurmiguide/zorggroepen_interactieve_kaart" target="_blank" rel="noopener noreferrer" class="block rounded px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 focus:bg-slate-100 focus:text-slate-900 focus:outline-none dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white dark:focus:bg-slate-800 dark:focus:text-white">GitHub repo</a></li>
+      </ul>
+    </details>
+    <div class="hidden whitespace-nowrap rounded-lg border border-red-300 bg-red-50 px-2.5 py-1 text-[11px] font-bold text-red-800 lg:block dark:border-red-500/50 dark:bg-red-950/40 dark:text-red-200">Concept / Demo - Work in progress</div>
+  </div>
+
+  <main class="shell">
+    <section class="tool-layout">
+      <section class="panel panel-compact action-panel tool-upload">
+        <div class="panel-header panel-header-stack">
+          <div>
+            <h2>Document uploaden</h2>
+            <p class="muted">PDF of afbeelding</p>
+          </div>
+        </div>
+        <div class="action-side">
+          <label class="upload-dropzone" for="fileInput">
+            <input id="fileInput" type="file" accept=".pdf,image/*" />
+            <span class="upload-title">Kies bestand</span>
+            <span class="upload-meta">PDF, JPG, PNG</span>
+          </label>
+          <p class="muted compact-note">PDF tekst waar mogelijk, anders OCR.</p>
+          <div class="button-row action-buttons">
+            <button id="processButton" type="button" class="primary-button">Start verwerking</button>
+            <button id="resetButton" type="button" class="secondary-button">Reset</button>
+          </div>
+          <div id="statusBanner" class="status-banner">Nog geen bestand gekozen.</div>
+        </div>
+      </section>
+
+      <article class="panel panel-compact json-actions-panel tool-json">
+        <div class="panel-header">
+          <h2>JSON</h2>
+        </div>
+        <div class="button-stack">
+          <button id="copyJsonButton" type="button" class="secondary-button">Kopieer JSON</button>
+          <button id="downloadJsonButton" type="button" class="primary-button">Download JSON</button>
+        </div>
+        <pre id="jsonOutput" class="json-output sr-only" aria-hidden="true">{}</pre>
+      </article>
+
+      <article class="panel panel-compact tool-document">
+        <div class="panel-header">
+          <h2>Document en brondata</h2>
+          <span id="sourceTypeBadge" class="meta-label badge neutral">Geen bron</span>
+        </div>
+        <div class="preview-frame">
+          <button id="openPreviewFullscreenButton" type="button" class="preview-expand-button" aria-label="Open document in volledig scherm" title="Volledig scherm" disabled>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" />
+            </svg>
+            <span>Volledig scherm</span>
+          </button>
+          <img id="imagePreview" alt="Voorbeeld verwijzing" hidden />
+          <iframe id="pdfPreview" title="PDF preview" hidden></iframe>
+          <div id="emptyPreview" class="empty-state">
+            Upload een verwijzing om preview en tekstextractie te zien.
+          </div>
+        </div>
+        <label class="block-label" for="rawText">Ruwe tekst</label>
+        <textarea id="rawText" spellcheck="false" placeholder="Hier verschijnt de gevonden tekst uit PDF of OCR."></textarea>
+      </article>
+
+      <article class="panel panel-compact panel-scroll structured-panel tool-structured">
+        <div class="panel-header">
+          <h2>Gestructureerde data</h2>
+          <span id="confidenceBadge" class="meta-label badge neutral">Review nodig</span>
+        </div>
+        <form id="reviewForm" class="review-grid">
+          <section class="field-section">
+            <h3>Afzender</h3>
+            <div class="field-grid">
+              <label><span>Naam verwijzer</span><input data-path="sender.name" type="text" /></label>
+              <label><span>AGB-code verwijzer</span><input data-path="sender.agb_code" type="text" /></label>
+              <label><span>Organisatie</span><input data-path="sender.organization" type="text" /></label>
+              <label><span>Organisatie AGB-code</span><input data-path="sender.organization_agb_code" type="text" /></label>
+              <label><span>Straat</span><input data-path="sender.street" type="text" /></label>
+              <label><span>Huisnummer</span><input data-path="sender.house_number" type="text" /></label>
+              <label><span>Postcode</span><input data-path="sender.postal_code" type="text" /></label>
+              <label><span>Plaats</span><input data-path="sender.city" type="text" /></label>
+            </div>
+          </section>
+
+          <section class="field-section">
+            <h3>Persoon</h3>
+            <div class="field-grid">
+              <label><span>Voorletters</span><input data-path="person.initials" type="text" /></label>
+              <label><span>Voornaam</span><input data-path="person.first_name" type="text" /></label>
+              <label><span>Achternaam</span><input data-path="person.last_name" type="text" /></label>
+              <label><span>Geboortedatum</span><input data-path="person.date_of_birth" type="text" /></label>
+              <label><span>Geslacht</span><input data-path="person.gender" type="text" /></label>
+              <label><span>BSN</span><input data-path="person.bsn" type="text" /></label>
+            </div>
+          </section>
+
+          <section class="field-section">
+            <h3>Contact</h3>
+            <div class="field-grid">
+              <label><span>Straat</span><input data-path="contact.street" type="text" /></label>
+              <label><span>Huisnummer</span><input data-path="contact.house_number" type="text" /></label>
+              <label><span>Postcode</span><input data-path="contact.postal_code" type="text" /></label>
+              <label><span>Plaats</span><input data-path="contact.city" type="text" /></label>
+              <label><span>Telefoon</span><input data-path="contact.phone" type="text" /></label>
+              <label><span>E-mail</span><input data-path="contact.email" type="text" /></label>
+            </div>
+          </section>
+
+          <section class="field-section">
+            <h3>Verwijzing</h3>
+            <div class="field-grid">
+              <label><span>Datum verwijzing</span><input data-path="referral.referral_date" type="text" /></label>
+              <label><span>ZD-nummer</span><input data-path="referral.zd_number" type="text" /></label>
+              <label><span>Naam huisarts</span><input data-path="referral.gp_name" type="text" /></label>
+              <label><span>Praktijknaam</span><input data-path="referral.practice_name" type="text" /></label>
+              <label><span>AGB-code</span><input data-path="referral.agb_code" type="text" /></label>
+              <label class="full-width"><span>Naam zorgproduct</span><input data-path="referral.care_product_name" type="text" /></label>
+              <label class="full-width"><span>Zorgvraag</span><input data-path="referral.care_question" type="text" /></label>
+              <label class="full-width"><span>Reden verwijzing</span><textarea data-path="referral.reason"></textarea></label>
+              <label class="full-width"><span>Klinische informatie</span><textarea data-path="referral.clinical_information"></textarea></label>
+              <label><span>Type verwijzing</span><input data-path="referral.referral_type" type="text" /></label>
+            </div>
+          </section>
+
+          <section class="field-section">
+            <h3>Verzekering</h3>
+            <div class="field-grid">
+              <label><span>Zorgverzekeraar</span><input data-path="insurance.insurer" type="text" /></label>
+              <label><span>Polisnummer</span><input data-path="insurance.policy_number" type="text" /></label>
+              <label><span>Verzekerdennummer</span><input data-path="insurance.insured_number" type="text" /></label>
+            </div>
+          </section>
+        </form>
+      </article>
+
+      <article class="panel panel-compact validation-panel tool-validation">
+        <div class="panel-header">
+          <h2>Validatie</h2>
+        </div>
+        <ul id="validationList" class="validation-list">
+          <li class="validation-empty">Nog geen validaties uitgevoerd.</li>
+        </ul>
+      </article>
+    </section>
+
+    <article class="panel panel-compact review-footer-panel">
+      <div class="review-summary">
+        <div class="review-summary-head">
+          <h3>Review status</h3>
+          <span id="reviewStatusBadge" class="meta-label badge neutral">Open</span>
+        </div>
+        <div id="reviewStats" class="review-stats">
+          <div class="review-stat">
+            <span>Verplichte velden ingevuld</span>
+            <strong id="requiredFieldsCount">0 / 0</strong>
+          </div>
+          <div class="review-stat">
+            <span>Ontbrekende velden</span>
+            <strong id="missingFieldsCount">0</strong>
+          </div>
+        </div>
+        <ul id="missingFieldsList" class="missing-fields-list">
+          <li class="validation-empty">Nog geen reviewstatus beschikbaar.</li>
+        </ul>
+        <div class="button-row">
+          <button id="markReviewedButton" type="button" class="primary-button">Markeer als gecontroleerd</button>
+        </div>
+      </div>
+    </article>
+  </main>
+
+  <div id="previewFullscreenModal" class="preview-modal" hidden aria-hidden="true">
+    <div class="preview-modal-backdrop" data-close-preview-modal></div>
+    <div class="preview-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="previewModalTitle">
+      <div class="preview-modal-header">
+        <div>
+          <div class="preview-modal-eyebrow">Document viewer</div>
+          <h2 id="previewModalTitle">Document en brondata</h2>
+        </div>
+        <button id="closePreviewFullscreenButton" type="button" class="preview-close-button" aria-label="Sluit volledig scherm" title="Sluiten">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M6 6 18 18M18 6 6 18" />
+          </svg>
+        </button>
+      </div>
+      <div class="preview-modal-body">
+        <section class="preview-modal-document">
+          <div class="preview-modal-card-head">
+            <span>Document</span>
+            <span class="preview-modal-chip">Vergrote weergave</span>
+          </div>
+          <div class="preview-modal-frame">
+            <img id="fullscreenImagePreview" alt="Vergrote verwijzing" hidden />
+            <iframe id="fullscreenPdfPreview" title="PDF preview volledig scherm" hidden></iframe>
+            <div id="fullscreenEmptyPreview" class="empty-state">
+              Upload een verwijzing om het document groot te bekijken.
+            </div>
+          </div>
+        </section>
+        <section class="preview-modal-raw">
+          <div class="preview-modal-card-head">
+            <span>Brondata</span>
+            <span class="preview-modal-chip">Ruwe tekst</span>
+          </div>
+          <textarea id="fullscreenRawText" spellcheck="false" readonly></textarea>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js?v=20260311-referral"></script>
+</body>
+</html>
+

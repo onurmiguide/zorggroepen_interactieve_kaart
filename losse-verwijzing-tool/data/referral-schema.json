@@ -1,0 +1,65 @@
+{
+  "status": "draft",
+  "tool": "losse-verwijzing-verwerken",
+  "input_types": [
+    "pdf",
+    "image"
+  ],
+  "fields": {
+    "sender": {
+      "name": "",
+      "agb_code": "",
+      "organization": "",
+      "organization_agb_code": "",
+      "street": "",
+      "house_number": "",
+      "postal_code": "",
+      "city": ""
+    },
+    "person": {
+      "initials": "",
+      "first_name": "",
+      "last_name": "",
+      "date_of_birth": "",
+      "gender": "",
+      "bsn": ""
+    },
+    "contact": {
+      "street": "",
+      "house_number": "",
+      "postal_code": "",
+      "city": "",
+      "phone": "",
+      "email": ""
+    },
+    "referral": {
+      "referral_date": "",
+      "zd_number": "",
+      "gp_name": "",
+      "practice_name": "",
+      "agb_code": "",
+      "care_product_name": "",
+      "care_question": "",
+      "reason": "",
+      "clinical_information": "",
+      "referral_type": ""
+    },
+    "insurance": {
+      "insurer": "",
+      "policy_number": "",
+      "insured_number": ""
+    },
+    "meta": {
+      "source_file": "",
+      "source_type": "",
+      "ocr_used": false,
+      "extraction_method": "",
+      "page_count": null,
+      "confidence": null,
+      "review_required": true,
+      "review_completed_at": "",
+      "review_status": "open",
+      "next_action": ""
+    }
+  }
+}
