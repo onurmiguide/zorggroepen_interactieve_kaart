@@ -343,6 +343,7 @@ let map;
 let baseTileLayer;
 let geoLayer;
 let overlapOutlineLayer;
+let uncoveredGemeenteLayer;
 let allFeatures = [];
 let currentFilter = "ALL";
 let currentGemeente = "";
@@ -1386,10 +1387,16 @@ function renderLayer(features, options = {}) {
   if (geoLayer) {
     map.removeLayer(geoLayer);
   }
+  if (uncoveredGemeenteLayer) {
+    map.removeLayer(uncoveredGemeenteLayer);
+    uncoveredGemeenteLayer = null;
+  }
   if (overlapOutlineLayer) {
     map.removeLayer(overlapOutlineLayer);
     overlapOutlineLayer = null;
   }
+
+  renderUncoveredGemeenten();
 
   geoLayer = L.geoJSON(features, {
     style,
@@ -1405,6 +1412,43 @@ function renderLayer(features, options = {}) {
       map.fitBounds(geoLayer.getBounds(), { padding: [16, 16] });
     }
   }
+}
+
+function renderUncoveredGemeenten() {
+  if (!map || !Array.isArray(gemeenteFeaturesStore) || gemeenteFeaturesStore.length === 0 || !Array.isArray(allFeatures) || allFeatures.length === 0) {
+    return;
+  }
+
+  const coveredGemeenten = new Set();
+  for (const feature of allFeatures) {
+    const gemeenten = Array.isArray(feature?.properties?.gemeenten) ? feature.properties.gemeenten : [];
+    for (const gemeente of gemeenten) {
+      const key = normalizeText(gemeente);
+      if (key) {
+        coveredGemeenten.add(key);
+      }
+    }
+  }
+
+  const uncoveredFeatures = gemeenteFeaturesStore.filter((gemeenteFeature) => {
+    const naam = gemeenteFeature?.properties?.naam;
+    return naam && !coveredGemeenten.has(normalizeText(naam));
+  });
+
+  if (uncoveredFeatures.length === 0) {
+    return;
+  }
+
+  uncoveredGemeenteLayer = L.geoJSON(uncoveredFeatures, {
+    interactive: false,
+    style: {
+      color: "#94a3b8",
+      weight: 1,
+      opacity: 0.7,
+      fillColor: "#cbd5e1",
+      fillOpacity: 0.32
+    }
+  }).addTo(map);
 }
 
 function renderOverlapOutlines(features) {
