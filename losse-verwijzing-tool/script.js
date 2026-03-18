@@ -3,9 +3,7 @@ const THEME_STORAGE_KEY = "miguide_theme";
 const REFERRAL_API_BASE = window.REFERRAL_API_BASE || "http://127.0.0.1:8001";
 const PDFJS_CDN_URL = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
 const TESSERACT_CDN_URL = "https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js";
-const APIFREELLM_API_KEY = window.APIFREELLM_API_KEY || "";
-const APIFREELLM_API_URL = "https://apifreellm.com/api/v1/chat";
-const APIFREELLM_MODEL = "apifreellm";
+const SHOULD_USE_REMOTE_API = ["127.0.0.1", "localhost"].includes(window.location.hostname);
 
 const FALLBACK_SCHEMA = {
   status: "draft",
@@ -1003,23 +1001,7 @@ function mergeAiIntoExtracted(extracted, aiPayload) {
 }
 
 function shouldUseAi(extracted, ocrUsed) {
-  if (!APIFREELLM_API_KEY) {
-    return false;
-  }
-
-  const missingRequired = getMissingRequiredFields({ meta: {}, ...extracted });
-  if (ocrUsed || missingRequired.length) {
-    return true;
-  }
-
-  return [
-    extracted.person?.last_name,
-    extracted.person?.date_of_birth,
-    extracted.person?.bsn,
-    extracted.contact?.phone,
-    extracted.insurance?.insurer,
-    extracted.referral?.care_product_name
-  ].some((value) => !String(value || "").trim());
+  return false;
 }
 
 function buildAiPrompt(text, extracted) {
@@ -1086,36 +1068,7 @@ function buildAiPrompt(text, extracted) {
 }
 
 async function callAiExtractorDirect(text, extracted) {
-  if (!APIFREELLM_API_KEY) {
-    return {};
-  }
-
-  const response = await fetch(APIFREELLM_API_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${APIFREELLM_API_KEY}`
-    },
-    body: JSON.stringify({
-      message: buildAiPrompt(text, extracted),
-      model: APIFREELLM_MODEL
-    })
-  });
-
-  const payload = await response.json();
-  if (!response.ok) {
-    throw new Error(payload?.detail || payload?.message || `ApiFreeLLM fout (${response.status})`);
-  }
-
-  const content = typeof payload?.response === "string"
-    ? payload.response
-    : typeof payload?.message === "string"
-      ? payload.message
-      : Array.isArray(payload?.choices) && payload.choices[0]?.message?.content
-        ? payload.choices[0].message.content
-        : "";
-
-  return extractJsonObjectFromText(content);
+  return {};
 }
 
 function extractStructuredFields(text) {
@@ -1469,40 +1422,8 @@ async function processDocumentLocally(file) {
   setStatus("Document lokaal uitlezen...", "processing");
   await ensureFrontendProcessingLibraries();
   const result = await extractDocumentText(file);
-  try {
-    setStatus("Ruwe tekst naar serververwerking sturen...", "processing");
-    return await processExtractedTextViaApi({
-      raw_text: result.text,
-      filename: file?.name || "verwijzing",
-      source_type: getSourceType(file),
-      extraction_method: result.extractionMethod,
-      page_count: result.pageCount,
-      ocr_used: result.ocrUsed
-    });
-  } catch (apiError) {
-    let extracted = extractStructuredFields(result.text);
-    let aiUsed = false;
-    let aiError = "";
-
-    if (shouldUseAi(extracted, result.ocrUsed)) {
-      try {
-        setStatus("ApiFreeLLM AI-aanvulling uitvoeren...", "processing");
-        const aiPayload = await callAiExtractorDirect(result.text, extracted);
-        const merged = mergeAiIntoExtracted(extracted, aiPayload);
-        extracted = merged.extracted;
-        aiUsed = merged.aiUsed;
-      } catch (directAiError) {
-        aiError = directAiError.message || "onbekende fout";
-      }
-    }
-
-    const localPayload = createLocalExtractionPayload(result, extracted, { aiUsed, aiError });
-    localPayload.validation.unshift({
-      className: "validation-warn",
-      text: `Serverstructurering niet beschikbaar. Lokale fallback gebruikt (${apiError.message || "onbekende fout"}).`
-    });
-    return localPayload;
-  }
+  const extracted = extractStructuredFields(result.text);
+  return createLocalExtractionPayload(result, extracted);
 }
 
 function shouldTryLocalFallback(error) {
@@ -1560,6 +1481,10 @@ function bindReviewForm() {
 
 
 async function loadSchema() {
+  if (!SHOULD_USE_REMOTE_API) {
+    return deepClone(FALLBACK_SCHEMA);
+  }
+
   try {
     const response = await fetch(`${REFERRAL_API_BASE}/api/schema`);
     if (!response.ok) {
@@ -1573,6 +1498,12 @@ async function loadSchema() {
 }
 
 async function processDocumentViaApi(file) {
+  if (!SHOULD_USE_REMOTE_API) {
+    const networkError = new Error("Remote backend uitgeschakeld voor deze omgeving.");
+    networkError.code = "BACKEND_UNREACHABLE";
+    throw networkError;
+  }
+
   const formData = new FormData();
   formData.append("file", file);
 
@@ -1601,6 +1532,12 @@ async function processDocumentViaApi(file) {
 }
 
 async function processExtractedTextViaApi(payload) {
+  if (!SHOULD_USE_REMOTE_API) {
+    const networkError = new Error("Remote backend uitgeschakeld voor deze omgeving.");
+    networkError.code = "BACKEND_UNREACHABLE";
+    throw networkError;
+  }
+
   let response;
   try {
     response = await fetch(`${REFERRAL_API_BASE}/api/process-referral-text`, {
