@@ -349,6 +349,7 @@ let baseTileLayer;
 let geoLayer;
 let overlapOutlineLayer;
 let uncoveredGemeenteLayer;
+let activeTooltipLayer = null;
 let allFeatures = [];
 let currentFilter = "ALL";
 let currentGemeente = "";
@@ -363,6 +364,7 @@ const zorggroepPostcodeRangeCache = new Map();
 const customSelectObservers = new Map();
 let appInitialized = false;
 let currentAppView = APP_VIEWS.LANDING;
+let zorgverzekeraarNoticeAcknowledged = false;
 
 const NO_ZORGGROEP_CONTRACT_NAME = "Geen zorggroep contract";
 
@@ -375,6 +377,7 @@ function createMap() {
 
   // Clicking the map background clears polygon selection and shows full result set again.
   map.on("click", () => {
+    closeActiveHoverTooltip();
     if (currentFilter === "ALL") {
       return;
     }
@@ -385,6 +388,10 @@ function createMap() {
     }
     setPostcodePanelState("Klik op een zorggroep op de kaart om postcodes te laden.", []);
     applyActiveFilters();
+  });
+
+  map.on("zoomstart movestart mouseout", () => {
+    closeActiveHoverTooltip();
   });
 }
 
@@ -1374,6 +1381,7 @@ function style(feature) {
 
 function highlightFeature(e) {
   const layer = e.target;
+  closeActiveHoverTooltip(layer);
   layer.setStyle({
     weight: 3,
     color: "#0f172a",
@@ -1384,11 +1392,27 @@ function highlightFeature(e) {
   if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
     layer.bringToFront();
   }
+
+  if (typeof layer.openTooltip === "function") {
+    layer.openTooltip();
+    activeTooltipLayer = layer;
+  }
 }
 
 function resetHighlight(e) {
+  closeActiveHoverTooltip(e.target);
   if (geoLayer) {
     geoLayer.resetStyle(e.target);
+  }
+}
+
+function closeActiveHoverTooltip(preferredLayer = null) {
+  const layerToClose = preferredLayer || activeTooltipLayer;
+  if (layerToClose && typeof layerToClose.closeTooltip === "function") {
+    layerToClose.closeTooltip();
+  }
+  if (!preferredLayer || preferredLayer === activeTooltipLayer) {
+    activeTooltipLayer = null;
   }
 }
 
@@ -1450,6 +1474,7 @@ function onEachFeature(feature, layer) {
     mouseout: resetHighlight,
     click: (event) => {
       L.DomEvent.stopPropagation(event);
+      closeActiveHoverTooltip(layer);
       const selectedDomain = getZorggroepName(feature);
       currentFilter = selectedDomain;
       currentGemeente = "";
@@ -1475,7 +1500,11 @@ function onEachFeature(feature, layer) {
   const tooltipText = overlapGemeenten.length
     ? `${getZorggroepName(feature)}<br><small>Overlap: ${overlapGemeenten.join(", ")}</small>`
     : getZorggroepName(feature);
-  layer.bindTooltip(tooltipText, { sticky: true });
+  layer.bindTooltip(tooltipText, {
+    sticky: false,
+    direction: "top",
+    offset: [0, -8]
+  });
   layer.bindPopup(popupContent(feature));
 }
 
@@ -1510,6 +1539,7 @@ function renderLayer(features, options = {}) {
   const { useNetherlandsDefaultView = false } = options;
 
   if (geoLayer) {
+    closeActiveHoverTooltip();
     map.removeLayer(geoLayer);
   }
   if (uncoveredGemeenteLayer) {
@@ -1687,6 +1717,23 @@ function updateGemeenteFoundDisplay() {
 
   el.hidden = false;
   el.textContent = `Gevonden gemeente: ${currentGemeente}`;
+}
+
+function updateZorgverzekeraarNotice() {
+  const el = document.getElementById("zorgverzekeraarNotice");
+  if (!el) {
+    return;
+  }
+
+  const insurerKey = normalizeInsurerKey(currentZorgverzekeraar);
+  const shouldShow = insurerKey === "vgz" && !zorgverzekeraarNoticeAcknowledged;
+  el.classList.toggle("opacity-0", !shouldShow);
+  el.classList.toggle("pointer-events-none", !shouldShow);
+  const panel = el.firstElementChild;
+  if (panel) {
+    panel.classList.toggle("-translate-y-2", !shouldShow);
+    panel.classList.toggle("translate-y-0", shouldShow);
+  }
 }
 
 function closeAllCustomSelectMenus(exceptSelectId = "") {
@@ -2206,6 +2253,7 @@ function refreshDependentFilters() {
   populateDeclaratiestroomOptions(scoped);
   autoSelectSingleDependentOptions(scoped);
   initAllCustomSelects();
+  updateZorgverzekeraarNotice();
   updateFacturatiemoduleContext();
 }
 
@@ -2279,6 +2327,7 @@ function setupFilterControls() {
 
   verzekeraarSelect.addEventListener("change", (event) => {
     currentZorgverzekeraar = event.target.value;
+    zorgverzekeraarNoticeAcknowledged = false;
     currentFilter = "ALL";
     currentDeclaratiestroom = "ALL";
     refreshDependentFilters();
@@ -2736,6 +2785,7 @@ function setupGemeenteSearch(features) {
     resetButton.addEventListener("click", () => {
       currentGemeente = "";
       currentZorgverzekeraar = "ALL";
+      zorgverzekeraarNoticeAcknowledged = false;
       currentFilter = "ALL";
       currentDeclaratiestroom = "ALL";
       updateGemeenteFoundDisplay();
@@ -2760,6 +2810,15 @@ function setupGemeenteSearch(features) {
       refreshDependentFilters();
       applyActiveFilters();
       setPostcodePanelState("Klik op een zorggroep op de kaart om postcodes te laden.", []);
+    });
+  }
+
+  const noticeConfirmButton = document.getElementById("zorgverzekeraarNoticeConfirm");
+  if (noticeConfirmButton && !noticeConfirmButton.dataset.bound) {
+    noticeConfirmButton.dataset.bound = "1";
+    noticeConfirmButton.addEventListener("click", () => {
+      zorgverzekeraarNoticeAcknowledged = true;
+      updateZorgverzekeraarNotice();
     });
   }
 
