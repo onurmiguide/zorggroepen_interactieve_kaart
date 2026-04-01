@@ -2,6 +2,18 @@
   "updates": [
     {
       "date": "2026-04-01",
+      "title": "VGZ-controlemelding toegevoegd",
+      "scope": "ui",
+      "description": "Bij keuze voor VGZ verschijnt nu een duidelijke bevestigingsmelding in het midden van het scherm.",
+      "summary": [
+        "De melding waarschuwt om te controleren of de verwijzing van een huisarts of specialist komt.",
+        "Gebruikers moeten actief bevestigen met 'Ik heb gecontroleerd'.",
+        "De melding reset automatisch wanneer een andere zorgverzekeraar wordt gekozen of bij een reset van de filters."
+      ],
+      "commit": "6f329ac"
+    },
+    {
+      "date": "2026-04-01",
       "title": "Nieuwe postcode-overrides uit MiGuide_all_v2",
       "scope": "kaart",
       "description": "De kaart gebruikt nu extra postcode-data uit het Excelbestand waar die al bruikbaar ingevuld was.",
