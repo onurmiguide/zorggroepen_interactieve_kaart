@@ -1,0 +1,40 @@
+{
+  "updates": [
+    {
+      "date": "2026-04-01",
+      "title": "Nieuwe postcode-overrides uit MiGuide_all_v2",
+      "scope": "kaart",
+      "description": "De kaart gebruikt nu extra postcode-data uit het Excelbestand waar die al bruikbaar ingevuld was.",
+      "summary": [
+        "RHOGO-postcodes toegevoegd als postcode-overrides.",
+        "Nieuwe postcodes sturen postcodezoekresultaten direct naar de juiste zorggroep waar de Excel dat aangeeft.",
+        "Bestaande logica blijft actief voor alles wat nog niet in het Excelbestand staat."
+      ],
+      "commit": "13536a3"
+    },
+    {
+      "date": "2026-04-01",
+      "title": "Geen zorggroep contract beschikbaar gemaakt",
+      "scope": "kaart",
+      "description": "De oude grijze gebieden zijn nu niet alleen achtergrond, maar een echte routebare zorggroep in de kaart en filters.",
+      "summary": [
+        "Onbedekte gemeenten vallen nu onder 'Geen zorggroep contract'.",
+        "Facturatiemodule volgt de Exceltekst: geen contract = ZoHealthy, contract en niet VGZ = MiGuide, VGZ = MiGuide - VGZ.",
+        "De zorggroep is zichtbaar op de kaart en kan via postcode of filters gevonden worden."
+      ],
+      "commit": "13536a3"
+    },
+    {
+      "date": "2026-04-01",
+      "title": "Gemeente-indicatie en kaartdekking verbeterd",
+      "scope": "ui",
+      "description": "Kleine usability-updates zodat gebruikers beter zien wat gevonden is en waar nog geen zorggroepdekking zat.",
+      "summary": [
+        "Gevonden gemeente blijft zichtbaar onder het zoekveld.",
+        "Niet-gedekte gemeenten werden eerst grijs getoond en vormen nu de basis voor 'Geen zorggroep contract'.",
+        "Plaatsenlijst-hoogte en kaartweergave zijn eerder strakker gezet."
+      ],
+      "commit": "98943ef / 769aa4a"
+    }
+  ]
+}
