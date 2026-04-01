@@ -362,11 +362,18 @@ let postcodePanelRequestId = 0;
 const gemeentePostcodeCache = new Map();
 const zorggroepPostcodeRangeCache = new Map();
 const customSelectObservers = new Map();
+const customSelectTypeaheadTimers = new Map();
 let appInitialized = false;
 let currentAppView = APP_VIEWS.LANDING;
 let zorgverzekeraarNoticeAcknowledged = false;
 
 const NO_ZORGGROEP_CONTRACT_NAME = "Geen zorggroep contract";
+const OVERLAP_GEMEENTE_OWNER_OVERRIDES = new Map([
+  [normalizeText("Baarn"), normalizeText("RHOGO (Regionale Huisartsen Organisatie Gooi en Omstreken BV)")],
+  [normalizeText("Soest"), normalizeText("Eemland")],
+  [normalizeText("Utrechtse Heuvelrug"), normalizeText("UNICUM")],
+  [normalizeText("Beekdaelen"), normalizeText("HOZL")]
+]);
 
 function createMap() {
   if (map) {
@@ -903,13 +910,49 @@ function normalizeContractValue(value) {
   return null;
 }
 
+function resolveWorkbookSpecialRouting(feature, insurerName = "") {
+  const zorggroepNorm = normalizeText(getZorggroepName(feature));
+  const insurerNorm = normalizeInsurerKey(insurerName);
+
+  if (!insurerNorm || insurerNorm === "all") {
+    return null;
+  }
+
+  // MiGuide_all_v2.xlsx -> "Coöperatie Amsterdam (niet DSW/SH + Salland?)"
+  // Bijzonderheid: Gezondheid Amsterdam zorggroep + DSW = ZoHealthy
+  if ((zorggroepNorm === "zorggroep gezondheid amsterdam" || zorggroepNorm === "gezondheid amsterdam") && insurerNorm === "dsw") {
+    return {
+      routeType: "workbook_special_ga_dsw",
+      moduleName: "ZoHealthy",
+      stroom: FACTURATIESTROMEN.STROOM_3
+    };
+  }
+
+  // MiGuide_all_v2.xlsx -> "Rijnmond Dokters"
+  // Bijzonderheid: DSW binnen ZorgGroep Rijnmond dokters = Zorggroep
+  if (zorggroepNorm === "rijnmond dokters" && insurerNorm === "dsw") {
+    return {
+      routeType: "workbook_special_rijnmond_dsw",
+      moduleName: "Zorggroep",
+      stroom: FACTURATIESTROMEN.STROOM_1
+    };
+  }
+
+  return null;
+}
+
 function resolveDecisionTreeRouting2026(feature, insurerName = "") {
   const zorggroepNorm = normalizeText(getZorggroepName(feature));
   const insurerNorm = normalizeInsurerKey(insurerName);
   const routeType = BESLISBOOM_ROUTE_BY_ZORGGROEP_2026.get(zorggroepNorm) || null;
+  const workbookSpecialRoute = resolveWorkbookSpecialRouting(feature, insurerName);
 
   if (!routeType) {
-    return null;
+    return workbookSpecialRoute;
+  }
+
+  if (workbookSpecialRoute) {
+    return workbookSpecialRoute;
   }
 
   if (routeType === "ga") {
@@ -1369,24 +1412,37 @@ function colorFromString(str) {
 }
 
 function style(feature) {
+  const isNoContract = normalizeText(getZorggroepName(feature)) === normalizeText(NO_ZORGGROEP_CONTRACT_NAME);
   return {
-    weight: 1,
+    weight: isNoContract ? 0.6 : 1,
     opacity: 1,
-    color: "#334155",
+    color: isNoContract ? "#64748b" : "#334155",
     dashArray: null,
-    fillOpacity: 0.45,
+    fillOpacity: isNoContract ? 0.28 : 0.45,
     fillColor: colorFromString(getZorggroepName(feature))
   };
 }
 
+function isNoContractFeature(feature) {
+  return normalizeText(getZorggroepName(feature)) === normalizeText(NO_ZORGGROEP_CONTRACT_NAME);
+}
+
+function buildNoContractTooltipText(gemeenteNaam = "") {
+  if (gemeenteNaam) {
+    return `Geen zorggroep contract<br><small>${gemeenteNaam}</small>`;
+  }
+  return "Geen zorggroep contract";
+}
+
 function highlightFeature(e) {
   const layer = e.target;
+  const isNoContract = isNoContractFeature(layer.feature);
   closeActiveHoverTooltip(layer);
   layer.setStyle({
-    weight: 3,
-    color: "#0f172a",
+    weight: isNoContract ? 1.2 : 3,
+    color: isNoContract ? "#475569" : "#0f172a",
     dashArray: null,
-    fillOpacity: 0.65
+    fillOpacity: isNoContract ? 0.36 : 0.65
   });
 
   if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
@@ -1472,6 +1528,17 @@ function onEachFeature(feature, layer) {
   layer.on({
     mouseover: highlightFeature,
     mouseout: resetHighlight,
+    mousemove: (event) => {
+      if (!isNoContractFeature(feature)) {
+        return;
+      }
+      const gemeenteNaam = municipalityForPoint([event.latlng.lng, event.latlng.lat]) || "";
+      layer.setTooltipContent(buildNoContractTooltipText(gemeenteNaam));
+      if (typeof layer.openTooltip === "function") {
+        layer.openTooltip(event.latlng);
+        activeTooltipLayer = layer;
+      }
+    },
     click: (event) => {
       L.DomEvent.stopPropagation(event);
       closeActiveHoverTooltip(layer);
@@ -1497,9 +1564,11 @@ function onEachFeature(feature, layer) {
   });
 
   const overlapGemeenten = Array.isArray(feature?.properties?.overlapGemeenten) ? feature.properties.overlapGemeenten : [];
-  const tooltipText = overlapGemeenten.length
-    ? `${getZorggroepName(feature)}<br><small>Overlap: ${overlapGemeenten.join(", ")}</small>`
-    : getZorggroepName(feature);
+  const tooltipText = isNoContractFeature(feature)
+    ? buildNoContractTooltipText()
+    : overlapGemeenten.length
+      ? `${getZorggroepName(feature)}<br><small>Overlap: ${overlapGemeenten.join(", ")}</small>`
+      : getZorggroepName(feature);
   layer.bindTooltip(tooltipText, {
     sticky: false,
     direction: "top",
@@ -1749,6 +1818,88 @@ function closeAllCustomSelectMenus(exceptSelectId = "") {
   });
 }
 
+function resetCustomSelectTypeahead(root) {
+  if (!root) {
+    return;
+  }
+  const selectId = root.getAttribute("data-custom-select") || "";
+  root.dataset.typeaheadBuffer = "";
+  const timer = customSelectTypeaheadTimers.get(selectId);
+  if (timer) {
+    clearTimeout(timer);
+    customSelectTypeaheadTimers.delete(selectId);
+  }
+}
+
+function queueCustomSelectTypeahead(root, key) {
+  const selectId = root.getAttribute("data-custom-select") || "";
+  const currentBuffer = root.dataset.typeaheadBuffer || "";
+  const nextBuffer = `${currentBuffer}${normalizeText(key)}`;
+  root.dataset.typeaheadBuffer = nextBuffer;
+
+  const existingTimer = customSelectTypeaheadTimers.get(selectId);
+  if (existingTimer) {
+    clearTimeout(existingTimer);
+  }
+
+  const timer = setTimeout(() => {
+    root.dataset.typeaheadBuffer = "";
+    customSelectTypeaheadTimers.delete(selectId);
+  }, 700);
+  customSelectTypeaheadTimers.set(selectId, timer);
+
+  return nextBuffer;
+}
+
+function focusCustomSelectOption(menu, selectValue) {
+  if (!menu || !selectValue) {
+    return;
+  }
+  const items = [...menu.querySelectorAll("button[data-value]")];
+  const target = items.find((item) => item.dataset.value === selectValue);
+  if (!target) {
+    return;
+  }
+  target.focus();
+  target.scrollIntoView({ block: "nearest" });
+}
+
+function findCustomSelectMatch(select, query, fallbackChar = "") {
+  const options = [...select.options].filter((opt) => !opt.disabled);
+  if (!options.length) {
+    return null;
+  }
+
+  const normalizedQuery = normalizeText(query);
+  const currentIndex = Math.max(0, options.findIndex((opt) => opt.value === select.value));
+
+  const findFrom = (needle) => {
+    if (!needle) {
+      return null;
+    }
+    for (let offset = 1; offset <= options.length; offset++) {
+      const option = options[(currentIndex + offset) % options.length];
+      if (normalizeText(option.textContent).startsWith(needle)) {
+        return option;
+      }
+    }
+    return null;
+  };
+
+  return findFrom(normalizedQuery) || findFrom(normalizeText(fallbackChar));
+}
+
+function openAndFocusCustomSelectMatch(root, select, button, menu, option) {
+  if (!root || !select || !button || !menu || !option) {
+    return;
+  }
+  closeAllCustomSelectMenus(select.id);
+  menu.hidden = false;
+  renderCustomSelect(select);
+  positionCustomSelectMenu(root, button, menu);
+  focusCustomSelectOption(menu, option.value);
+}
+
 function positionCustomSelectMenu(root, button, menu) {
   if (!root || !button || !menu) {
     return;
@@ -1869,6 +2020,60 @@ function initCustomSelect(selectId) {
       }
     });
 
+    button.addEventListener("keydown", (event) => {
+      if (select.disabled) {
+        return;
+      }
+
+      if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+        event.preventDefault();
+        closeAllCustomSelectMenus(selectId);
+        menu.hidden = false;
+        renderCustomSelect(select);
+        positionCustomSelectMenu(root, button, menu);
+        focusCustomSelectOption(menu, select.value || (select.options[0] && select.options[0].value));
+        return;
+      }
+
+      if (event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey) {
+        event.preventDefault();
+        const buffer = queueCustomSelectTypeahead(root, event.key);
+        const match = findCustomSelectMatch(select, buffer, event.key);
+        if (match) {
+          openAndFocusCustomSelectMatch(root, select, button, menu, match);
+        }
+      }
+    });
+
+    menu.addEventListener("keydown", (event) => {
+      if (select.disabled) {
+        return;
+      }
+
+      if (event.key === "Escape") {
+        event.preventDefault();
+        menu.hidden = true;
+        resetCustomSelectTypeahead(root);
+        button.focus();
+        return;
+      }
+
+      if (event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey) {
+        event.preventDefault();
+        const buffer = queueCustomSelectTypeahead(root, event.key);
+        const activeValue = event.target instanceof HTMLElement ? event.target.dataset.value : "";
+        if (activeValue) {
+          select.value = activeValue;
+        }
+        const match = findCustomSelectMatch(select, buffer, event.key);
+        if (match) {
+          renderCustomSelect(select);
+          positionCustomSelectMenu(root, button, menu);
+          focusCustomSelectOption(menu, match.value);
+        }
+      }
+    });
+
     const repositionIfOpen = () => {
       if (!menu.hidden) {
         positionCustomSelectMenu(root, button, menu);
@@ -1878,6 +2083,7 @@ function initCustomSelect(selectId) {
     window.addEventListener("scroll", repositionIfOpen, true);
 
     select.addEventListener("change", () => {
+      resetCustomSelectTypeahead(root);
       renderCustomSelect(select);
     });
 
@@ -2816,9 +3022,18 @@ function setupGemeenteSearch(features) {
   const noticeConfirmButton = document.getElementById("zorgverzekeraarNoticeConfirm");
   if (noticeConfirmButton && !noticeConfirmButton.dataset.bound) {
     noticeConfirmButton.dataset.bound = "1";
-    noticeConfirmButton.addEventListener("click", () => {
+    noticeConfirmButton.addEventListener("click", async () => {
       zorgverzekeraarNoticeAcknowledged = true;
       updateZorgverzekeraarNotice();
+
+      const hasSearchValue = input.value.trim() !== "";
+      if (hasSearchValue) {
+        await executeSearch();
+        return;
+      }
+
+      refreshDependentFilters();
+      applyActiveFilters();
     });
   }
 
@@ -2940,7 +3155,7 @@ function buildZorggroepFeatures(zorggroepen, gemeenteFeatures, contractsByZorggr
     }
   }
 
-  const features = [];
+  const featureDrafts = [];
 
   const expandedZorggroepen = [];
   for (const item of zorggroepen) {
@@ -2952,9 +3167,8 @@ function buildZorggroepFeatures(zorggroepen, gemeenteFeatures, contractsByZorggr
   }
 
   for (const item of expandedZorggroepen) {
-    const matchedGemeenten = [];
     const unmatchedCities = [];
-    const seenGemeente = new Set();
+    const mappedCities = [];
 
     for (const city of item.cities || []) {
       const gemeenteNaam = cityToGemeenteName(city, gemeenteByNormName);
@@ -2962,27 +3176,7 @@ function buildZorggroepFeatures(zorggroepen, gemeenteFeatures, contractsByZorggr
         unmatchedCities.push(city);
         continue;
       }
-
-      const norm = normalizeText(gemeenteNaam);
-      if (seenGemeente.has(norm)) {
-        continue;
-      }
-      seenGemeente.add(norm);
-      matchedGemeenten.push(gemeenteNaam);
-    }
-
-    const multiPolygonCoords = [];
-    for (const gemeenteNaam of matchedGemeenten) {
-      const gemeenteFeature = gemeenteByNormName.get(normalizeText(gemeenteNaam));
-      if (!gemeenteFeature) {
-        continue;
-      }
-      const parts = geometryToMultiPolygonParts(gemeenteFeature.geometry);
-      multiPolygonCoords.push(...parts);
-    }
-
-    if (multiPolygonCoords.length === 0) {
-      continue;
+      mappedCities.push({ city, gemeenteNaam });
     }
 
     const zorggroepName = item.zorggroep || "Onbekend";
@@ -2999,16 +3193,77 @@ function buildZorggroepFeatures(zorggroepen, gemeenteFeatures, contractsByZorggr
       contracts.push(row);
     }
 
+    featureDrafts.push({
+      zorggroep: zorggroepName,
+      regio: item.regio || zorggroepName || "Onbekend",
+      website: item.website || "",
+      mappedCities,
+      unmatchedCities,
+      contracts
+    });
+  }
+
+  const draftsByGemeente = new Map();
+  for (const draft of featureDrafts) {
+    const uniqueGemeenten = [...new Set(draft.mappedCities.map((entry) => entry.gemeenteNaam))];
+    for (const gemeenteNaam of uniqueGemeenten) {
+      const key = normalizeText(gemeenteNaam);
+      if (!key) {
+        continue;
+      }
+      const owners = draftsByGemeente.get(key) || [];
+      owners.push(draft);
+      draftsByGemeente.set(key, owners);
+    }
+  }
+
+  for (const [gemeenteKey, owners] of draftsByGemeente.entries()) {
+    if (owners.length <= 1) {
+      continue;
+    }
+
+    const preferredOwnerKey = OVERLAP_GEMEENTE_OWNER_OVERRIDES.get(gemeenteKey);
+    const preferredOwner = preferredOwnerKey
+      ? owners.find((draft) => normalizeText(draft.zorggroep) === preferredOwnerKey)
+      : owners[0];
+
+    for (const draft of owners) {
+      if (draft === preferredOwner) {
+        continue;
+      }
+      draft.mappedCities = draft.mappedCities.filter((entry) => normalizeText(entry.gemeenteNaam) !== gemeenteKey);
+    }
+  }
+
+  const features = [];
+  for (const draft of featureDrafts) {
+    const matchedGemeenten = [...new Set(draft.mappedCities.map((entry) => entry.gemeenteNaam))];
+    const remainingCities = draft.mappedCities.map((entry) => entry.city);
+
+    const multiPolygonCoords = [];
+    for (const gemeenteNaam of matchedGemeenten) {
+      const gemeenteFeature = gemeenteByNormName.get(normalizeText(gemeenteNaam));
+      if (!gemeenteFeature) {
+        continue;
+      }
+      const parts = geometryToMultiPolygonParts(gemeenteFeature.geometry);
+      multiPolygonCoords.push(...parts);
+    }
+
+    if (multiPolygonCoords.length === 0) {
+      continue;
+    }
+
     features.push({
       type: "Feature",
       properties: {
-        zorggroep: zorggroepName,
-        regio: item.regio || zorggroepName || "Onbekend",
-        website: item.website || "",
-        cities: Array.isArray(item.cities) ? item.cities : [],
+        zorggroep: draft.zorggroep,
+        regio: draft.regio,
+        website: draft.website,
+        cities: remainingCities,
         gemeenten: matchedGemeenten,
-        unmatchedCities,
-        contracts
+        unmatchedCities: draft.unmatchedCities,
+        contracts: draft.contracts
       },
       geometry: {
         type: "MultiPolygon",

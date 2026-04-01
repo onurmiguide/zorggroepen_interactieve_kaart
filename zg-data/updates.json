@@ -2,6 +2,19 @@
   "updates": [
     {
       "date": "2026-04-01",
+      "title": "Kaartinteractie en Excel-uitzonderingen verfijnd",
+      "scope": "kaart",
+      "description": "De kaartlogica is strakker gemaakt op basis van workbook-bijzonderheden en overlapgevallen, zodat hover en routing minder glitchy zijn.",
+      "summary": [
+        "Bijzonderheden uit MiGuide_all_v2 verwerkt: Gezondheid Amsterdam + DSW gaat nu naar ZoHealthy, Rijnmond Dokters + DSW gaat nu naar Zorggroep.",
+        "Overlappende gemeenten zijn ontkoppeld zodat dezelfde gemeente niet meer aan meerdere zorggroepen tegelijk hangt.",
+        "Geen zorggroep contract toont nu bij hover ook de gemeentenaam.",
+        "Custom dropdowns ondersteunen nu typen op letters om sneller naar de juiste optie te springen.",
+        "De VGZ-bevestigknop hervat nu direct de zoekactie zonder nog een extra klik op Zoek."
+      ]
+    },
+    {
+      "date": "2026-04-01",
       "title": "VGZ-controlemelding toegevoegd",
       "scope": "ui",
       "description": "Bij keuze voor VGZ verschijnt nu een duidelijke bevestigingsmelding in het midden van het scherm.",
