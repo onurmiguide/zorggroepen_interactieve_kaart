@@ -1,6 +1,18 @@
 {
   "updates": [
     {
+      "date": "2026-04-03",
+      "title": "GA-mapping gecorrigeerd en veilige cleanup gedaan",
+      "scope": "kaart",
+      "description": "Een te brede gemeentemapping is rechtgezet zodat Hoofddorp niet meer onterecht onder Gezondheid Amsterdam valt.",
+      "summary": [
+        "Badhoevedorp claimt niet meer de hele gemeente Haarlemmermeer in de kaartlogica.",
+        "Hierdoor valt Hoofddorp niet langer foutief onder Zorggroep Gezondheid Amsterdam (GA).",
+        "Ongebruikte image-assets zijn verwijderd en cachebestanden worden nu genegeerd via .gitignore."
+      ],
+      "commit": "4d4cc23"
+    },
+    {
       "date": "2026-04-01",
       "title": "Kaartinteractie en Excel-uitzonderingen verfijnd",
       "scope": "kaart",
