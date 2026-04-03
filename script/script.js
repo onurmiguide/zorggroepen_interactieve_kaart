@@ -300,7 +300,9 @@ const CITY_TO_GEMEENTE = {
   "soesterberg": "Soest",
   "amsterdam alle ziekenhuizen en huisartsen uit amsterdam vallen hieronder": "Amsterdam",
   "duivendrecht": "Ouder-Amstel",
-  "badhoevedorp": "Haarlemmermeer",
+  // Badhoevedorp is only a partial fit inside Haarlemmermeer.
+  // Mapping it to the full municipality incorrectly pulls Hoofddorp into GA.
+  "badhoevedorp": "",
   "sittard": "Sittard-Geleen",
   "geleen": "Sittard-Geleen",
   "echt": "Echt-Susteren",
