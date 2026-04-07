@@ -2,6 +2,17 @@
   "updates": [
     {
       "date": "2026-04-07",
+      "title": "Someren toegevoegd aan StroomZ/PostZ",
+      "scope": "kaart",
+      "description": "De zorggroepbron is aangevuld zodat Someren niet meer onterecht onder 'Geen zorggroep contract' valt.",
+      "summary": [
+        "Someren is toegevoegd aan 'Post- Z (Naam in zorgtraject = StroomZ)' in de zorggroepbron.",
+        "Daardoor volgt 5712HC nu de zorggroeproute in plaats van de no-contract route.",
+        "Met CZ komt deze case nu uit op Facturatiemodule 'Zorggroep'."
+      ]
+    },
+    {
+      "date": "2026-04-07",
       "title": "Zorggroep weer hoofdregel bij zorggroepafspraken",
       "scope": "kaart",
       "description": "De routing volgt nu strakker Vincents beslisboom: bij zorggroepafspraken is Zorggroep weer de standaard, behalve bij expliciete uitzonderingen.",
