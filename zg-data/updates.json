@@ -2,6 +2,17 @@
   "updates": [
     {
       "date": "2026-04-07",
+      "title": "Zorggroep weer hoofdregel bij zorggroepafspraken",
+      "scope": "kaart",
+      "description": "De routing volgt nu strakker Vincents beslisboom: bij zorggroepafspraken is Zorggroep weer de standaard, behalve bij expliciete uitzonderingen.",
+      "summary": [
+        "De brede regel die rode verzekeraars automatisch naar ZoHealthy stuurde is verwijderd voor algemene zorggroeproutes.",
+        "Voorbeelden zoals Eindhoven / StroomZ / CZ komen nu weer uit op Facturatiemodule 'Zorggroep'.",
+        "Expliciete uitzonderingen blijven bestaan, zoals Gezondheid Amsterdam + DSW -> ZoHealthy en Almere + VGZ -> MiGuide - VGZ."
+      ]
+    },
+    {
+      "date": "2026-04-07",
       "title": "UNICUM + CZ routing gecorrigeerd",
       "scope": "kaart",
       "description": "Een te brede CZ-afhandeling voor zorggroeproutes is aangescherpt voor de Unicum-postcodeoverrides.",

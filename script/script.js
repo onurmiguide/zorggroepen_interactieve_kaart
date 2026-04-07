@@ -179,16 +179,11 @@ const DECLARATIE_PER_VERZEKERAAR_OUTPUT = {
 
 const ZOHEALTHY_INSURERS = new Set(ZOHEALTHY_INSURERS_2026_CONFIRMED);
 
-const DIRECT_INSURER_ZORGGROEPEN = new Set([
-  "zorggroep almere",
-  "almere"
-]);
-
 const BESLISBOOM_ROUTE_BY_ZORGGROEP_2026 = new Map([
   ["zorggroep gezondheid amsterdam", "ga"],
   ["gezondheid amsterdam", "ga"],
-  ["zorggroep almere", "direct_insurer"],
-  ["almere", "direct_insurer"],
+  ["zorggroep almere", "zorggroep"],
+  ["almere", "zorggroep"],
   ["geen zorggroep contract", "no_contract"],
   ["zhz cz", "zhz_cz"],
   ["zhz vgz", "zhz_vgz"],
@@ -952,6 +947,16 @@ function resolveWorkbookSpecialRouting(feature, insurerName = "") {
     };
   }
 
+  // Zorggroep Almere volgt in principe de normale zorggroeproute.
+  // Alleen VGZ (en labels) blijft een expliciete uitzondering naar MiGuide - VGZ.
+  if ((zorggroepNorm === "zorggroep almere" || zorggroepNorm === "almere") && insurerNorm === "vgz") {
+    return {
+      routeType: "workbook_special_almere_vgz",
+      moduleName: "MiGuide - VGZ",
+      stroom: FACTURATIESTROMEN.STROOM_2
+    };
+  }
+
   return null;
 }
 
@@ -1178,14 +1183,6 @@ function resolveDecisionTreeRouting2026(feature, insurerName = "") {
       };
     }
 
-    if (ZOHEALTHY_INSURERS.has(insurerNorm)) {
-      return {
-        routeType,
-        moduleName: "ZoHealthy",
-        stroom: FACTURATIESTROMEN.STROOM_5
-      };
-    }
-
     return {
       routeType,
       moduleName: "Zorggroep",
@@ -1214,19 +1211,6 @@ function fallbackDeclaratiestroomForFeature(feature, insurerName = "") {
     return FACTURATIESTROMEN.STROOM_4;
   }
 
-  // Beslisboom 20260204:
-  // sommige regio's lopen niet via een zorggroepsmodule maar rechtstreeks via verzekeraar.
-  // Voor Almere moet VGZ dus op MiGuide - VGZ uitkomen i.p.v. Zorggroep.
-  if (DIRECT_INSURER_ZORGGROEPEN.has(normalized)) {
-    if (!insurerKey || insurerKey === "all") {
-      return "Declaratiestromen per zorgverzekeraar";
-    }
-    if (ZOHEALTHY_INSURERS.has(insurerKey)) {
-      return FACTURATIESTROMEN.STROOM_5;
-    }
-    return FACTURATIESTROMEN.STROOM_2;
-  }
-
   if (normalizeText(raw) !== "declaratiestromen per zorgverzekeraar") {
     const normalizedFallback = normalizeFacturatiestroom(raw, feature, insurerName);
     const isGenericZorggroepRoute = normalizedFallback === FACTURATIESTROMEN.STROOM_1
@@ -1243,13 +1227,6 @@ function fallbackDeclaratiestroomForFeature(feature, insurerName = "") {
         "extern monter",
         "was boards"
       ].some((token) => normalizeText(raw).includes(token));
-
-    // Beslisboom 20260204:
-    // bij zorggroep-afspraken, maar geen afspraak met gekozen verzekeraar,
-    // gaat de route naar ZoHealthy voor DSW/CZ/Zorg & Zekerheid/Salland/Aevitae.
-    if (insurerKey && ZOHEALTHY_INSURERS.has(insurerKey) && isGenericZorggroepRoute) {
-      return FACTURATIESTROMEN.STROOM_5;
-    }
 
     return normalizedFallback;
   }
