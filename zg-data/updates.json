@@ -1,6 +1,17 @@
 {
   "updates": [
     {
+      "date": "2026-04-07",
+      "title": "UNICUM + CZ routing gecorrigeerd",
+      "scope": "kaart",
+      "description": "Een te brede CZ-afhandeling voor zorggroeproutes is aangescherpt voor de Unicum-postcodeoverrides.",
+      "summary": [
+        "Postcodes uit de Unicum-sheet zoals 3962BP blijven nu bij de normale zorggroeproute.",
+        "Voor UNICUM + CZ geeft de tool nu weer Facturatiemodule 'Zorggroep' in plaats van ZoHealthy.",
+        "De wijziging volgt de postcodebron uit MiGuide_all_v2 en sluit beter aan op de beslisboom."
+      ]
+    },
+    {
       "date": "2026-04-03",
       "title": "GA-mapping gecorrigeerd en veilige cleanup gedaan",
       "scope": "kaart",

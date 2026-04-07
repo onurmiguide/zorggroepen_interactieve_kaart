@@ -940,6 +940,18 @@ function resolveWorkbookSpecialRouting(feature, insurerName = "") {
     };
   }
 
+  // MiGuide_all_v2.xlsx -> "Unicum"
+  // Postcodes zoals 3962BP vallen daar expliciet onder Unicum.
+  // Voor deze zorggroep geldt volgens de beslisboom de normale zorggroeproute,
+  // zolang er geen aparte workbook-bijzonderheid staat die CZ naar ZoHealthy zet.
+  if (zorggroepNorm === "unicum" && insurerNorm === "cz") {
+    return {
+      routeType: "workbook_special_unicum_cz",
+      moduleName: "Zorggroep",
+      stroom: FACTURATIESTROMEN.STROOM_1
+    };
+  }
+
   return null;
 }
 
