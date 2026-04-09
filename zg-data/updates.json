@@ -1,6 +1,17 @@
 {
   "updates": [
     {
+      "date": "2026-04-09",
+      "title": "Weesp-postcodes volgen nu RHOGO op woonplaatsniveau",
+      "scope": "kaart",
+      "description": "Postcodezoekresultaten voor Weesp gebruiken nu de woonplaats uit PDOK in plaats van alleen de huidige gemeentegrens, zodat RHOGO niet meer door Amsterdam/GA wordt overschreven.",
+      "summary": [
+        "Postcodes zoals 1382AB, 1383ED en 1384AM blijven nu gekoppeld aan Weesp en daarmee aan RHOGO.",
+        "De postcode-overrides krijgen voortaan voorrang op basis van woonplaats als PDOK de gemeente Amsterdam teruggeeft.",
+        "Hierdoor verdwijnt het foutieve Gezondheid Amsterdam-resultaat bij Weesp-cases, ook voor verzekeraars zoals AZVZ."
+      ]
+    },
+    {
       "date": "2026-04-07",
       "title": "Someren toegevoegd aan StroomZ/PostZ",
       "scope": "kaart",

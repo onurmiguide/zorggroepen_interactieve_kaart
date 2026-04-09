@@ -2810,6 +2810,48 @@ async function lookupPostcodeToGemeente(postcodeInput) {
   return { gemeenten, postcodes };
 }
 
+async function lookupPostcodePlaatsInfo(postcodeInput) {
+  const pc6 = formatPostcode(postcodeInput);
+  const pc4 = formatPostcode4(postcodeInput);
+  const query = pc6 || pc4;
+  if (!query) {
+    return null;
+  }
+
+  const url = `https://api.pdok.nl/bzk/locatieserver/search/v3_1/free?q=${encodeURIComponent(query)}`;
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`Locatieserver lookup mislukt (${response.status})`);
+  }
+
+  const data = await response.json();
+  const docs = Array.isArray(data?.response?.docs) ? data.response.docs : [];
+  const exact = docs.find((doc) => String(doc?.postcode || "").toUpperCase().replace(/\s+/g, "") === query)
+    || docs[0]
+    || null;
+
+  if (!exact) {
+    return null;
+  }
+
+  return {
+    woonplaatsnaam: exact.woonplaatsnaam || "",
+    gemeentenaam: exact.gemeentenaam || ""
+  };
+}
+
+function featureMatchesLocationName(feature, locationName = "") {
+  const target = normalizeText(locationName);
+  if (!target || !feature) {
+    return false;
+  }
+
+  const gemeenten = Array.isArray(feature?.properties?.gemeenten) ? feature.properties.gemeenten : [];
+  const cities = Array.isArray(feature?.properties?.cities) ? feature.properties.cities : [];
+  return gemeenten.some((name) => normalizeText(name) === target)
+    || cities.some((name) => normalizeText(name) === target);
+}
+
 function setupGemeenteSearch(features) {
   const input = document.getElementById("gemeenteSearch");
   const suggestions = document.getElementById("gemeenteSuggestions");
@@ -2878,9 +2920,13 @@ function setupGemeenteSearch(features) {
         return;
       }
       try {
-        const result = await lookupPostcodeToGemeente(normalizedInput);
-        const gemeenteNaam = result.gemeenten[0];
         const postcodeOverride = findPostcodeOverride(normalizedInput, currentZorgverzekeraar);
+        const [result, plaatsInfo] = await Promise.all([
+          lookupPostcodeToGemeente(normalizedInput),
+          lookupPostcodePlaatsInfo(normalizedInput).catch(() => null)
+        ]);
+        const gemeenteNaam = result.gemeenten[0] || plaatsInfo?.gemeentenaam || "";
+        const woonplaatsNaam = plaatsInfo?.woonplaatsnaam || "";
 
         if (!gemeenteNaam && !postcodeOverride) {
           currentGemeente = "";
@@ -2905,12 +2951,19 @@ function setupGemeenteSearch(features) {
           return;
         }
 
-        currentGemeente = gemeenteNaam;
-        updateGemeenteFoundDisplay();
         input.value = normalizedInput;
-        refreshDependentFilters();
+
         if (postcodeOverride?.zorggroep) {
+          const overrideFeature = getFeatureByZorggroepName(postcodeOverride.zorggroep);
+          const preferredLocation = [woonplaatsNaam, gemeenteNaam].find((name) =>
+            featureMatchesLocationName(overrideFeature, name)
+          );
+          currentGemeente = preferredLocation || gemeenteNaam;
+
+          updateGemeenteFoundDisplay();
           currentFilter = postcodeOverride.zorggroep;
+          refreshDependentFilters();
+
           const zorggroepSelect = document.getElementById("zorggroepFilter");
           if (zorggroepSelect) {
             const hasOption = [...zorggroepSelect.options].some((option) => option.value === postcodeOverride.zorggroep);
@@ -2921,20 +2974,27 @@ function setupGemeenteSearch(features) {
               currentFilter = "ALL";
             }
           }
+        } else {
+          currentGemeente = woonplaatsNaam || gemeenteNaam;
+          updateGemeenteFoundDisplay();
+          refreshDependentFilters();
         }
+
         applyActiveFilters();
         if (Array.isArray(result.postcodes) && result.postcodes.length) {
           const range = summarizePostcodeRange(result.postcodes);
           const compactRange = formatCompactRangeLine(range);
           setPostcodePanelState(
-            `Postcodezoekresultaat ${normalizedInput} (${gemeenteNaam})`,
+            `Postcodezoekresultaat ${normalizedInput} (${woonplaatsNaam || gemeenteNaam})`,
             compactRange ? [compactRange] : ["Geen postcode-range gevonden"]
           );
         }
         if (postcodeOverride?.zorggroep) {
-          showStatus(`Postcode ${normalizedInput} gekoppeld aan ${postcodeOverride.zorggroep}${gemeenteNaam ? ` in gemeente ${gemeenteNaam}` : ""}.`);
+          const locationLabel = woonplaatsNaam || gemeenteNaam;
+          showStatus(`Postcode ${normalizedInput} gekoppeld aan ${postcodeOverride.zorggroep}${locationLabel ? ` bij ${locationLabel}` : ""}.`);
         } else {
-          showStatus(`Postcode ${normalizedInput} gevonden in gemeente ${gemeenteNaam}.`);
+          const locationLabel = woonplaatsNaam || gemeenteNaam;
+          showStatus(`Postcode ${normalizedInput} gevonden bij ${locationLabel}.`);
         }
         return;
       } catch (error) {
