@@ -2,6 +2,17 @@
   "updates": [
     {
       "date": "2026-04-09",
+      "title": "Filterlayout en resetknop visueel aangescherpt",
+      "scope": "ui",
+      "description": "De filterkolom is stabieler gemaakt zodat zoekresultaten de layout niet meer laten verspringen, en de resetknop sluit nu beter aan op de rest van de interface.",
+      "summary": [
+        "De balk 'Gevonden gemeente' houdt nu vaste ruimte vast zodat de rechter filterkolom niet meer omlaag springt na een postcodezoekopdracht.",
+        "Lange zorggroepnamen in de custom dropdowns blijven nu op één regel met afkapping, zodat onderliggende blokken niet meer overlappen.",
+        "De resetknop gebruikt nu dezelfde lichte roodtint als de concept/demo-badge voor een duidelijkere maar rustige actieknop."
+      ]
+    },
+    {
+      "date": "2026-04-09",
       "title": "Postcodezoekresultaten zijn nu woonplaats-bewust",
       "scope": "kaart",
       "description": "De postcodeflow gebruikt nu zowel woonplaats als gemeente bij het filteren van zorggroepen, zodat plaatsen met een gemeentelijke herindeling correct blijven matchen.",

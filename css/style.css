@@ -195,6 +195,20 @@ body.dark-mode .sticky.top-0 {
   margin-bottom: 4px;
 }
 
+[data-custom-select-button] {
+  min-height: 46px;
+  overflow: hidden;
+}
+
+[data-custom-select-label] {
+  display: block;
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .landing-shell {
   background-image:
     radial-gradient(circle at top right, rgba(14, 165, 233, 0.12), transparent 28%),

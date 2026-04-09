@@ -1800,13 +1800,13 @@ function updateGemeenteFoundDisplay() {
   }
 
   if (!currentGemeente) {
-    el.hidden = true;
     el.textContent = "";
+    el.classList.add("opacity-0", "pointer-events-none");
     return;
   }
 
-  el.hidden = false;
   el.textContent = `Gevonden gemeente: ${currentGemeente}`;
+  el.classList.remove("opacity-0", "pointer-events-none");
 }
 
 function updateZorgverzekeraarNotice() {
