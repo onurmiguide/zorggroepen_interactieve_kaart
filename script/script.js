@@ -350,6 +350,7 @@ let activeTooltipLayer = null;
 let allFeatures = [];
 let currentFilter = "ALL";
 let currentGemeente = "";
+let currentGemeenteCandidates = [];
 let currentZorgverzekeraar = "ALL";
 let currentDeclaratiestroom = "ALL";
 let gemeenteFeaturesStore = [];
@@ -628,6 +629,41 @@ function normalizeText(value) {
     .trim();
 }
 
+function setGemeenteContext(primary = "", candidates = []) {
+  currentGemeente = primary || "";
+  const rawCandidates = [primary, ...(Array.isArray(candidates) ? candidates : [])];
+  const unique = [];
+  const seen = new Set();
+
+  for (const value of rawCandidates) {
+    const raw = String(value || "").trim();
+    const normalized = normalizeText(raw);
+    if (!normalized || seen.has(normalized)) {
+      continue;
+    }
+    seen.add(normalized);
+    unique.push(raw);
+  }
+
+  currentGemeenteCandidates = unique;
+}
+
+function featureMatchesCurrentGemeente(feature) {
+  if (!currentGemeente) {
+    return true;
+  }
+
+  const gemeenten = Array.isArray(feature?.properties?.gemeenten) ? feature.properties.gemeenten : [];
+  const cities = Array.isArray(feature?.properties?.cities) ? feature.properties.cities : [];
+  const targets = currentGemeenteCandidates.length ? currentGemeenteCandidates : [currentGemeente];
+
+  return targets.some((targetValue) => {
+    const target = normalizeText(targetValue);
+    return gemeenten.some((name) => normalizeText(name) === target)
+      || cities.some((name) => normalizeText(name) === target);
+  });
+}
+
 function normalizeInsurerKey(value) {
   const normalized = normalizeText(value);
   return INSURER_LABEL_TO_CONCERN.get(normalized) || normalized;
@@ -839,13 +875,7 @@ function updateFacturatiemoduleContext() {
 
   let scoped = allFeatures.slice();
   if (currentGemeente) {
-    const target = normalizeText(currentGemeente);
-    scoped = scoped.filter((feature) => {
-      const gemeenten = Array.isArray(feature?.properties?.gemeenten) ? feature.properties.gemeenten : [];
-      const cities = Array.isArray(feature?.properties?.cities) ? feature.properties.cities : [];
-      return gemeenten.some((name) => normalizeText(name) === target)
-        || cities.some((name) => normalizeText(name) === target);
-    });
+    scoped = scoped.filter((feature) => featureMatchesCurrentGemeente(feature));
   }
   if (currentZorgverzekeraar !== "ALL") {
     scoped = scoped.filter((feature) => featureMatchesInsurer(feature, currentZorgverzekeraar));
@@ -1535,7 +1565,7 @@ function onEachFeature(feature, layer) {
       closeActiveHoverTooltip(layer);
       const selectedDomain = getZorggroepName(feature);
       currentFilter = selectedDomain;
-      currentGemeente = "";
+      setGemeenteContext("");
       updateGemeenteFoundDisplay();
 
       const filterSelect = document.getElementById("zorggroepFilter");
@@ -2341,14 +2371,7 @@ function applyActiveFilters() {
   }
 
   if (currentGemeente) {
-    const target = normalizeText(currentGemeente);
-    filtered = filtered.filter((feature) => {
-      const gemeenten = Array.isArray(feature?.properties?.gemeenten) ? feature.properties.gemeenten : [];
-      const cities = Array.isArray(feature?.properties?.cities) ? feature.properties.cities : [];
-      const inGemeente = gemeenten.some((name) => normalizeText(name) === target);
-      const inCity = cities.some((name) => normalizeText(name) === target);
-      return inGemeente || inCity;
-    });
+    filtered = filtered.filter((feature) => featureMatchesCurrentGemeente(feature));
   }
 
   updateCityList(filtered);
@@ -2360,13 +2383,7 @@ function featuresScopedForOptionLists() {
   let scoped = allFeatures;
 
   if (currentGemeente) {
-    const target = normalizeText(currentGemeente);
-    scoped = scoped.filter((feature) => {
-      const gemeenten = Array.isArray(feature?.properties?.gemeenten) ? feature.properties.gemeenten : [];
-      const cities = Array.isArray(feature?.properties?.cities) ? feature.properties.cities : [];
-      return gemeenten.some((name) => normalizeText(name) === target)
-        || cities.some((name) => normalizeText(name) === target);
-    });
+    scoped = scoped.filter((feature) => featureMatchesCurrentGemeente(feature));
   }
 
   if (currentZorgverzekeraar !== "ALL") {
@@ -2873,7 +2890,7 @@ function setupGemeenteSearch(features) {
   }
 
   function applySuggestion(value) {
-    currentGemeente = value;
+    setGemeenteContext(value);
     updateGemeenteFoundDisplay();
     input.value = value;
     hideSuggestions();
@@ -2886,7 +2903,7 @@ function setupGemeenteSearch(features) {
     const q = normalizeText(query);
     if (!q) {
       hideSuggestions();
-      currentGemeente = "";
+      setGemeenteContext("");
       updateGemeenteFoundDisplay();
       refreshDependentFilters();
       applyActiveFilters();
@@ -2937,7 +2954,7 @@ function setupGemeenteSearch(features) {
         const woonplaatsNaam = plaatsInfo?.woonplaatsnaam || "";
 
         if (!gemeenteNaam && !postcodeOverride) {
-          currentGemeente = "";
+          setGemeenteContext("");
           updateGemeenteFoundDisplay();
           refreshDependentFilters();
           applyActiveFilters();
@@ -2945,13 +2962,12 @@ function setupGemeenteSearch(features) {
           return;
         }
 
-        const hasDomain = allFeatures.some((feature) => {
-          const gemeenten = Array.isArray(feature?.properties?.gemeenten) ? feature.properties.gemeenten : [];
-          return gemeenten.some((name) => normalizeText(name) === normalizeText(gemeenteNaam));
-        });
+        const hasDomain = allFeatures.some((feature) =>
+          featureMatchesLocationName(feature, woonplaatsNaam) || featureMatchesLocationName(feature, gemeenteNaam)
+        );
 
         if (!hasDomain && !postcodeOverride) {
-          currentGemeente = "";
+          setGemeenteContext("");
           updateGemeenteFoundDisplay();
           refreshDependentFilters();
           applyActiveFilters();
@@ -2967,7 +2983,7 @@ function setupGemeenteSearch(features) {
           const preferredLocation = [woonplaatsNaam, gemeenteNaam].find((name) =>
             featureMatchesLocationName(overrideFeature, name)
           );
-          currentGemeente = preferredLocation || gemeenteNaam;
+          setGemeenteContext(preferredLocation || woonplaatsNaam || gemeenteNaam, [woonplaatsNaam, gemeenteNaam]);
 
           updateGemeenteFoundDisplay();
           currentFilter = resolvedZorggroepName;
@@ -2984,7 +3000,7 @@ function setupGemeenteSearch(features) {
             }
           }
         } else {
-          currentGemeente = woonplaatsNaam || gemeenteNaam;
+          setGemeenteContext(woonplaatsNaam || gemeenteNaam, [woonplaatsNaam, gemeenteNaam]);
           updateGemeenteFoundDisplay();
           refreshDependentFilters();
         }
@@ -3019,14 +3035,14 @@ function setupGemeenteSearch(features) {
     if (first) {
       applySuggestion(first.dataset.gemeente);
     } else if (input.value.trim() === "") {
-      currentGemeente = "";
+      setGemeenteContext("");
       updateGemeenteFoundDisplay();
       showStatus("");
       refreshDependentFilters();
       applyActiveFilters();
       setPostcodePanelState("Klik op een zorggroep op de kaart om postcodes te laden.", []);
     } else {
-      currentGemeente = input.value.trim();
+      setGemeenteContext(input.value.trim());
       updateGemeenteFoundDisplay();
       refreshDependentFilters();
       applyActiveFilters();
@@ -3051,7 +3067,7 @@ function setupGemeenteSearch(features) {
 
   if (resetButton) {
     resetButton.addEventListener("click", () => {
-      currentGemeente = "";
+      setGemeenteContext("");
       currentZorgverzekeraar = "ALL";
       zorgverzekeraarNoticeAcknowledged = false;
       currentFilter = "ALL";

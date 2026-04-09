@@ -2,6 +2,17 @@
   "updates": [
     {
       "date": "2026-04-09",
+      "title": "Postcodezoekresultaten zijn nu woonplaats-bewust",
+      "scope": "kaart",
+      "description": "De postcodeflow gebruikt nu zowel woonplaats als gemeente bij het filteren van zorggroepen, zodat plaatsen met een gemeentelijke herindeling correct blijven matchen.",
+      "summary": [
+        "Bij postcodezoekresultaten worden nu meerdere locatiekandidaten tegelijk meegenomen, zoals woonplaats en gemeente.",
+        "Dit voorkomt dat Weesp-postcodes alsnog naar Amsterdam/GA terugvallen terwijl de woonplaats onder RHOGO hoort.",
+        "Dezelfde aanpak maakt de postcodezoeklogica robuuster voor vergelijkbare grens- en herindelingsgevallen."
+      ]
+    },
+    {
+      "date": "2026-04-09",
       "title": "Korte zorggroepnamen uit postcode-overrides worden nu goed gematcht",
       "scope": "kaart",
       "description": "Postcode-overrides met korte namen zoals RHOGO worden nu vertaald naar de volledige zorggroepnaam in de kaart en filters.",
