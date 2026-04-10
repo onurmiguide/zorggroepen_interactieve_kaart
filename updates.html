@@ -9,11 +9,11 @@
   <script>
     tailwind.config = { darkMode: "class" };
   </script>
-  <link rel="stylesheet" href="css/style.css?v=20260401-updates" />
+  <link rel="stylesheet" href="css/style.css?v=20260410-responsive" />
 </head>
 <body class="min-h-full bg-slate-100 text-slate-800 antialiased dark:bg-slate-950 dark:text-slate-200">
   <div class="app-topbar sticky top-0 z-[1000] flex flex-wrap items-center gap-2 border-b border-slate-200 bg-white/95 px-3 py-2.5 shadow-sm backdrop-blur sm:gap-3 sm:px-4 sm:py-3 dark:border-slate-800 dark:bg-slate-900/95">
-    <a href="index.html" aria-label="Ga naar hoofdpagina">
+    <a href="index.html" aria-label="Ga naar hoofdpagina" class="app-topbar-brand">
       <img
         class="h-auto w-[104px] object-contain sm:w-[120px]"
         id="siteLogo"
@@ -23,7 +23,7 @@
         alt="MiGuide logo"
       />
     </a>
-    <div class="min-w-0">
+    <div class="app-topbar-meta min-w-0">
       <div class="truncate text-[1rem] font-semibold leading-tight tracking-tight text-slate-900 sm:text-[1.08rem] dark:text-slate-100">Updates</div>
       <div class="hidden truncate text-xs font-medium text-slate-500 sm:block dark:text-slate-400">Korte samenvatting van recente wijzigingen</div>
     </div>
@@ -33,9 +33,6 @@
     <details class="topbar-dropdown inline-block shrink-0">
       <summary class="inline-flex items-center justify-center gap-x-1.5 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-900 shadow-sm hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800">
         Menu
-        <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" class="-mr-1 size-5 text-slate-400 dark:text-slate-500">
-          <path d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" fill-rule="evenodd" />
-        </svg>
       </summary>
       <ul role="listbox" class="w-56 rounded-md bg-white p-1 shadow-xl outline-1 -outline-offset-1 outline-slate-200 dark:bg-slate-900 dark:outline-slate-700">
         <li><a href="index.html" class="block rounded px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 focus:bg-slate-100 focus:text-slate-900 focus:outline-none dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white dark:focus:bg-slate-800 dark:focus:text-white">Kaart</a></li>
@@ -43,7 +40,7 @@
         <li><a href="https://github.com/onurmiguide/zorggroepen_interactieve_kaart" target="_blank" rel="noopener noreferrer" class="block rounded px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 focus:bg-slate-100 focus:text-slate-900 focus:outline-none dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white dark:focus:bg-slate-800 dark:focus:text-white">GitHub repo</a></li>
       </ul>
     </details>
-    <div class="hidden whitespace-nowrap rounded-lg border border-red-300 bg-red-50 px-2.5 py-1 text-[11px] font-bold text-red-800 lg:block dark:border-red-500/50 dark:bg-red-950/40 dark:text-red-200">Concept / Demo · Work in progress</div>
+    <div class="app-topbar-badge hidden whitespace-nowrap rounded-lg border border-red-300 bg-red-50 px-2.5 py-1 text-[11px] font-bold text-red-800 lg:block dark:border-red-500/50 dark:bg-red-950/40 dark:text-red-200">Concept / Demo - Work in progress</div>
   </div>
 
   <main class="mx-auto mt-6 mb-4 grid w-[96%] max-w-[1100px] gap-4">
@@ -55,7 +52,7 @@
     </section>
 
     <section class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-      <div class="flex items-center justify-between gap-3">
+      <div class="flex flex-wrap items-center justify-between gap-3">
         <h2 class="text-base font-bold text-slate-900 dark:text-slate-100">Recente updates</h2>
         <div id="updatesMeta" class="text-xs font-medium text-slate-500 dark:text-slate-400">Laden...</div>
       </div>
@@ -63,6 +60,6 @@
     </section>
   </main>
 
-  <script src="script/updates.js?v=20260401-updates"></script>
+  <script src="script/updates.js?v=20260410-responsive"></script>
 </body>
 </html>

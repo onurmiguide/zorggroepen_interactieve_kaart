@@ -10,7 +10,7 @@
     tailwind.config = { darkMode: "class" };
   </script>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="css/style.css?v=20260310-landing" />
+  <link rel="stylesheet" href="css/style.css?v=20260410-responsive" />
 </head>
 <body class="min-h-full bg-slate-100 text-slate-800 antialiased dark:bg-slate-950 dark:text-slate-200">
   <div id="authGate" class="grid min-h-screen place-items-center bg-gradient-to-b from-slate-50 to-slate-200 p-4 dark:from-slate-900 dark:to-slate-950">
@@ -31,7 +31,7 @@
 
   <div id="appShell" hidden>
     <div class="app-topbar sticky top-0 z-[1000] flex flex-wrap items-center gap-2 border-b border-slate-200 bg-white/95 px-3 py-2.5 shadow-sm backdrop-blur sm:gap-3 sm:px-4 sm:py-3 dark:border-slate-800 dark:bg-slate-900/95">
-      <a href="index.html" aria-label="Ga naar hoofdpagina">
+      <a href="index.html" aria-label="Ga naar hoofdpagina" class="app-topbar-brand">
         <img
           class="h-auto w-[104px] object-contain sm:w-[120px]"
           id="siteLogo"
@@ -41,7 +41,7 @@
           alt="MiGuide logo"
         />
       </a>
-      <div class="min-w-0">
+      <div class="app-topbar-meta min-w-0">
         <div id="appTitle" class="truncate text-[1rem] font-semibold leading-tight tracking-tight text-slate-900 sm:text-[1.12rem] dark:text-slate-100">MiGuide Zorg Tools</div>
         <div id="appSubtitle" class="hidden truncate text-xs font-medium text-slate-500 sm:block dark:text-slate-400">Kies een tool om verder te gaan</div>
       </div>
@@ -59,7 +59,7 @@
           <li><a href="https://github.com/onurmiguide/zorggroepen_interactieve_kaart" target="_blank" rel="noopener noreferrer" class="block rounded px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 focus:bg-slate-100 focus:text-slate-900 focus:outline-none dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white dark:focus:bg-slate-800 dark:focus:text-white">GitHub repo</a></li>
         </ul>
       </details>
-      <div class="hidden whitespace-nowrap rounded-lg border border-red-300 bg-red-50 px-2.5 py-1 text-[11px] font-bold text-red-800 lg:block dark:border-red-500/50 dark:bg-red-950/40 dark:text-red-200">Concept / Demo · Work in progress · Niet 100% werkend</div>
+      <div class="app-topbar-badge hidden whitespace-nowrap rounded-lg border border-red-300 bg-red-50 px-2.5 py-1 text-[11px] font-bold text-red-800 lg:block dark:border-red-500/50 dark:bg-red-950/40 dark:text-red-200">Concept / Demo - Work in progress - Niet 100% werkend</div>
     </div>
     <div id="statusMessage" class="status-toast fixed left-1/2 top-3 z-[2500] w-fit max-w-[92vw] -translate-x-1/2 rounded-xl border border-amber-300 bg-amber-50 px-4 py-2.5 text-sm font-medium text-amber-800 shadow-lg shadow-slate-900/10 dark:border-amber-700 dark:bg-amber-950/90 dark:text-amber-100" hidden></div>
 

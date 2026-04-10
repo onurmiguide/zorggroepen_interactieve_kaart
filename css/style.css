@@ -361,6 +361,27 @@ body.dark-mode .sticky.top-0 {
   box-shadow: inset 0 0 0 1px #60a5fa;
 }
 
+.app-topbar {
+  align-items: center;
+}
+
+.app-topbar-brand {
+  flex: 0 0 auto;
+}
+
+.app-topbar-meta {
+  min-width: 0;
+  flex: 1 1 220px;
+}
+
+.app-topbar-badge {
+  flex: 0 0 auto;
+}
+
+.table-wrap {
+  -webkit-overflow-scrolling: touch;
+}
+
 /* Data tables are filled dynamically; style cells here */
 .data-table th,
 .data-table td {
@@ -392,6 +413,38 @@ body.dark-mode .sticky.top-0 {
 @media (max-width: 1024px) {
   :root {
     --main-panel-height: calc(100vh - 220px);
+  }
+
+  .app-topbar {
+    gap: 0.625rem;
+  }
+
+  .app-topbar-meta {
+    flex-basis: 180px;
+  }
+}
+
+@media (max-height: 860px) and (min-width: 769px) {
+  :root {
+    --main-panel-height: min(58vh, 520px);
+  }
+
+  .app-grid {
+    align-items: start;
+  }
+
+  .app-aside {
+    height: auto !important;
+    min-height: 0 !important;
+  }
+
+  .app-aside-inner {
+    grid-template-rows: auto auto !important;
+  }
+
+  #cityList {
+    height: 260px !important;
+    max-height: 260px !important;
   }
 }
 
@@ -428,6 +481,25 @@ body.dark-mode .sticky.top-0 {
 @media (max-width: 768px) {
   :root {
     --main-panel-height: 46vh;
+  }
+
+  .app-topbar {
+    gap: 0.5rem;
+    padding: 0.75rem;
+  }
+
+  .app-topbar-brand img {
+    width: 96px !important;
+  }
+
+  .app-topbar-meta {
+    order: 3;
+    flex: 1 1 100%;
+    width: 100%;
+  }
+
+  .app-topbar-badge {
+    display: none !important;
   }
 
   .app-grid {
@@ -484,13 +556,24 @@ body.dark-mode .sticky.top-0 {
   }
 
   .topbar-dropdown > ul {
-    right: auto;
-    left: 0;
-    min-width: 170px;
+    right: 0;
+    left: auto;
+    min-width: min(90vw, 200px);
   }
 
   #map {
     height: 46vh !important;
     min-height: 300px;
+  }
+
+  .table-wrap {
+    margin-inline: -0.2rem;
+    border-radius: 0.8rem;
+  }
+
+  .data-table th,
+  .data-table td {
+    padding: 0.55rem 0.65rem;
+    font-size: 0.86rem;
   }
 }

@@ -1,6 +1,17 @@
 {
   "updates": [
     {
+      "date": "2026-04-10",
+      "title": "Responsive gedrag aangescherpt voor kaart, data-overzicht en updates",
+      "scope": "ui",
+      "description": "De hoofdsite schaalt nu consistenter mee op kleinere schermen, tablets en mobiel zonder dat de visuele stijl uiteenvalt per pagina.",
+      "summary": [
+        "De topbar gebruikt nu op kaart, data-overzicht en updates dezelfde responsive opbouw met beter gedrag op small screens.",
+        "Dropdowns, tabellen en badges zijn compacter en bruikbaarder gemaakt voor small-screen en touch-gebruik.",
+        "De drie hoofdpagina's houden nu beter dezelfde uitstraling bij verschillende viewportgroottes."
+      ]
+    },
+    {
       "date": "2026-04-09",
       "title": "Filterlayout en resetknop visueel aangescherpt",
       "scope": "ui",
