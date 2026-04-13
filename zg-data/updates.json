@@ -1,6 +1,17 @@
 {
   "updates": [
     {
+      "date": "2026-04-13",
+      "title": "ZHZ-modules volgen nu de regio in plaats van generieke MiGuide-fallback",
+      "scope": "kaart",
+      "description": "Voor ZHZ CZ en ZHZ VGZ wordt de facturatiemodule nu zone-first bepaald, zodat contractverzekeraars binnen die regio’s niet meer onterecht op MiGuide uitkomen.",
+      "summary": [
+        "Postcodes in de ZHZ VGZ-zone, zoals 3352TH, geven nu voor FBTO de facturatiemodule 'Zuid Holland Zuid - VGZ' in plaats van 'MiGuide'.",
+        "Dezelfde aanpak is doorgetrokken naar ZHZ CZ, zodat de statische ZHZ-module binnen de juiste zone leidend blijft.",
+        "Alleen expliciete no-contract/ZoHealthy-verzekeraars blijven binnen deze ZHZ-zones nog naar ZoHealthy gaan."
+      ]
+    },
+    {
       "date": "2026-04-10",
       "title": "Responsive gedrag aangescherpt voor kaart, data-overzicht en updates",
       "scope": "ui",

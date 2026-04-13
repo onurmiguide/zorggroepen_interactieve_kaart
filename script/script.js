@@ -1149,14 +1149,6 @@ function resolveDecisionTreeRouting2026(feature, insurerName = "") {
       };
     }
 
-    if (DIRECT_VGZ_INSURERS_2026.has(insurerNorm)) {
-      return {
-        routeType,
-        moduleName: "MiGuide - VGZ",
-        stroom: FACTURATIESTROMEN.STROOM_2
-      };
-    }
-
     if (ZOHEALTHY_INSURERS.has(insurerNorm)) {
       return {
         routeType,
@@ -1167,7 +1159,7 @@ function resolveDecisionTreeRouting2026(feature, insurerName = "") {
 
     return {
       routeType,
-      moduleName: "MiGuide",
+      moduleName: "Zuid Holland Zuid - CZ",
       stroom: FACTURATIESTROMEN.STROOM_2
     };
   }
@@ -1199,7 +1191,7 @@ function resolveDecisionTreeRouting2026(feature, insurerName = "") {
 
     return {
       routeType,
-      moduleName: "MiGuide",
+      moduleName: "Zuid Holland Zuid - VGZ",
       stroom: FACTURATIESTROMEN.STROOM_2
     };
   }
