@@ -1,6 +1,18 @@
 {
   "updates": [
     {
+      "date": "2026-04-14",
+      "title": "ZHZ (overig) volgt nu geen gecontracteerde ZHZ-module meer",
+      "scope": "kaart",
+      "description": "Zuid-Holland-Zuid (overig) wordt nu behandeld als een niet-gecontracteerde context in plaats van als CZ/VGZ-contractzone.",
+      "summary": [
+        "Zuid-Holland-Zuid (overig) kan niet langer onterecht uitkomen op 'Zuid Holland Zuid - CZ' of 'Zuid Holland Zuid - VGZ'.",
+        "Voor VGZ-labels volgt deze zone nu 'MiGuide - VGZ'.",
+        "Voor CZ en andere no-contract verzekeraars volgt deze zone nu de juiste niet-gecontracteerde route zoals ZoHealthy."
+      ],
+      "commit": "7f83ad0"
+    },
+    {
       "date": "2026-04-13",
       "title": "ZHZ-modules volgen nu de regio in plaats van generieke MiGuide-fallback",
       "scope": "kaart",
