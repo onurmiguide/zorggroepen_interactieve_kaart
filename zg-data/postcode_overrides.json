@@ -1596,6 +1596,19 @@
     "3071JP": {
       "zorggroep": "Rijnmond dokters",
       "source_sheet": "Rijnmond Dokters"
+    },
+    "8934AA": {
+      "zorggroep": "Geen zorggroep contract",
+      "source_sheet": "HAP Oostergo uitzondering",
+      "insurer_concerns": []
+    }
+  },
+  "location_postcode6_overrides": {
+    "2340BB": {
+      "woonplaats": "Oegstgeest",
+      "gemeente": "Oegstgeest",
+      "zorggroep": "Rijn en Duin",
+      "source": "Postbus fallback handmatig toegevoegd voor PDOK-leemte"
     }
   },
   "postcode4_range_overrides": [
