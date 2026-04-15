@@ -2,6 +2,17 @@
   "updates": [
     {
       "date": "2026-04-15",
+      "title": "Salland-contract en HUMO-zorggroep toegevoegd",
+      "scope": "kaart",
+      "description": "De postcode-tool houdt nu rekening met het nieuwe contract met Salland in niet-gecontracteerde regio’s en met de nieuwe zorggroep HUMO voor Oss, Uden en Veghel.",
+      "summary": [
+        "In regio’s zonder zorggroepcontract routeert Salland nu naar facturatiemodule 'MiGuide' in plaats van 'ZoHealthy'.",
+        "HUMO is als nieuwe zorggroep toegevoegd op basis van PDOK-gemeenten voor Oss, Uden en Veghel.",
+        "Verwijzingen uit HUMO-regio volgen nu de zorggroeproute en geven facturatiemodule 'Zorggroep'."
+      ]
+    },
+    {
+      "date": "2026-04-15",
       "title": "Gesplitste ZHZ-zones blijven nu altijd zone-first",
       "scope": "kaart",
       "description": "Postcodes die expliciet in ZHZ CZ of ZHZ VGZ vallen, behouden nu altijd de bijbehorende ZHZ-facturatiemodule in plaats van terug te vallen naar een generieke verzekeraarsroute zoals ZoHealthy.",

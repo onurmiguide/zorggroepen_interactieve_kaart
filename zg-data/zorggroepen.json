@@ -225,6 +225,16 @@
       ]
     },
     {
+      "zorggroep": "HUMO",
+      "regio": "HUMO",
+      "website": "",
+      "cities": [
+        "Oss",
+        "Uden",
+        "Veghel"
+      ]
+    },
+    {
       "zorggroep": "Eemland",
       "regio": "Eemland",
       "website": "",

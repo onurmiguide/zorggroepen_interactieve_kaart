@@ -111,6 +111,7 @@ const ZORGGROEP_DECLARATIESTROOM_FALLBACK = {
   "gezondheid amsterdam": "Declaratiestromen per zorgverzekeraar",
   "zorggroep gezondheid amsterdam": "Declaratiestromen per zorgverzekeraar",
   "hadoks": "Evry -> Per 1 Maart 2026 nieuw systeem",
+  "humo": "VIPLive",
   "hoog": "Declaratiestromen per zorgverzekeraar",
   "hozl": "VIPLive",
   "kennemerland": "Declaratiestromen per zorgverzekeraar",
@@ -205,6 +206,7 @@ const BESLISBOOM_ROUTE_BY_ZORGGROEP_2026 = new Map([
   ["amstelland", "zorggroep"],
   ["amstelland zorg", "zorggroep"],
   ["hadoks", "zorggroep"],
+  ["humo", "zorggroep"],
   ["eemland", "zorggroep"],
   ["eemland huisartsen", "zorggroep"],
   ["kennemerland", "zorggroep"],
@@ -311,6 +313,8 @@ const CITY_TO_GEMEENTE = {
   "noordwijkerhout": "Noordwijk",
   "hazerswoude": "Alphen aan den Rijn",
   "stompwijk": "Leidschendam-Voorburg",
+  "uden": "Maashorst",
+  "veghel": "Meierijstad",
   "abcoude": "De Ronde Venen",
   "den haag": "'s-Gravenhage",
   "achterveld": "Leusden",
@@ -1073,6 +1077,14 @@ function resolveDecisionTreeRouting2026(feature, insurerName = "") {
       return {
         routeType,
         moduleName: "MiGuide - VGZ",
+        stroom: FACTURATIESTROMEN.STROOM_2
+      };
+    }
+
+    if (insurerNorm === "salland") {
+      return {
+        routeType,
+        moduleName: "MiGuide",
         stroom: FACTURATIESTROMEN.STROOM_2
       };
     }
