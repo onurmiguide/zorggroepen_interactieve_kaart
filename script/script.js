@@ -1141,22 +1141,6 @@ function resolveDecisionTreeRouting2026(feature, insurerName = "") {
       };
     }
 
-    if (insurerNorm === "cz") {
-      return {
-        routeType,
-        moduleName: "Zuid Holland Zuid - CZ",
-        stroom: FACTURATIESTROMEN.STROOM_2
-      };
-    }
-
-    if (ZOHEALTHY_INSURERS.has(insurerNorm)) {
-      return {
-        routeType,
-        moduleName: "ZoHealthy",
-        stroom: FACTURATIESTROMEN.STROOM_3
-      };
-    }
-
     return {
       routeType,
       moduleName: "Zuid Holland Zuid - CZ",
@@ -1170,22 +1154,6 @@ function resolveDecisionTreeRouting2026(feature, insurerName = "") {
         routeType,
         moduleName: "",
         stroom: "Declaratiestromen per zorgverzekeraar"
-      };
-    }
-
-    if (DIRECT_VGZ_INSURERS_2026.has(insurerNorm)) {
-      return {
-        routeType,
-        moduleName: "Zuid Holland Zuid - VGZ",
-        stroom: FACTURATIESTROMEN.STROOM_2
-      };
-    }
-
-    if (ZOHEALTHY_INSURERS.has(insurerNorm)) {
-      return {
-        routeType,
-        moduleName: "ZoHealthy",
-        stroom: FACTURATIESTROMEN.STROOM_3
       };
     }
 

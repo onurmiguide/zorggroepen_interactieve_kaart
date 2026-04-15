@@ -1,6 +1,17 @@
 {
   "updates": [
     {
+      "date": "2026-04-15",
+      "title": "Gesplitste ZHZ-zones blijven nu altijd zone-first",
+      "scope": "kaart",
+      "description": "Postcodes die expliciet in ZHZ CZ of ZHZ VGZ vallen, behouden nu altijd de bijbehorende ZHZ-facturatiemodule in plaats van terug te vallen naar een generieke verzekeraarsroute zoals ZoHealthy.",
+      "summary": [
+        "Een postcode in ZHZ VGZ, zoals 3332AK, geeft nu ook met CZ de facturatiemodule 'Zuid Holland Zuid - VGZ'.",
+        "Dezelfde zone-first aanpak geldt nu ook voor ZHZ CZ, zodat gesplitste ZHZ-gebieden niet meer door verzekeraarskleur worden overschreven.",
+        "Hiermee sluit de kaartlogica beter aan op de expliciete postcode-ranges uit MiGuide_all_v2."
+      ]
+    },
+    {
       "date": "2026-04-14",
       "title": "ZHZ (overig) volgt nu geen gecontracteerde ZHZ-module meer",
       "scope": "kaart",
