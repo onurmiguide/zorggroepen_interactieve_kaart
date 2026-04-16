@@ -225,6 +225,21 @@
       ]
     },
     {
+      "zorggroep": "LCK",
+      "regio": "LCK",
+      "website": "",
+      "cities": [
+        "Haarlem",
+        "Heemstede",
+        "Heemskerk",
+        "Beverwijk",
+        "IJmuiden",
+        "Zandvoort",
+        "Overveen",
+        "Santpoort-Noord"
+      ]
+    },
+    {
       "zorggroep": "HUMO",
       "regio": "HUMO",
       "website": "",

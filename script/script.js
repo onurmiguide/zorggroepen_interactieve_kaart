@@ -183,6 +183,7 @@ const ZOHEALTHY_INSURERS = new Set(ZOHEALTHY_INSURERS_2026_CONFIRMED);
 const BESLISBOOM_ROUTE_BY_ZORGGROEP_2026 = new Map([
   ["zorggroep gezondheid amsterdam", "ga"],
   ["gezondheid amsterdam", "ga"],
+  ["lck", "lck"],
   ["zorggroep almere", "zorggroep"],
   ["almere", "zorggroep"],
   ["geen zorggroep contract", "no_contract"],
@@ -229,6 +230,7 @@ const FACTURATIEMODULE_TEMPLATES = {
   "CoOL via zorggroep": "CoOL via zorggroep. Gebruik wanneer declaraties via een zorggroep-context lopen (bijv. via zorggroep-afspraken of zorggroep-afhandeling).",
   "CoOL via ZORGVERZEKERAAR - via GA": "CoOL via zorgverzekeraar via GA-route. Specifieke module voor zorgverzekeraar-afhandeling via de GA-constructie.",
   "Gezondheid Amsterdam (GA)": "CoOL-MiGuide via zorgverzekeraar voor de GA-regio. Declaraties van deelnemers in de GA-regio worden periodiek via een XML-bestand aangeleverd aan GA.",
+  "LCK": "CoOL-MiGuide via LCK. Declaraties voor deelnemers uit de LCK-regio worden verwerkt via de nieuwe LCK-facturatiemodule.",
   "MiGuide": "CoOL-MiGuide via zorgverzekeraar. Declaraties worden direct vanuit MiGuide gedeclareerd aan andere zorgverzekeraars (niet VGZ), conform contractafspraken.",
   "MiGuide - VGZ": "CoOL via zorgverzekeraar (VGZ). Declaraties worden direct aan VGZ gedeclareerd vanuit MiGuide, conform contract met VGZ.",
   "ZoHealthy": "CoOL via zorgverzekeraar via ZoHealthy. Declaraties lopen via ZoHealthy en de verkooptarieven van ZoHealthy worden gebruikt.",
@@ -241,6 +243,7 @@ const FACTURATIEMODULE_PRESTATIECODE = {
   "CoOL via zorggroep": "CoOL-MiGuide",
   "CoOL via ZORGVERZEKERAAR - via GA": "CoOL-MiGuide",
   "Gezondheid Amsterdam (GA)": "CoOL-MiGuide",
+  "LCK": "CoOL-MiGuide",
   "MiGuide": "CoOL-MiGuide",
   "MiGuide - VGZ": "CoOL",
   "ZoHealthy": "CoOL",
@@ -297,6 +300,12 @@ const CITY_TO_GEMEENTE = {
   "soesterberg": "Soest",
   "amsterdam alle ziekenhuizen en huisartsen uit amsterdam vallen hieronder": "Amsterdam",
   "duivendrecht": "Ouder-Amstel",
+  "ijmuiden gemeente velsen": "Velsen",
+  "ijmuiden": "Velsen",
+  "overveen gemeente bloemendaal": "Bloemendaal",
+  "overveen": "Bloemendaal",
+  "santpoort noord gemeente velsen": "Velsen",
+  "santpoort noord": "Velsen",
   // Badhoevedorp is only a partial fit inside Haarlemmermeer.
   // Mapping it to the full municipality incorrectly pulls Hoofddorp into GA.
   "badhoevedorp": "",
@@ -1013,6 +1022,14 @@ function resolveDecisionTreeRouting2026(feature, insurerName = "") {
       routeType,
       moduleName: "Gezondheid Amsterdam (GA)",
       stroom: FACTURATIESTROMEN.STROOM_4
+    };
+  }
+
+  if (routeType === "lck") {
+    return {
+      routeType,
+      moduleName: "LCK",
+      stroom: FACTURATIESTROMEN.STROOM_1
     };
   }
 

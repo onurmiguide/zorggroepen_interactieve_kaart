@@ -1,6 +1,17 @@
 {
   "updates": [
     {
+      "date": "2026-04-16",
+      "title": "Nieuwe LCK-facturatiemodule toegevoegd",
+      "scope": "kaart",
+      "description": "De postcode-tool ondersteunt nu de nieuwe LCK-regio en verwerkt deelnemers uit de opgegeven gemeenten via de nieuwe facturatiemodule LCK.",
+      "summary": [
+        "LCK is toegevoegd als eigen regio en facturatiemodule voor Haarlem, Heemstede, Heemskerk, Beverwijk, Zandvoort en de gemeentegebieden Velsen/Bloemendaal via IJmuiden, Santpoort-Noord en Overveen.",
+        "De tool gebruikt hiervoor voorlopig PDOK-gemeenten, totdat er een definitieve postcode-aanlevering beschikbaar is.",
+        "Verwijzingen uit de LCK-regio komen nu uit op facturatiemodule 'LCK' met prestatiecode 'CoOL-MiGuide'."
+      ]
+    },
+    {
       "date": "2026-04-15",
       "title": "Salland-contract en HUMO-zorggroep toegevoegd",
       "scope": "kaart",
