@@ -322,6 +322,7 @@ const CITY_TO_GEMEENTE = {
   "noordwijkerhout": "Noordwijk",
   "hazerswoude": "Alphen aan den Rijn",
   "stompwijk": "Leidschendam-Voorburg",
+  "voorburg": "Leidschendam-Voorburg",
   "uden": "Maashorst",
   "veghel": "Meierijstad",
   "abcoude": "De Ronde Venen",
@@ -383,7 +384,8 @@ const OVERLAP_GEMEENTE_OWNER_OVERRIDES = new Map([
   [normalizeText("Baarn"), normalizeText("RHOGO (Regionale Huisartsen Organisatie Gooi en Omstreken BV)")],
   [normalizeText("Soest"), normalizeText("Eemland")],
   [normalizeText("Utrechtse Heuvelrug"), normalizeText("UNICUM")],
-  [normalizeText("Beekdaelen"), normalizeText("HOZL")]
+  [normalizeText("Beekdaelen"), normalizeText("HOZL")],
+  [normalizeText("Leidschendam-Voorburg"), normalizeText("Hadoks")]
 ]);
 
 function createMap() {

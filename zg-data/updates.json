@@ -1,6 +1,17 @@
 {
   "updates": [
     {
+      "date": "2026-04-17",
+      "title": "Voorburg routeert nu naar Hadoks",
+      "scope": "kaart",
+      "description": "Voorburg wordt niet langer meegesleept door Rijn en Duin via de gemeentekoppeling van Stompwijk, maar volgt nu de Hadoks-regio zoals bedoeld.",
+      "summary": [
+        "Hadoks bevat nu expliciet Voorburg als plaatsnaam voor de postcode- en zorggroepmatching.",
+        "De overlap voor de gemeente Leidschendam-Voorburg wordt nu aan Hadoks toegekend zodat Voorburg niet meer onder Rijn en Duin uitkomt.",
+        "Dit is een tijdelijke gemeentelijke oplossing op kaartniveau totdat er fijnmazigere postcode-afbakening beschikbaar is."
+      ]
+    },
+    {
       "date": "2026-04-16",
       "title": "Nieuwe LCK-facturatiemodule toegevoegd",
       "scope": "kaart",
