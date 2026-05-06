@@ -1,6 +1,19 @@
 {
   "updates": [
     {
+      "date": "2026-05-06",
+      "title": "Regio- en postcodecorrecties voor Leidschendam, Oegstgeest, Bennekom, Nunspeet en 4231",
+      "scope": "kaart",
+      "description": "Meerdere postcode- en woonplaatscorrecties zijn tegelijk doorgevoerd zodat zoekresultaten en facturatiemodules beter aansluiten op de actuele regioregels uit de praktijk.",
+      "summary": [
+        "Leidschendam blijft nu bij Rijn en Duin terwijl Voorburg bij Hadoks blijft; daarnaast zijn expliciete Leidschendam-postcodes die nog op Hadoks stonden teruggezet naar Rijn en Duin.",
+        "Postbuspostcode 2340BB voor De Praktijk Internisten Oegstgeest wordt nu niet meer als Rijn en Duin behandeld, maar als 'Geen zorggroep contract' met Oegstgeest als context.",
+        "Bennekom is toegevoegd aan ESV met facturatiemodule 'ESV' en prestatiecode 'CoOL-MiGuide'.",
+        "Nunspeet en Elspeet vallen nu ook onder Eemland, inclusief gemeentekoppeling voor Elspeet.",
+        "Postcode 4231 is expliciet vastgezet op de ZHZ VGZ-zone, en de postcode-overrides geven nu smallere ranges voorrang zodat zulke uitzonderingen in de toekomst minder snel door brede ranges worden overschreven."
+      ]
+    },
+    {
       "date": "2026-04-17",
       "title": "Voorburg routeert nu naar Hadoks",
       "scope": "kaart",

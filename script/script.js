@@ -102,6 +102,7 @@ const INSURER_LABEL_TO_CONCERN = new Map([
 ]);
 
 const ZORGGROEP_DECLARATIESTROOM_FALLBACK = {
+  "esv": "VIPLive",
   "zorggroep almere": "Op factuur achteraf",
   "almere": "Op factuur achteraf",
   "amstelland": "Extern Monter Systeem",
@@ -181,6 +182,7 @@ const DECLARATIE_PER_VERZEKERAAR_OUTPUT = {
 const ZOHEALTHY_INSURERS = new Set(ZOHEALTHY_INSURERS_2026_CONFIRMED);
 
 const BESLISBOOM_ROUTE_BY_ZORGGROEP_2026 = new Map([
+  ["esv", "esv"],
   ["zorggroep gezondheid amsterdam", "ga"],
   ["gezondheid amsterdam", "ga"],
   ["lck", "lck"],
@@ -229,6 +231,7 @@ const FACTURATIESTROOM_CONTEXT = {
 const FACTURATIEMODULE_TEMPLATES = {
   "CoOL via zorggroep": "CoOL via zorggroep. Gebruik wanneer declaraties via een zorggroep-context lopen (bijv. via zorggroep-afspraken of zorggroep-afhandeling).",
   "CoOL via ZORGVERZEKERAAR - via GA": "CoOL via zorgverzekeraar via GA-route. Specifieke module voor zorgverzekeraar-afhandeling via de GA-constructie.",
+  "ESV": "CoOL-MiGuide via ESV. Declaraties voor deelnemers in de ESV-regio worden verwerkt via de ESV-facturatiemodule.",
   "Gezondheid Amsterdam (GA)": "CoOL-MiGuide via zorgverzekeraar voor de GA-regio. Declaraties van deelnemers in de GA-regio worden periodiek via een XML-bestand aangeleverd aan GA.",
   "LCK": "CoOL-MiGuide via LCK. Declaraties voor deelnemers uit de LCK-regio worden verwerkt via de nieuwe LCK-facturatiemodule.",
   "MiGuide": "CoOL-MiGuide via zorgverzekeraar. Declaraties worden direct vanuit MiGuide gedeclareerd aan andere zorgverzekeraars (niet VGZ), conform contractafspraken.",
@@ -242,6 +245,7 @@ const FACTURATIEMODULE_TEMPLATES = {
 const FACTURATIEMODULE_PRESTATIECODE = {
   "CoOL via zorggroep": "CoOL-MiGuide",
   "CoOL via ZORGVERZEKERAAR - via GA": "CoOL-MiGuide",
+  "ESV": "CoOL-MiGuide",
   "Gezondheid Amsterdam (GA)": "CoOL-MiGuide",
   "LCK": "CoOL-MiGuide",
   "MiGuide": "CoOL-MiGuide",
@@ -321,6 +325,7 @@ const CITY_TO_GEMEENTE = {
   "kaag en braasem": "Kaag en Braassem",
   "noordwijkerhout": "Noordwijk",
   "hazerswoude": "Alphen aan den Rijn",
+  "leidschendam": "Leidschendam-Voorburg",
   "stompwijk": "Leidschendam-Voorburg",
   "voorburg": "Leidschendam-Voorburg",
   "uden": "Maashorst",
@@ -337,7 +342,9 @@ const CITY_TO_GEMEENTE = {
   "kootwijk en kootwijkerbroek": "Barneveld",
   "leersum": "Utrechtse Heuvelrug",
   "lunteren": "Ede",
+  "bennekom": "Ede",
   "maarsbergen": "Utrechtse Heuvelrug",
+  "elspeet": "Nunspeet",
   "overberg": "Utrechtse Heuvelrug",
   "soest en soestdijk": "Soest",
   "stroe": "Barneveld",
@@ -384,8 +391,11 @@ const OVERLAP_GEMEENTE_OWNER_OVERRIDES = new Map([
   [normalizeText("Baarn"), normalizeText("RHOGO (Regionale Huisartsen Organisatie Gooi en Omstreken BV)")],
   [normalizeText("Soest"), normalizeText("Eemland")],
   [normalizeText("Utrechtse Heuvelrug"), normalizeText("UNICUM")],
-  [normalizeText("Beekdaelen"), normalizeText("HOZL")],
-  [normalizeText("Leidschendam-Voorburg"), normalizeText("Hadoks")]
+  [normalizeText("Beekdaelen"), normalizeText("HOZL")]
+]);
+const ALLOWED_OVERLAP_GEMEENTEN = new Set([
+  normalizeText("Leidschendam-Voorburg"),
+  normalizeText("Ede")
 ]);
 
 function createMap() {
@@ -668,15 +678,17 @@ function featureMatchesCurrentGemeente(feature) {
     return true;
   }
 
-  const gemeenten = Array.isArray(feature?.properties?.gemeenten) ? feature.properties.gemeenten : [];
-  const cities = Array.isArray(feature?.properties?.cities) ? feature.properties.cities : [];
   const targets = currentGemeenteCandidates.length ? currentGemeenteCandidates : [currentGemeente];
+  const [primaryTarget, ...fallbackTargets] = targets;
+  const hasPrimaryMatchAcrossFeatures = primaryTarget
+    ? allFeatures.some((candidateFeature) => featureMatchesLocationName(candidateFeature, primaryTarget))
+    : false;
 
-  return targets.some((targetValue) => {
-    const target = normalizeText(targetValue);
-    return gemeenten.some((name) => normalizeText(name) === target)
-      || cities.some((name) => normalizeText(name) === target);
-  });
+  if (hasPrimaryMatchAcrossFeatures) {
+    return featureMatchesLocationName(feature, primaryTarget);
+  }
+
+  return [primaryTarget, ...fallbackTargets].some((targetValue) => featureMatchesLocationName(feature, targetValue));
 }
 
 function normalizeInsurerKey(value) {
@@ -1024,6 +1036,14 @@ function resolveDecisionTreeRouting2026(feature, insurerName = "") {
       routeType,
       moduleName: "Gezondheid Amsterdam (GA)",
       stroom: FACTURATIESTROMEN.STROOM_4
+    };
+  }
+
+  if (routeType === "esv") {
+    return {
+      routeType,
+      moduleName: "ESV",
+      stroom: FACTURATIESTROMEN.STROOM_1
     };
   }
 
@@ -2674,6 +2694,18 @@ function loadPostcodeOverrideData(data) {
     });
   }
 
+  ranges.sort((a, b) => {
+    const spanA = Number(a.end) - Number(a.start);
+    const spanB = Number(b.end) - Number(b.start);
+    if (spanA !== spanB) {
+      return spanA - spanB;
+    }
+    if (a.start !== b.start) {
+      return a.start.localeCompare(b.start, "nl");
+    }
+    return a.end.localeCompare(b.end, "nl");
+  });
+
   postcodeOverrideData = { exact, locationExact, ranges };
 }
 
@@ -3351,6 +3383,10 @@ function buildZorggroepFeatures(zorggroepen, gemeenteFeatures, contractsByZorggr
 
   for (const [gemeenteKey, owners] of draftsByGemeente.entries()) {
     if (owners.length <= 1) {
+      continue;
+    }
+
+    if (ALLOWED_OVERLAP_GEMEENTEN.has(gemeenteKey)) {
       continue;
     }
 
