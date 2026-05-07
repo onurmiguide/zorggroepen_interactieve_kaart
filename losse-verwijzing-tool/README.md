@@ -65,45 +65,46 @@ Voor AI-aanvulling via ApiFreeLLM:
 - lokaal in je shell of in je deployplatform
 - op Vercel via `Project Settings > Environment Variables`
 
-## GLM-OCR
+## GLM-OCR lokaal
 
-De frontend is voorbereid op het Hugging Face model:
+De frontend is voorbereid op GLM-OCR:
 
 ```text
 zai-org/GLM-OCR
 ```
 
-Omdat dit model niet als losse browser-library draait, heeft de tool een eigen HTTP endpoint nodig. Dat kan bijvoorbeeld een Hugging Face Space, serverless proxy, of eigen backend zijn die `zai-org/GLM-OCR` aanroept.
+De aanbevolen lokale route is Ollama. Dan blijft het document lokaal op je machine en is er geen Hugging Face token nodig.
 
-Stel in `index.html` deze waarden in:
+1. Installeer/download het model eenmalig:
 
-```html
-<script>
-  window.REFERRAL_OCR_PROVIDER = "glm-ocr";
-  window.GLM_OCR_ENDPOINT = "https://jouw-site.vercel.app/api/glm-ocr";
-</script>
+```powershell
+ollama pull glm-ocr
 ```
 
-De tool zet dit standaard al op `/api/glm-ocr` voor Vercel en op `http://127.0.0.1:8001/api/glm-ocr` voor lokaal gebruik.
-
-Zet daarna in Vercel of lokaal een van deze environment variables:
+2. Start Ollama. Meestal draait Ollama automatisch op:
 
 ```text
-GLM_OCR_API_TOKEN=hf_...
+http://127.0.0.1:11434
 ```
 
-Alternatieve namen die ook werken:
+3. Start daarna de backend:
+
+```powershell
+cd losse-verwijzing-tool
+.\start-backend.bat
+```
+
+De backend gebruikt standaard:
 
 ```text
-HUGGINGFACE_API_TOKEN=hf_...
-HF_TOKEN=hf_...
+GLM_OCR_PROVIDER=ollama
+GLM_OCR_OLLAMA_MODEL=glm-ocr
+GLM_OCR_OLLAMA_URL=http://127.0.0.1:11434/api/chat
 ```
 
-Let op: zet een echte Hugging Face token niet hardcoded in publieke frontend-code. De meegeleverde `/api/glm-ocr` proxy houdt de token server-side.
+De frontend zet `GLM_OCR_ENDPOINT` standaard op `http://127.0.0.1:8001/api/glm-ocr` voor lokaal gebruik.
 
-De proxy roept standaard `https://router.huggingface.co/v1/chat/completions` aan met `model: "zai-org/GLM-OCR"` en een `image_url` data URL.
-
-Voor een eigen simpele OCR proxy stuurt de frontend per pagina/afbeelding JSON naar die endpoint:
+De frontend stuurt per pagina/afbeelding JSON naar die endpoint:
 
 ```json
 {
@@ -123,6 +124,17 @@ De endpoint mag plain text teruggeven, of JSON met een van deze velden:
 Ook OpenAI-compatible responses met `choices[0].message.content` worden ondersteund.
 
 Als `GLM_OCR_ENDPOINT` leeg is of faalt, gebruikt de tool automatisch Tesseract.js in de browser zodat lokale verwerking blijft werken.
+
+### Optioneel: Hugging Face in plaats van lokaal
+
+Als je toch via Hugging Face wilt draaien, zet dan:
+
+```text
+GLM_OCR_PROVIDER=huggingface
+GLM_OCR_API_TOKEN=hf_...
+```
+
+De proxy roept dan `https://router.huggingface.co/v1/chat/completions` aan met `model: "zai-org/GLM-OCR"` en een `image_url` data URL.
 
 ## API
 

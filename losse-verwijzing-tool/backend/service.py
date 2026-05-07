@@ -51,6 +51,9 @@ AI_PUBLIC_API_URL = os.getenv("APIFREELLM_PUBLIC_API_URL", "https://apifreellm.c
 AI_MODEL = os.getenv("APIFREELLM_MODEL", "apifreellm")
 GLM_OCR_MODEL = os.getenv("GLM_OCR_MODEL", "zai-org/GLM-OCR")
 GLM_OCR_API_URL = os.getenv("GLM_OCR_API_URL", "https://router.huggingface.co/v1/chat/completions")
+GLM_OCR_PROVIDER = os.getenv("GLM_OCR_PROVIDER", "ollama").strip().lower()
+GLM_OCR_OLLAMA_MODEL = os.getenv("GLM_OCR_OLLAMA_MODEL", "glm-ocr")
+GLM_OCR_OLLAMA_URL = os.getenv("GLM_OCR_OLLAMA_URL", "http://127.0.0.1:11434/api/chat")
 
 
 def configure_tesseract() -> None:
@@ -674,22 +677,71 @@ def extract_text_from_model_response(body: Any) -> str:
     return ""
 
 
-def call_glm_ocr(image_data_url: str, prompt: str | None = None) -> str:
+def strip_data_url_prefix(image_data_url: str) -> str:
+    image = str(image_data_url or "").strip()
+    if "," in image and image.lower().startswith("data:"):
+        return image.split(",", 1)[1].strip()
+    return image
+
+
+def call_glm_ocr_ollama(image_data_url: str, prompt: str) -> str:
+    payload = {
+        "model": GLM_OCR_OLLAMA_MODEL,
+        "messages": [
+            {
+                "role": "user",
+                "content": prompt,
+                "images": [strip_data_url_prefix(image_data_url)],
+            }
+        ],
+        "stream": False,
+    }
+    request = urllib.request.Request(
+        GLM_OCR_OLLAMA_URL,
+        data=json.dumps(payload).encode("utf-8"),
+        headers={
+            "Content-Type": "application/json",
+            "User-Agent": "MiGuide-Referral-Tool/1.0",
+        },
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=120) as response:
+            body = json.loads(response.read().decode("utf-8"))
+    except urllib.error.HTTPError as error:
+        detail = ""
+        try:
+            detail = error.read().decode("utf-8")
+        except Exception:
+            detail = ""
+        raise RuntimeError(f"Lokale GLM-OCR via Ollama mislukt ({error.code}). {detail}".strip()) from error
+    except urllib.error.URLError as error:
+        raise RuntimeError(
+            f"Ollama is niet bereikbaar op {GLM_OCR_OLLAMA_URL}. Start Ollama en download model '{GLM_OCR_OLLAMA_MODEL}'."
+        ) from error
+
+    text = extract_text_from_model_response(body)
+    if not text:
+        message = body.get("message") if isinstance(body, dict) else None
+        if isinstance(message, dict) and isinstance(message.get("content"), str):
+            text = message["content"]
+    if not text:
+        raise RuntimeError("Lokale GLM-OCR via Ollama gaf geen tekst terug.")
+    return collapse_text(text)
+
+
+def call_glm_ocr_huggingface(image_data_url: str, prompt: str) -> str:
     api_key = get_glm_ocr_api_key()
     if not api_key:
         raise RuntimeError("GLM-OCR token ontbreekt. Zet GLM_OCR_API_TOKEN, HUGGINGFACE_API_TOKEN of HF_TOKEN.")
 
-    request_prompt = (
-        prompt
-        or "Extract all readable text from this Dutch medical referral document. Return only plain text."
-    )
     payload = {
         "model": GLM_OCR_MODEL,
         "messages": [
             {
                 "role": "user",
                 "content": [
-                    {"type": "text", "text": request_prompt},
+                    {"type": "text", "text": prompt},
                     {"type": "image_url", "image_url": {"url": image_data_url}},
                 ],
             }
@@ -723,6 +775,16 @@ def call_glm_ocr(image_data_url: str, prompt: str | None = None) -> str:
     if not text:
         raise RuntimeError("GLM-OCR gaf geen tekst terug.")
     return collapse_text(text)
+
+
+def call_glm_ocr(image_data_url: str, prompt: str | None = None) -> str:
+    request_prompt = (
+        prompt
+        or "Extract all readable text from this Dutch medical referral document. Return only plain text."
+    )
+    if GLM_OCR_PROVIDER in {"hf", "huggingface", "hugging-face"}:
+        return call_glm_ocr_huggingface(image_data_url, request_prompt)
+    return call_glm_ocr_ollama(image_data_url, request_prompt)
 
 
 def normalize_ai_section(section_name: str, section_payload: Any) -> dict[str, str]:
