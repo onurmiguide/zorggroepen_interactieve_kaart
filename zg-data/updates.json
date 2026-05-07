@@ -1,6 +1,17 @@
 {
   "updates": [
     {
+      "date": "2026-05-07",
+      "title": "Frontend-cache ververst voor actuele ZHZ-routering",
+      "scope": "website",
+      "description": "De live site kon nog een oudere scriptversie uit browsercache gebruiken, waardoor postcode 3344PK binnen de ZHZ VGZ-zone alsnog op ZoHealthy uitkwam in plaats van op de juiste ZHZ-module.",
+      "summary": [
+        "De cache-bust van de hoofdsite, data-overzicht en updates-pagina is vernieuwd zodat browsers de actuele JavaScript- en CSS-versies opnieuw ophalen.",
+        "Hiermee wordt voor 3344PK + CZ nu ook live de juiste zone-first routering gebruikt: facturatiemodule 'Zuid Holland Zuid - VGZ'.",
+        "De oorzaak zat dus in een verouderde frontend-cache en niet in een nieuwe inhoudelijke beslisboomfout."
+      ]
+    },
+    {
       "date": "2026-05-06",
       "title": "Regio- en postcodecorrecties voor Leidschendam, Oegstgeest, Bennekom, Nunspeet en 4231",
       "scope": "kaart",
