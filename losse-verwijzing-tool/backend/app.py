@@ -4,7 +4,7 @@ from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from .service import build_output, load_schema, process_upload
+from .service import build_output, call_glm_ocr, load_schema, process_upload
 
 
 class ReferralTextRequest(BaseModel):
@@ -14,6 +14,13 @@ class ReferralTextRequest(BaseModel):
     extraction_method: str = "browser_text"
     page_count: int = 1
     ocr_used: bool = False
+
+
+class GlmOcrRequest(BaseModel):
+    image: str
+    prompt: str | None = None
+    model: str = "zai-org/GLM-OCR"
+    context: str = "referral-document"
 
 
 app = FastAPI(title="Losse verwijzing backend", version="0.1.0")
@@ -80,3 +87,17 @@ def process_referral_text(payload: ReferralTextRequest) -> dict:
         raise HTTPException(status_code=400, detail=str(error)) from error
     except Exception as error:  # pragma: no cover
         raise HTTPException(status_code=500, detail=f"Verwerking mislukt: {error}") from error
+
+
+@app.post("/api/glm-ocr")
+def glm_ocr(payload: GlmOcrRequest) -> dict[str, str]:
+    try:
+        if not str(payload.image or "").strip():
+            raise HTTPException(status_code=400, detail="Geen image data ontvangen.")
+        return {"text": call_glm_ocr(payload.image, payload.prompt)}
+    except HTTPException:
+        raise
+    except RuntimeError as error:
+        raise HTTPException(status_code=400, detail=str(error)) from error
+    except Exception as error:  # pragma: no cover
+        raise HTTPException(status_code=500, detail=f"GLM-OCR verwerking mislukt: {error}") from error

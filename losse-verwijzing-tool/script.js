@@ -4,6 +4,10 @@ const REFERRAL_API_BASE = window.REFERRAL_API_BASE || "http://127.0.0.1:8001";
 const PDFJS_CDN_URL = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
 const TESSERACT_CDN_URL = "https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js";
 const SHOULD_USE_REMOTE_API = ["127.0.0.1", "localhost"].includes(window.location.hostname);
+const GLM_OCR_MODEL_ID = "zai-org/GLM-OCR";
+const GLM_OCR_ENDPOINT = String(window.GLM_OCR_ENDPOINT || window.GLM_OCR_API_URL || "").trim();
+const GLM_OCR_API_TOKEN = String(window.GLM_OCR_API_TOKEN || "").trim();
+const PREFERRED_OCR_PROVIDER = String(window.REFERRAL_OCR_PROVIDER || (GLM_OCR_ENDPOINT ? "glm-ocr" : "tesseract")).toLowerCase();
 
 const FALLBACK_SCHEMA = {
   status: "draft",
@@ -201,7 +205,7 @@ async function ensureFrontendProcessingLibraries() {
   }
 
   if (!window.Tesseract) {
-    setStatus("Lokale OCR laden...", "processing");
+    setStatus(GLM_OCR_ENDPOINT ? "Lokale OCR fallback laden..." : "Lokale OCR laden...", "processing");
     await loadExternalScript(TESSERACT_CDN_URL, () => Boolean(window.Tesseract), "Tesseract.js");
   }
 }
@@ -565,14 +569,128 @@ async function runTesseract(input, onProgress) {
   return normalizeExtractedText(result?.data?.text || "");
 }
 
+function isGlmOcrEnabled() {
+  return Boolean(GLM_OCR_ENDPOINT) && PREFERRED_OCR_PROVIDER !== "tesseract";
+}
+
+function readFileAsDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.addEventListener("load", () => resolve(String(reader.result || "")), { once: true });
+    reader.addEventListener("error", () => reject(new Error("Afbeelding lezen mislukt.")), { once: true });
+    reader.readAsDataURL(file);
+  });
+}
+
+function getTextFromGlmOcrResponse(payload) {
+  if (typeof payload === "string") {
+    return payload;
+  }
+
+  if (!payload || typeof payload !== "object") {
+    return "";
+  }
+
+  if (typeof payload.text === "string") {
+    return payload.text;
+  }
+
+  if (typeof payload.raw_text === "string") {
+    return payload.raw_text;
+  }
+
+  if (typeof payload.generated_text === "string") {
+    return payload.generated_text;
+  }
+
+  if (Array.isArray(payload) && payload.length > 0) {
+    return getTextFromGlmOcrResponse(payload[0]);
+  }
+
+  const firstChoice = Array.isArray(payload.choices) ? payload.choices[0] : null;
+  if (firstChoice && typeof firstChoice === "object") {
+    return (
+      firstChoice.message?.content
+      || firstChoice.text
+      || firstChoice.generated_text
+      || ""
+    );
+  }
+
+  return "";
+}
+
+function isChatCompletionsEndpoint(url) {
+  return /\/v1\/chat\/completions\/?$/i.test(String(url || ""));
+}
+
+async function runGlmOcr(imageDataUrl, contextLabel) {
+  if (!isGlmOcrEnabled()) {
+    throw new Error("GLM-OCR endpoint is niet ingesteld.");
+  }
+
+  const headers = {
+    "Content-Type": "application/json"
+  };
+  if (GLM_OCR_API_TOKEN) {
+    headers.Authorization = `Bearer ${GLM_OCR_API_TOKEN}`;
+  }
+
+  const prompt = "Extract all readable text from this Dutch medical referral document. Return only plain text.";
+  const body = isChatCompletionsEndpoint(GLM_OCR_ENDPOINT)
+    ? {
+        model: GLM_OCR_MODEL_ID,
+        messages: [
+          {
+            role: "user",
+            content: [
+              { type: "text", text: prompt },
+              { type: "image_url", image_url: { url: imageDataUrl } }
+            ]
+          }
+        ],
+        temperature: 0
+      }
+    : {
+        model: GLM_OCR_MODEL_ID,
+        image: imageDataUrl,
+        prompt,
+        context: contextLabel || "referral-document"
+      };
+
+  const response = await fetch(GLM_OCR_ENDPOINT, {
+    method: "POST",
+    headers,
+    body: JSON.stringify(body)
+  });
+
+  const contentType = response.headers.get("content-type") || "";
+  const payload = contentType.includes("application/json")
+    ? await response.json()
+    : await response.text();
+
+  if (!response.ok) {
+    const detail = typeof payload === "string" ? payload : (payload.detail || payload.error || response.statusText);
+    throw new Error(`GLM-OCR mislukt (${response.status}): ${detail}`);
+  }
+
+  const text = getTextFromGlmOcrResponse(payload);
+  if (!String(text || "").trim()) {
+    throw new Error("GLM-OCR gaf geen tekst terug.");
+  }
+
+  return normalizeExtractedText(text);
+}
+
 async function extractPdfTextWithOcr(file) {
   const arrayBuffer = await file.arrayBuffer();
   const loadingTask = createPdfLoadingTask(arrayBuffer);
   const pdf = await loadingTask.promise;
   const pages = [];
+  let usedProvider = "tesseract";
 
   for (let pageIndex = 1; pageIndex <= pdf.numPages; pageIndex += 1) {
-    setStatus(`OCR bezig op PDF pagina ${pageIndex} van ${pdf.numPages}...`, "processing");
+    setStatus(`${isGlmOcrEnabled() ? "GLM-OCR" : "OCR"} bezig op PDF pagina ${pageIndex} van ${pdf.numPages}...`, "processing");
     const page = await pdf.getPage(pageIndex);
     const viewport = page.getViewport({ scale: 2 });
     const canvas = document.createElement("canvas");
@@ -580,30 +698,63 @@ async function extractPdfTextWithOcr(file) {
     canvas.width = Math.ceil(viewport.width);
     canvas.height = Math.ceil(viewport.height);
     await page.render({ canvasContext: context, viewport }).promise;
-    const pageText = await runTesseract(canvas, (progress) => {
-      const percentage = Math.round(progress * 100);
-      setStatus(`OCR bezig op PDF pagina ${pageIndex} van ${pdf.numPages} (${percentage}%)...`, "processing");
-    });
+
+    let pageText = "";
+    if (isGlmOcrEnabled()) {
+      try {
+        usedProvider = "glm-ocr";
+        pageText = await runGlmOcr(canvas.toDataURL("image/png"), `pdf-page-${pageIndex}`);
+      } catch (error) {
+        console.warn("GLM-OCR fallback naar Tesseract:", error);
+        usedProvider = "tesseract";
+        setStatus(`GLM-OCR niet beschikbaar, lokale OCR op pagina ${pageIndex}...`, "processing");
+      }
+    }
+
+    if (!pageText) {
+      pageText = await runTesseract(canvas, (progress) => {
+        const percentage = Math.round(progress * 100);
+        setStatus(`OCR bezig op PDF pagina ${pageIndex} van ${pdf.numPages} (${percentage}%)...`, "processing");
+      });
+    }
     pages.push(pageText);
     await sleep(20);
   }
 
   return {
     text: normalizeExtractedText(pages.join("\n\n")),
-    pageCount: pdf.numPages
+    pageCount: pdf.numPages,
+    ocrProvider: usedProvider
   };
 }
 
 async function extractImageTextWithOcr(file) {
-  setStatus("OCR bezig op afbeelding...", "processing");
-  const text = await runTesseract(file, (progress) => {
-    const percentage = Math.round(progress * 100);
-    setStatus(`OCR bezig op afbeelding (${percentage}%)...`, "processing");
-  });
+  let text = "";
+  let ocrProvider = "tesseract";
+
+  if (isGlmOcrEnabled()) {
+    try {
+      setStatus("GLM-OCR bezig op afbeelding...", "processing");
+      text = await runGlmOcr(await readFileAsDataUrl(file), "image-document");
+      ocrProvider = "glm-ocr";
+    } catch (error) {
+      console.warn("GLM-OCR fallback naar Tesseract:", error);
+      setStatus("GLM-OCR niet beschikbaar, lokale OCR op afbeelding...", "processing");
+    }
+  }
+
+  if (!text) {
+    setStatus("OCR bezig op afbeelding...", "processing");
+    text = await runTesseract(file, (progress) => {
+      const percentage = Math.round(progress * 100);
+      setStatus(`OCR bezig op afbeelding (${percentage}%)...`, "processing");
+    });
+  }
 
   return {
     text,
-    pageCount: 1
+    pageCount: 1,
+    ocrProvider
   };
 }
 
@@ -630,7 +781,7 @@ async function extractDocumentText(file) {
     const ocr = await extractPdfTextWithOcr(file);
     return {
       ...ocr,
-      extractionMethod: "pdf_ocr",
+      extractionMethod: ocr.ocrProvider === "glm-ocr" ? "pdf_glm_ocr" : "pdf_ocr",
       ocrUsed: true
     };
   }
@@ -639,7 +790,7 @@ async function extractDocumentText(file) {
     const ocr = await extractImageTextWithOcr(file);
     return {
       ...ocr,
-      extractionMethod: "image_ocr",
+      extractionMethod: ocr.ocrProvider === "glm-ocr" ? "image_glm_ocr" : "image_ocr",
       ocrUsed: true
     };
   }
@@ -1561,6 +1712,17 @@ function buildExtractionValidationMessages(result, extracted) {
   return messages;
 }
 
+function getLocalSourceBadge(result, aiUsed) {
+  const method = String(result.extractionMethod || "");
+  let label = "OCR (lokaal)";
+  if (method === "pdf_text") {
+    label = "PDF tekst (lokaal)";
+  } else if (method.includes("glm_ocr")) {
+    label = "GLM-OCR";
+  }
+  return `${label}${aiUsed ? " + AI" : ""}`;
+}
+
 function createLocalExtractionPayload(result, extracted, options = {}) {
   const aiUsed = Boolean(options.aiUsed);
   const aiError = options.aiError ? String(options.aiError) : "";
@@ -1588,6 +1750,8 @@ function createLocalExtractionPayload(result, extracted, options = {}) {
     confidence,
     ai_used: aiUsed,
     ai_provider: aiUsed ? "apifreellm" : "",
+    ocr_provider: result.ocrProvider || (String(result.extractionMethod || "").includes("glm_ocr") ? "glm-ocr" : ""),
+    ocr_model: String(result.extractionMethod || "").includes("glm_ocr") ? GLM_OCR_MODEL_ID : "",
     review_required: true,
     review_completed_at: "",
     review_status: "open",
@@ -1597,10 +1761,19 @@ function createLocalExtractionPayload(result, extracted, options = {}) {
   const validation = [
     {
       className: "validation-warn",
-      text: "Backend niet bereikbaar. Lokale browserverwerking gebruikt."
+      text: String(result.extractionMethod || "").includes("glm_ocr")
+        ? "Document lokaal verwerkt; GLM-OCR proxy gebruikt voor tekstherkenning."
+        : "Backend niet bereikbaar. Lokale browserverwerking gebruikt."
     },
     ...buildExtractionValidationMessages(result, extracted)
   ];
+
+  if (String(result.extractionMethod || "").includes("glm_ocr")) {
+    validation.unshift({
+      className: "validation-ok",
+      text: `GLM-OCR gebruikt voor tekstherkenning (${GLM_OCR_MODEL_ID}).`
+    });
+  }
 
   if (aiUsed) {
     validation.unshift({
@@ -1620,7 +1793,7 @@ function createLocalExtractionPayload(result, extracted, options = {}) {
     raw_text: result.text,
     output,
     validation,
-    source_badge: `${result.extractionMethod === "pdf_text" ? "PDF tekst (lokaal)" : "OCR (lokaal)"}${aiUsed ? " + AI" : ""}`,
+    source_badge: getLocalSourceBadge(result, aiUsed),
     confidence_badge: {
       high: "Hoge match",
       medium: "Middelmatige match",

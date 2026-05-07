@@ -49,6 +49,8 @@ REQUIRED_FIELD_PATHS = [
 AI_AUTH_API_URL = os.getenv("APIFREELLM_AUTH_API_URL", "https://apifreellm.com/api/v1/chat")
 AI_PUBLIC_API_URL = os.getenv("APIFREELLM_PUBLIC_API_URL", "https://apifreellm.com/api/chat")
 AI_MODEL = os.getenv("APIFREELLM_MODEL", "apifreellm")
+GLM_OCR_MODEL = os.getenv("GLM_OCR_MODEL", "zai-org/GLM-OCR")
+GLM_OCR_API_URL = os.getenv("GLM_OCR_API_URL", "https://router.huggingface.co/v1/chat/completions")
 
 
 def configure_tesseract() -> None:
@@ -90,6 +92,14 @@ def get_ai_api_key() -> str:
         os.getenv("APIFREELLM_API_KEY", "").strip()
         or os.getenv("APIFREELM_API_KEY", "").strip()
         or os.getenv("FREE_LLM_API_KEY", "").strip()
+    )
+
+
+def get_glm_ocr_api_key() -> str:
+    return (
+        os.getenv("GLM_OCR_API_TOKEN", "").strip()
+        or os.getenv("HUGGINGFACE_API_TOKEN", "").strip()
+        or os.getenv("HF_TOKEN", "").strip()
     )
 
 
@@ -637,6 +647,82 @@ def extract_json_object_from_text(text: str) -> dict[str, Any]:
         except json.JSONDecodeError:
             continue
     return {}
+
+
+def extract_text_from_model_response(body: Any) -> str:
+    if isinstance(body, str):
+        return body.strip()
+    if isinstance(body, list) and body:
+        return extract_text_from_model_response(body[0])
+    if not isinstance(body, dict):
+        return ""
+    for key in ("text", "raw_text", "generated_text"):
+        value = body.get(key)
+        if isinstance(value, str) and value.strip():
+            return value.strip()
+    choices = body.get("choices")
+    if isinstance(choices, list) and choices:
+        first_choice = choices[0]
+        if isinstance(first_choice, dict):
+            message = first_choice.get("message")
+            if isinstance(message, dict) and isinstance(message.get("content"), str):
+                return message["content"].strip()
+            for key in ("text", "generated_text"):
+                value = first_choice.get(key)
+                if isinstance(value, str) and value.strip():
+                    return value.strip()
+    return ""
+
+
+def call_glm_ocr(image_data_url: str, prompt: str | None = None) -> str:
+    api_key = get_glm_ocr_api_key()
+    if not api_key:
+        raise RuntimeError("GLM-OCR token ontbreekt. Zet GLM_OCR_API_TOKEN, HUGGINGFACE_API_TOKEN of HF_TOKEN.")
+
+    request_prompt = (
+        prompt
+        or "Extract all readable text from this Dutch medical referral document. Return only plain text."
+    )
+    payload = {
+        "model": GLM_OCR_MODEL,
+        "messages": [
+            {
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": request_prompt},
+                    {"type": "image_url", "image_url": {"url": image_data_url}},
+                ],
+            }
+        ],
+        "temperature": 0,
+    }
+    request = urllib.request.Request(
+        GLM_OCR_API_URL,
+        data=json.dumps(payload).encode("utf-8"),
+        headers={
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+            "User-Agent": "MiGuide-Referral-Tool/1.0",
+        },
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=90) as response:
+            body = json.loads(response.read().decode("utf-8"))
+    except urllib.error.HTTPError as error:
+        detail = ""
+        try:
+            detail = error.read().decode("utf-8")
+        except Exception:
+            detail = ""
+        raise RuntimeError(f"GLM-OCR mislukt ({error.code}). {detail}".strip()) from error
+    except urllib.error.URLError as error:
+        raise RuntimeError(f"GLM-OCR niet bereikbaar: {error.reason}") from error
+
+    text = extract_text_from_model_response(body)
+    if not text:
+        raise RuntimeError("GLM-OCR gaf geen tekst terug.")
+    return collapse_text(text)
 
 
 def normalize_ai_section(section_name: str, section_payload: Any) -> dict[str, str]:

@@ -6,6 +6,7 @@ Huidige opzet:
 - frontend: `index.html`, `style.css`, `script.js`
 - backend: Python `FastAPI` in `backend/`
 - output: reviewformulier + JSON export
+- OCR: PDF-tekst direct waar mogelijk, daarna GLM-OCR als configureerbare provider, daarna Tesseract fallback
 
 Wat de backend nu doet:
 - bestandstype bepalen (`pdf` of `image`)
@@ -63,6 +64,65 @@ Voor AI-aanvulling via ApiFreeLLM:
 - zet environment variable `APIFREELLM_API_KEY`
 - lokaal in je shell of in je deployplatform
 - op Vercel via `Project Settings > Environment Variables`
+
+## GLM-OCR
+
+De frontend is voorbereid op het Hugging Face model:
+
+```text
+zai-org/GLM-OCR
+```
+
+Omdat dit model niet als losse browser-library draait, heeft de tool een eigen HTTP endpoint nodig. Dat kan bijvoorbeeld een Hugging Face Space, serverless proxy, of eigen backend zijn die `zai-org/GLM-OCR` aanroept.
+
+Stel in `index.html` deze waarden in:
+
+```html
+<script>
+  window.REFERRAL_OCR_PROVIDER = "glm-ocr";
+  window.GLM_OCR_ENDPOINT = "https://jouw-site.vercel.app/api/glm-ocr";
+</script>
+```
+
+De tool zet dit standaard al op `/api/glm-ocr` voor Vercel en op `http://127.0.0.1:8001/api/glm-ocr` voor lokaal gebruik.
+
+Zet daarna in Vercel of lokaal een van deze environment variables:
+
+```text
+GLM_OCR_API_TOKEN=hf_...
+```
+
+Alternatieve namen die ook werken:
+
+```text
+HUGGINGFACE_API_TOKEN=hf_...
+HF_TOKEN=hf_...
+```
+
+Let op: zet een echte Hugging Face token niet hardcoded in publieke frontend-code. De meegeleverde `/api/glm-ocr` proxy houdt de token server-side.
+
+De proxy roept standaard `https://router.huggingface.co/v1/chat/completions` aan met `model: "zai-org/GLM-OCR"` en een `image_url` data URL.
+
+Voor een eigen simpele OCR proxy stuurt de frontend per pagina/afbeelding JSON naar die endpoint:
+
+```json
+{
+  "model": "zai-org/GLM-OCR",
+  "image": "data:image/png;base64,...",
+  "prompt": "Extract all readable text from this Dutch medical referral document. Return only plain text.",
+  "context": "pdf-page-1"
+}
+```
+
+De endpoint mag plain text teruggeven, of JSON met een van deze velden:
+
+```json
+{ "text": "gevonden tekst" }
+```
+
+Ook OpenAI-compatible responses met `choices[0].message.content` worden ondersteund.
+
+Als `GLM_OCR_ENDPOINT` leeg is of faalt, gebruikt de tool automatisch Tesseract.js in de browser zodat lokale verwerking blijft werken.
 
 ## API
 
