@@ -1,6 +1,17 @@
 {
   "updates": [
     {
+      "date": "2026-05-12",
+      "title": "De Goorn toegevoegd aan West-Friesland",
+      "scope": "kaart",
+      "description": "De plaats De Goorn wordt nu correct onder de gecontracteerde zorggroep West-Friesland verwerkt in de kaart en postcodeflow.",
+      "summary": [
+        "De Goorn is toegevoegd aan de West-Friesland-zorggroeplijst.",
+        "De gemeentekoppeling De Goorn -> Koggenland is toegevoegd zodat kaartmatching en postcodezoekresultaten dezelfde regio blijven volgen.",
+        "Hierdoor wordt De Goorn niet meer gemist in de zorggroeptoewijzing."
+      ]
+    },
+    {
       "date": "2026-05-07",
       "title": "Frontend-cache ververst voor actuele ZHZ-routering",
       "scope": "website",

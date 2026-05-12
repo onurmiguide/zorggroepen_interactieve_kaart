@@ -275,6 +275,7 @@ const CITY_TO_GEMEENTE = {
   "wognum": "Medemblik",
   "zwaag": "Hoorn",
   "wevershoof": "Medemblik",
+  "de goorn": "Koggenland",
   "drachten": "Smallingerland",
   "sneek": "Súdwest-Fryslân",
   "dokkum": "Noardeast-Fryslân",
