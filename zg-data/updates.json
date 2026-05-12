@@ -2,6 +2,19 @@
   "updates": [
     {
       "date": "2026-05-12",
+      "title": "Nieuwe pagina Alle zorggroepen met contract- en no-contract kaartlaag",
+      "scope": "website",
+      "description": "Er is een aparte, eenvoudiger overzichtspagina toegevoegd waarop alle bekende zorggroepen visueel worden getoond, los van de postcode-tool. Daarbij zijn ook no-contract zorggroepen als grijze kaartvlakken voorbereid en deels verrijkt met website- en gemeentedata.",
+      "summary": [
+        "De hoofdsite heeft nu een derde ingang: Alle zorggroepen. Deze pagina heeft een eigen eenvoudige kaart met drie vaste filters: Alle zorggroepen, Gecontracteerd en Geen contract.",
+        "Gecontracteerde zorggroepen worden gekleurd getoond; niet-gecontracteerde zorggroepen worden waar mogelijk als eigen grijs zorggroepvlak opgebouwd in plaats van als anonieme restgemeente.",
+        "Klikken op een zorggroep opent nu een kleine informatiepopup met naam, status en website; klikken buiten de popup sluit deze weer netjes.",
+        "Een eerste internetbatch op basis van offici?le zorggroepwebsites is doorgevoerd voor meerdere no-contract zorggroepen, zodat extra grijze gebieden nu al zorggroep-specifiek zichtbaar zijn.",
+        "De kaart bevat nu ook een disclaimer dat een deel van de no-contract indeling nog op publieke bronnen en gemeentelijke aannames is gebaseerd. Verdere verfijning van de resterende zorggroepen volgt in een volgende update."
+      ]
+    },
+    {
+      "date": "2026-05-12",
       "title": "De Goorn toegevoegd aan West-Friesland",
       "scope": "kaart",
       "description": "De plaats De Goorn wordt nu correct onder de gecontracteerde zorggroep West-Friesland verwerkt in de kaart en postcodeflow.",

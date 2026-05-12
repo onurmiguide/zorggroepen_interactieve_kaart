@@ -1,0 +1,761 @@
+{
+  "source": "Interne zorggroepenlijst met websites",
+  "entries": [
+    {
+      "name": "LCK",
+      "website": "",
+      "note": "Interne regiolabel voor Kennemerland-gebied in deze kaart.",
+      "mapsTo": [
+        "LCK"
+      ]
+    },
+    {
+      "name": "ZHZ CZ",
+      "website": "",
+      "note": "Interne regio voor gecontracteerde CZ-splitsing binnen Zuid-Holland-Zuid.",
+      "mapsTo": [
+        "ZHZ CZ"
+      ]
+    },
+    {
+      "name": "ZHZ VGZ",
+      "website": "",
+      "note": "Interne regio voor gecontracteerde VGZ-splitsing binnen Zuid-Holland-Zuid.",
+      "mapsTo": [
+        "ZHZ VGZ"
+      ]
+    },
+    {
+      "name": "Zuid-Holland-Zuid (overig)",
+      "website": "",
+      "note": "Overig deel van Zuid-Holland-Zuid zonder gecontracteerde zorggroepcontext.",
+      "mapsTo": [
+        "Zuid-Holland-Zuid (overig)"
+      ]
+    },
+    {
+      "name": "Zorggroep Gezondheid Amsterdam",
+      "website": "",
+      "note": "Huidige kaartregio voor Amsterdam en aangrenzende contractgebieden.",
+      "mapsTo": [
+        "Zorggroep Gezondheid Amsterdam"
+      ]
+    },
+    {
+      "name": "Post- Z (Naam in zorgtraject = StroomZ)",
+      "website": "",
+      "note": "Interne regiolabel voor StroomZ/Post-Z declaraties.",
+      "mapsTo": [
+        "Post- Z (Naam in zorgtraject = StroomZ)"
+      ]
+    },
+    {
+      "name": "Zuid-Holland-Zuid",
+      "website": "",
+      "note": "Overkoepelende regio die in de kaart verder is opgesplitst in CZ, VGZ en overig.",
+      "mapsTo": [
+        "ZHZ CZ",
+        "ZHZ VGZ",
+        "Zuid-Holland-Zuid (overig)"
+      ]
+    },
+    {
+      "name": "Alphense Huisartsen Coöperatie",
+      "website": "https://alphensehuisartscooperatie.nl/",
+      "note": "Aangesloten op het huidige Rijn en Duin-gebied in de kaart.",
+      "mapsTo": [
+        "Rijn en Duin"
+      ],
+      "municipalities": [
+        "Alphen aan den Rijn"
+      ]
+    },
+    {
+      "name": "Arts en Zorg",
+      "website": "https://www.artsenzorg.nl/",
+      "note": "Bekende organisatie, nog niet één-op-één aan een aparte kaartregio gekoppeld.",
+      "mapsTo": []
+    },
+    {
+      "name": "Charis",
+      "website": "https://www.medrie.nl/",
+      "note": "Geen aparte website gevonden; mogelijk via Medrie.",
+      "mapsTo": []
+    },
+    {
+      "name": "Cohesie Huisartsenzorg",
+      "website": "https://www.cohesie.org/",
+      "note": "Nog niet gekoppeld aan een aparte kaartregio.",
+      "mapsTo": []
+    },
+    {
+      "name": "Cooperatie Dokterscoop U.A.",
+      "website": "https://diabetesketenzorg.dokterscoop.nl/",
+      "note": "Nog niet gekoppeld aan een aparte kaartregio.",
+      "mapsTo": []
+    },
+    {
+      "name": "Coöperatieve Huisartsengroep Haaksbergen",
+      "website": "https://huisartshaaksbergen.praktijkinfo.nl/",
+      "note": "Nog niet gekoppeld aan een aparte kaartregio.",
+      "mapsTo": [],
+      "municipalities": [
+        "Haaksbergen"
+      ]
+    },
+    {
+      "name": "Coöperatieve Huisartsenvereniging Gelders Rivierenland",
+      "website": "https://www.gezondrivierenland.nl/home/over-de-chv",
+      "note": "Nog niet gekoppeld aan een aparte kaartregio.",
+      "mapsTo": [],
+      "municipalities": [
+        "West Betuwe",
+        "Tiel",
+        "Buren",
+        "Culemborg",
+        "Neder-Betuwe",
+        "Zaltbommel",
+        "Maasdriel",
+        "West Maas en Waal"
+      ]
+    },
+    {
+      "name": "Coöperatieve Vereniging Vrijgevestigde Huisartsen Almere",
+      "website": "https://rehalmere.nl/",
+      "note": "Gekoppeld als aanvullende organisatie binnen Zorggroep Almere.",
+      "mapsTo": [
+        "Zorggroep Almere"
+      ]
+    },
+    {
+      "name": "De huisartsenconnectie",
+      "website": "https://www.dehuisartsenconnectie.nl/",
+      "note": "Gemeentelijke inschatting op basis van de offici?le website: werkgebied Zeeland. Tholen en Zeeuws-Vlaanderen zijn hier buiten gelaten vanwege apart gemodelleerde zorggroepcontext.",
+      "mapsTo": [],
+      "municipalities": [
+        "Borsele",
+        "Goes",
+        "Kapelle",
+        "Middelburg",
+        "Noord-Beveland",
+        "Reimerswaal",
+        "Schouwen-Duiveland",
+        "Veere",
+        "Vlissingen"
+      ]
+    },
+    {
+      "name": "Delta Dokters",
+      "website": "https://deltadokters.nl/",
+      "note": "Gemeentelijke inschatting op basis van de offici?le website: Goeree-Overflakkee en Voorne-Putten. Rozenburg is niet apart te modelleren op gemeentelaag en is daarom hier buiten gelaten.",
+      "mapsTo": [],
+      "municipalities": [
+        "Goeree-Overflakkee",
+        "Nissewaard",
+        "Voorne aan Zee"
+      ]
+    },
+    {
+      "name": "Dokter Drenthe",
+      "website": "https://www.dokterdrenthe.nl/",
+      "note": "Nog niet gekoppeld aan een aparte kaartregio.",
+      "mapsTo": [],
+      "municipalities": [
+        "Assen",
+        "Emmen",
+        "Coevorden",
+        "Midden-Drenthe",
+        "Hoogeveen",
+        "De Wolden",
+        "Westerveld",
+        "Meppel",
+        "Borger-Odoorn",
+        "Aa en Hunze",
+        "Noordenveld",
+        "Tynaarlo"
+      ]
+    },
+    {
+      "name": "Dokterszorg Friesland B.V.",
+      "website": "https://www.dokterszorg.nl/",
+      "note": "Aanvullende organisatie gekoppeld aan Ketenzorg Friesland.",
+      "mapsTo": [
+        "Ketenzorg Friesland"
+      ]
+    },
+    {
+      "name": "DrechtDokters",
+      "website": "https://drechtdokters.nl/",
+      "note": "Valt inhoudelijk binnen de Zuid-Holland-Zuid contractregio's op de kaart.",
+      "mapsTo": [
+        "ZHZ CZ",
+        "ZHZ VGZ"
+      ]
+    },
+    {
+      "name": "Elan Huisartsen",
+      "website": "https://elanhuisartsen.nl/",
+      "note": "Gemeentelijke inschatting op basis van de offici?le website: regio Helmond en omgeving. Someren is hier niet toegevoegd omdat die in de kaart al onder Post-Z/StroomZ valt.",
+      "mapsTo": [],
+      "municipalities": [
+        "Asten",
+        "Deurne",
+        "Gemert-Bakel",
+        "Heeze-Leende",
+        "Helmond",
+        "Laarbeek",
+        "Peel en Maas"
+      ]
+    },
+    {
+      "name": "Elann",
+      "website": "http://www.elann.nl",
+      "note": "Nog niet gekoppeld aan een aparte kaartregio.",
+      "mapsTo": []
+    },
+    {
+      "name": "Federatie Eerstelijnszorg Almelo e.o.",
+      "website": "https://huisartsenzorgtwente.nl/",
+      "note": "Geen aparte website gevonden; mogelijk via Huisartsenzorg Twente.",
+      "mapsTo": [],
+      "municipalities": [
+        "Almelo"
+      ]
+    },
+    {
+      "name": "Groninger Huisartsen Coöperatie",
+      "website": "https://www.doknoord.nl/",
+      "note": "Nog niet gekoppeld aan een aparte kaartregio.",
+      "mapsTo": []
+    },
+    {
+      "name": "Hadoks",
+      "website": "https://www.hadoks.nl/",
+      "note": "Directe match met de huidige Hadoks-regio.",
+      "mapsTo": [
+        "Hadoks"
+      ]
+    },
+    {
+      "name": "Het Huisartsenteam",
+      "website": "https://www.hethuisartsenteam.nl/",
+      "note": "Bekend als HHT; nog niet als aparte kaartregio opgenomen.",
+      "mapsTo": []
+    },
+    {
+      "name": "HKN Huisartsen",
+      "website": "https://hknhuisartsen.nl/",
+      "note": "Officieel werkgebied volgens HKN: Texel, Schagen, Den Helder en een gedeelte van Hollands Kroon. Voor de kaart is Hollands Kroon volledig meegenomen als benadering.",
+      "mapsTo": [],
+      "municipalities": [
+        "Texel",
+        "Schagen",
+        "Den Helder",
+        "Hollands Kroon"
+      ]
+    },
+    {
+      "name": "Huisartsen Badhoevedorp",
+      "website": "https://www.huisartsenbadhoevedorp.nl/",
+      "note": "Aanvullende organisatie binnen Zorggroep Gezondheid Amsterdam.",
+      "mapsTo": [
+        "Zorggroep Gezondheid Amsterdam"
+      ]
+    },
+    {
+      "name": "Huisartsencoöperatie Amstelland",
+      "website": "https://hcamstelland.nl/",
+      "note": "Directe match met de huidige Amstelland-regio.",
+      "mapsTo": [
+        "Amstelland"
+      ]
+    },
+    {
+      "name": "Huisartsencoöperatie De Baarsjes",
+      "website": "https://zorgvoorzuid.nl/",
+      "note": "Aanvullende Amsterdamse zorggroeporganisatie.",
+      "mapsTo": [
+        "Zorggroep Gezondheid Amsterdam"
+      ]
+    },
+    {
+      "name": "Huisartsen Coöperatie De LIMES",
+      "website": "https://huisartsendelimes.nl/",
+      "note": "Aangesloten op het huidige Rijn en Duin-gebied in de kaart.",
+      "mapsTo": [
+        "Rijn en Duin"
+      ]
+    },
+    {
+      "name": "Huisartsencoöperatie Deventer e.o.",
+      "website": "https://www.hcdo.nl/",
+      "note": "Nog niet gekoppeld aan een aparte kaartregio.",
+      "mapsTo": [],
+      "municipalities": [
+        "Deventer"
+      ]
+    },
+    {
+      "name": "Huisartsencoöperatie Flevoland",
+      "website": "https://www.medrie.nl/",
+      "note": "Geen aparte website gevonden; mogelijk via Medrie.",
+      "mapsTo": []
+    },
+    {
+      "name": "Huisartsencoöperatie West-Brabant",
+      "website": "https://www.hcwb.nl/",
+      "note": "Nog niet gekoppeld aan een aparte kaartregio.",
+      "mapsTo": []
+    },
+    {
+      "name": "Huisartsencoöperatie WSD",
+      "website": "",
+      "note": "Geen aparte website gevonden.",
+      "mapsTo": []
+    },
+    {
+      "name": "Huisartsen Eemland Zorg B.V.",
+      "website": "https://huisartseneemland.nl/",
+      "note": "Directe match met de huidige Eemland-regio.",
+      "mapsTo": [
+        "Eemland"
+      ]
+    },
+    {
+      "name": "Huisartsen Gelderse Vallei",
+      "website": "https://www.huisartsengeldersevallei.nl/",
+      "note": "Nog niet gekoppeld aan een aparte kaartregio.",
+      "mapsTo": []
+    },
+    {
+      "name": "Huisartsen Oene-Epe",
+      "website": "https://www.huisartsenepe-oene.nl/",
+      "note": "Nog niet gekoppeld aan een aparte kaartregio.",
+      "mapsTo": [],
+      "municipalities": [
+        "Epe"
+      ]
+    },
+    {
+      "name": "Huisartsen Oostelijk Zuid Limburg",
+      "website": "https://www.huisartsen-ozl.nl/",
+      "note": "Directe match met de huidige HOZL-regio.",
+      "mapsTo": [
+        "HOZL"
+      ]
+    },
+    {
+      "name": "Huisartsen Organisatie Noord-Kennemerland",
+      "website": "https://www.honk.nu/",
+      "note": "Gemeentelijke inschatting op basis van de offici?le HONK-regiobeschrijving voor Noord-Kennemerland en de Alkmaar e.o.-huisartsenspoedpost.",
+      "mapsTo": [],
+      "municipalities": [
+        "Alkmaar",
+        "Bergen (NH)",
+        "Castricum",
+        "Dijk en Waard",
+        "Heiloo",
+        "Uitgeest"
+      ]
+    },
+    {
+      "name": "Huisartsenorganisatie Regio Zutphen",
+      "website": "https://www.hoogzorg.nl/",
+      "note": "Gekoppeld aan de huidige HOOG-regio.",
+      "mapsTo": [
+        "HOOG"
+      ]
+    },
+    {
+      "name": "Huisartsenorganisatie West-Friesland",
+      "website": "https://hwf.nl/",
+      "note": "Directe match met de huidige West-Friesland-regio.",
+      "mapsTo": [
+        "West-Friesland"
+      ]
+    },
+    {
+      "name": "Huisartsenpraktijken Medi-Mere B.V.",
+      "website": "https://www.medi-mere.com/",
+      "note": "Aanvullende Almere-organisatie.",
+      "mapsTo": [
+        "Zorggroep Almere"
+      ]
+    },
+    {
+      "name": "Huisartsen Regio Apeldoorn",
+      "website": "https://huisartsenregioapeldoorn.nl/",
+      "note": "Gekoppeld aan de huidige HOOG-regio.",
+      "mapsTo": [
+        "HOOG"
+      ]
+    },
+    {
+      "name": "Huisartsen Utrecht Stad",
+      "website": "https://huisartsenutrechtstad.nl/",
+      "note": "Officieel werkgebied volgens de website: Utrecht Stad.",
+      "mapsTo": [],
+      "municipalities": [
+        "Utrecht"
+      ]
+    },
+    {
+      "name": "Huisartsenvereniging Midden-Kennemerland",
+      "website": "https://www.hv-mk.nl/",
+      "note": "Aanvullende regio-organisatie binnen het LCK-gebied.",
+      "mapsTo": [
+        "LCK"
+      ]
+    },
+    {
+      "name": "Huisartsenvereniging Regio Zwolle",
+      "website": "https://hrz.nu/",
+      "note": "Nog niet gekoppeld aan een aparte kaartregio.",
+      "mapsTo": [],
+      "municipalities": [
+        "Zwolle"
+      ]
+    },
+    {
+      "name": "Huisartsenvereniging Zoetermeer",
+      "website": "https://eerstelijnszorgzoetermeer.nl/",
+      "note": "Nog niet gekoppeld aan een aparte kaartregio.",
+      "mapsTo": [],
+      "municipalities": [
+        "Zoetermeer"
+      ]
+    },
+    {
+      "name": "Huisarts en Zorg",
+      "website": "https://www.huisartsenzorg.nl/",
+      "note": "Nog niet gekoppeld aan een aparte kaartregio.",
+      "mapsTo": []
+    },
+    {
+      "name": "Huisartsen Zorggroep Breda",
+      "website": "https://www.hzgbreda.nl/",
+      "note": "Nog niet gekoppeld aan een aparte kaartregio.",
+      "mapsTo": [],
+      "municipalities": [
+        "Breda"
+      ]
+    },
+    {
+      "name": "HuisartsenZorg Oost-Achterhoek",
+      "website": "https://www.hoogzorg.nl/",
+      "note": "Nog niet gekoppeld aan een aparte kaartregio.",
+      "mapsTo": []
+    },
+    {
+      "name": "Huisartsenzorg Oude IJssel",
+      "website": "https://hzoij.nl/",
+      "note": "Nog niet gekoppeld aan een aparte kaartregio.",
+      "mapsTo": [],
+      "municipalities": [
+        "Oude IJsselstreek"
+      ]
+    },
+    {
+      "name": "Huisartsenzorg Zaanstreek Waterland",
+      "website": "https://hzwhuisartsenzorg.nl/",
+      "note": "Nog niet gekoppeld aan een aparte kaartregio.",
+      "mapsTo": [],
+      "municipalities": [
+        "Zaanstad",
+        "Purmerend",
+        "Edam-Volendam",
+        "Waterland",
+        "Landsmeer",
+        "Wormerland"
+      ]
+    },
+    {
+      "name": "Huisartsen Zuid Kennemerland",
+      "website": "https://hzk.nl/",
+      "note": "Aanvullende regio-organisatie binnen het LCK-gebied.",
+      "mapsTo": [
+        "LCK"
+      ]
+    },
+    {
+      "name": "Humo voor huisartsen",
+      "website": "https://humovoorhuisartsen.nl/",
+      "note": "Directe match met de huidige HUMO-regio.",
+      "mapsTo": [
+        "HUMO"
+      ]
+    },
+    {
+      "name": "Jeroen Bosch Huisartsen",
+      "website": "https://jeroenboschhuisartsen.nl/",
+      "note": "Nog niet gekoppeld aan een aparte kaartregio.",
+      "mapsTo": [],
+      "municipalities": [
+        "'s-Hertogenbosch"
+      ]
+    },
+    {
+      "name": "Langs de Linde, vereniging voor eerstelijns zorg",
+      "website": "https://www.langsdelinde.nl/",
+      "note": "Gemeentelijke inschatting op basis van de offici?le ledenplaatsen Oldemarkt, Kuinre, Noordwolde en Wolvega.",
+      "mapsTo": [],
+      "municipalities": [
+        "Steenwijkerland",
+        "Weststellingwerf"
+      ]
+    },
+    {
+      "name": "Medicamus",
+      "website": "https://www.medicamus.nl/",
+      "note": "Nog niet gekoppeld aan een aparte kaartregio.",
+      "mapsTo": []
+    },
+    {
+      "name": "Medicamus Academie",
+      "website": "https://www.medicamus.nl/medicamus-academie/",
+      "note": "Onderdeel van Medicamus; geen aparte kaartregio.",
+      "mapsTo": []
+    },
+    {
+      "name": "MEDiiS - Regio Zorg Midden-Holland B.V.",
+      "website": "https://www.mediis.nl/",
+      "note": "Gemeentelijke inschatting op basis van de offici?le regiobeschrijving Midden-Holland.",
+      "mapsTo": [],
+      "municipalities": [
+        "Bodegraven-Reeuwijk",
+        "Gouda",
+        "Krimpenerwaard",
+        "Waddinxveen",
+        "Zuidplas"
+      ]
+    },
+    {
+      "name": "Medische Zorggroep Zuid-Oost",
+      "website": "https://mczorgenhoop.nl/medzzo/",
+      "note": "Geen actieve aparte website gevonden; oude of gerelateerde informatie gebruikt.",
+      "mapsTo": []
+    },
+    {
+      "name": "Meditta Zorg B.V.",
+      "website": "https://www.medittaplein.nl/",
+      "note": "Directe match met de huidige Medita-regio.",
+      "mapsTo": [
+        "Medita"
+      ]
+    },
+    {
+      "name": "NEO Huisartsenzorg",
+      "website": "https://www.neohuisartsenzorg.nl/",
+      "note": "Nog niet gekoppeld aan een aparte kaartregio.",
+      "mapsTo": []
+    },
+    {
+      "name": "Nucleus Zorg B.V.",
+      "website": "https://nucleuszorg.nl/",
+      "note": "Offici?le werkregio volgens de website: Zeeuws-Vlaanderen.",
+      "mapsTo": [],
+      "municipalities": [
+        "Hulst",
+        "Sluis",
+        "Terneuzen"
+      ]
+    },
+    {
+      "name": "Onze Huisartsen",
+      "website": "https://www.onzehuisartsen.nl/",
+      "note": "Offici?le regiobeschrijving volgens de website van Onze Huisartsen: regio Arnhem-Zevenaar.",
+      "mapsTo": [],
+      "municipalities": [
+        "Arnhem",
+        "Doesburg",
+        "Duiven",
+        "Lingewaard",
+        "Overbetuwe",
+        "Rheden",
+        "Rozendaal",
+        "Renkum",
+        "Westervoort",
+        "Zevenaar"
+      ]
+    },
+    {
+      "name": "PoZoB",
+      "website": "https://www.pozob.nl/",
+      "note": "Nog niet gekoppeld aan een aparte kaartregio.",
+      "mapsTo": []
+    },
+    {
+      "name": "PrimaCura",
+      "website": "https://www.primacura.nl/",
+      "note": "Nog niet gekoppeld aan een aparte kaartregio.",
+      "mapsTo": []
+    },
+    {
+      "name": "Regionale Huisartsen Organisatie Gooi & Omstreken",
+      "website": "https://www.rhogo.nl/",
+      "note": "Directe match met de huidige RHOGO-regio.",
+      "mapsTo": [
+        "RHOGO (Regionale Huisartsen Organisatie Gooi en Omstreken BV)"
+      ]
+    },
+    {
+      "name": "Regionale Ondersteuning Huisartsen Amsterdam",
+      "website": "https://rohamsterdam.nl/",
+      "note": "Aanvullende Amsterdamse organisatie in deze kaartcontext.",
+      "mapsTo": [
+        "Zorggroep Gezondheid Amsterdam"
+      ]
+    },
+    {
+      "name": "Regio Zorg NU",
+      "website": "https://www.regiozorgnu.nl/",
+      "note": "Gemeentelijke inschatting op basis van de offici?le regiobeschrijving Noordwest-Utrecht. Utrecht-West is hier niet apart te modelleren op gemeentelaag en daarom buiten deze entry gelaten.",
+      "mapsTo": [],
+      "municipalities": [
+        "De Ronde Venen",
+        "Montfoort",
+        "Stichtse Vecht",
+        "Woerden"
+      ]
+    },
+    {
+      "name": "Rijnmond Dokters",
+      "website": "https://rijnmonddokters.nl/",
+      "note": "Directe match met de huidige Rijnmond dokters-regio.",
+      "mapsTo": [
+        "Rijnmond dokters"
+      ]
+    },
+    {
+      "name": "Stichting Zorggroep Almere",
+      "website": "https://www.zorggroep-almere.nl/",
+      "note": "Directe match met de huidige Zorggroep Almere-regio.",
+      "mapsTo": [
+        "Zorggroep Almere"
+      ]
+    },
+    {
+      "name": "Syntein",
+      "website": "https://www.syntein.nl/",
+      "note": "Officieel werkgebied volgens de website: MooiMaasvallei (Land van Cuijk, Bergen en Gennep).",
+      "mapsTo": [],
+      "municipalities": [
+        "Bergen (L)",
+        "Gennep",
+        "Land van Cuijk"
+      ]
+    },
+    {
+      "name": "Twentse Huisartsen Onderneming Oost Nederland",
+      "website": "https://www.sht-thoon.nl/",
+      "note": "Nog niet gekoppeld aan een aparte kaartregio.",
+      "mapsTo": []
+    },
+    {
+      "name": "UNICUM Lekstroom",
+      "website": "https://www.unicum-huisartsenzorg.nl/",
+      "note": "Subregio binnen de huidige UNICUM-regio op de kaart.",
+      "mapsTo": [
+        "UNICUM"
+      ]
+    },
+    {
+      "name": "UNICUM Zuidoost-Utrecht",
+      "website": "https://www.unicum-huisartsenzorg.nl/",
+      "note": "Subregio binnen de huidige UNICUM-regio op de kaart.",
+      "mapsTo": [
+        "UNICUM"
+      ]
+    },
+    {
+      "name": "ZIO Zorg in Ontwikkeling",
+      "website": "https://zio.nl/",
+      "note": "Directe match met de huidige ZIO-regio.",
+      "mapsTo": [
+        "ZIO"
+      ]
+    },
+    {
+      "name": "Zorggroep Gelders Rivierenland",
+      "website": "https://www.gezondrivierenland.nl/",
+      "note": "Nog niet gekoppeld aan een aparte kaartregio.",
+      "mapsTo": [],
+      "municipalities": [
+        "West Betuwe",
+        "Tiel",
+        "Buren",
+        "Culemborg",
+        "Neder-Betuwe",
+        "Zaltbommel",
+        "Maasdriel",
+        "West Maas en Waal"
+      ]
+    },
+    {
+      "name": "Zorggroep Haarlemmermeer",
+      "website": "https://www.zorggroephaarlemmermeer.nl/",
+      "note": "Nog niet gekoppeld aan een aparte kaartregio.",
+      "mapsTo": [],
+      "municipalities": [
+        "Haarlemmermeer"
+      ]
+    },
+    {
+      "name": "Zorggroep Hoeksewaard",
+      "website": "https://zghw.nl/",
+      "note": "Valt inhoudelijk binnen de Zuid-Holland-Zuid contractregio's op de kaart.",
+      "mapsTo": [
+        "ZHZ CZ",
+        "ZHZ VGZ"
+      ]
+    },
+    {
+      "name": "Zorggroep Ridderkerk",
+      "website": "https://zorggroepridderkerk.nl/",
+      "note": "Nog niet gekoppeld aan een aparte kaartregio.",
+      "mapsTo": [],
+      "municipalities": [
+        "Ridderkerk"
+      ]
+    },
+    {
+      "name": "Zorg voor zuid",
+      "website": "https://zorgvoorzuid.nl/",
+      "note": "Aanvullende Amsterdamse organisatie in deze kaartcontext.",
+      "mapsTo": [
+        "Zorggroep Gezondheid Amsterdam"
+      ]
+    },
+    {
+      "name": "Zorroo",
+      "website": "https://www.zorroo.nl/",
+      "note": "Gemeentelijke inschatting op basis van de offici?le regiobeschrijving Oosterhout en omstreken (o.a. Dongen, Drimmelen, Geertruidenberg, Oosterhout, Rijen en Zevenbergen).",
+      "mapsTo": [],
+      "municipalities": [
+        "Dongen",
+        "Drimmelen",
+        "Geertruidenberg",
+        "Gilze en Rijen",
+        "Moerdijk",
+        "Oosterhout"
+      ]
+    },
+    {
+      "name": "ESV (Eerstelijnssamenwerking Veenendaal)",
+      "website": "",
+      "note": "Directe match met de huidige ESV-regio.",
+      "mapsTo": [
+        "ESV"
+      ]
+    },
+    {
+      "name": "EerstelijnsZorg Zoetermeer",
+      "website": "",
+      "note": "Nog niet gekoppeld aan een aparte kaartregio.",
+      "mapsTo": [],
+      "municipalities": [
+        "Zoetermeer"
+      ]
+    }
+  ]
+}
