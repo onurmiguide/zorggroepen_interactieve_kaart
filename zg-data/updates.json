@@ -2,6 +2,18 @@
   "updates": [
     {
       "date": "2026-05-15",
+      "title": "Breda routeert nu zichtbaar naar HHT & HZGB",
+      "scope": "kaart",
+      "description": "Postcodes uit Breda, zoals 4817WP, bleven nog hangen in de generieke geen-zorggroep-flow. Breda is nu expliciet toegevoegd als no-contract zorggroepcontext HHT & HZGB, zodat de hoofdkaart niet alleen de juiste ZoHealthy-route toont, maar ook de juiste zorggroepnaam.",
+      "summary": [
+        "Breda is toegevoegd aan de hoofdkaart als expliciete zorggroepcontext 'HHT & HZGB'.",
+        "Deze context volgt inhoudelijk nog steeds de no-contract / ZoHealthy-routering, maar wordt nu niet meer als anonieme restgemeente behandeld.",
+        "No-contract zorggroepen met een eigen naam krijgen nu ook een grijze no-contract styling en een duidelijkere hovertekst in de hoofdkaart.",
+        "De Alle zorggroepen-pagina is meegetrokken zodat HHT & HZGB daar ook als geen-contract zorggroep zichtbaar blijft en niet per ongeluk groen als gecontracteerd gebied verschijnt."
+      ]
+    },
+    {
+      "date": "2026-05-15",
       "title": "ZHZ overig hernoemd naar Geen zorggroep contract",
       "scope": "kaart",
       "description": "De zichtbare naam van het overig deel van Zuid-Holland-Zuid is gelijkgetrokken met de feitelijke routering. Deze zone wordt nu niet meer als aparte ZHZ-overig label getoond, maar gewoon als Geen zorggroep contract.",

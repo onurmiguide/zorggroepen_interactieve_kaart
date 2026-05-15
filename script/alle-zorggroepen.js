@@ -7,7 +7,8 @@ const NL_DEFAULT_CENTER = [52.2, 5.3];
 const NL_DEFAULT_ZOOM = 8;
 const NO_CONTRACT_NAMES = new Set([
   "zuid holland zuid overig",
-  "geen zorggroep contract"
+  "geen zorggroep contract",
+  "hht hzgb"
 ]);
 
 const CITY_TO_GEMEENTE = {

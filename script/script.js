@@ -186,6 +186,7 @@ const BESLISBOOM_ROUTE_BY_ZORGGROEP_2026 = new Map([
   ["zorggroep gezondheid amsterdam", "ga"],
   ["gezondheid amsterdam", "ga"],
   ["lck", "lck"],
+  ["hht hzgb", "no_contract"],
   ["zorggroep almere", "zorggroep"],
   ["almere", "zorggroep"],
   ["geen zorggroep contract", "no_contract"],
@@ -1420,10 +1421,19 @@ function featureMatchesDeclaratiestroom(feature, insurerName, declaratiestroom) 
   return rows.some((row) => normalizeText(row.declaratiestroom) === target && row.contract !== false);
 }
 
+function getRouteTypeForZorggroepName(zorggroepName) {
+  return BESLISBOOM_ROUTE_BY_ZORGGROEP_2026.get(normalizeText(zorggroepName)) || null;
+}
+
+function isNoContractZorggroepName(zorggroepName) {
+  return getRouteTypeForZorggroepName(zorggroepName) === "no_contract"
+    || normalizeText(zorggroepName) === normalizeText(NO_ZORGGROEP_CONTRACT_NAME);
+}
+
 function colorFromString(str) {
   const input = String(str || "Onbekend");
   const normalized = normalizeText(input);
-  if (normalized === normalizeText(NO_ZORGGROEP_CONTRACT_NAME)) {
+  if (isNoContractZorggroepName(input)) {
     return "#9ca3af";
   }
   if (normalized === "zhz cz") {
@@ -1445,7 +1455,7 @@ function colorFromString(str) {
 }
 
 function style(feature) {
-  const isNoContract = normalizeText(getZorggroepName(feature)) === normalizeText(NO_ZORGGROEP_CONTRACT_NAME);
+  const isNoContract = isNoContractFeature(feature);
   return {
     weight: isNoContract ? 0.6 : 1,
     opacity: 1,
@@ -1457,14 +1467,20 @@ function style(feature) {
 }
 
 function isNoContractFeature(feature) {
-  return normalizeText(getZorggroepName(feature)) === normalizeText(NO_ZORGGROEP_CONTRACT_NAME);
+  return isNoContractZorggroepName(getZorggroepName(feature));
 }
 
-function buildNoContractTooltipText(gemeenteNaam = "") {
+function buildNoContractTooltipText(gemeenteNaam = "", zorggroepNaam = "") {
+  const label = zorggroepNaam || NO_ZORGGROEP_CONTRACT_NAME;
+  const isGenericLabel = normalizeText(label) === normalizeText(NO_ZORGGROEP_CONTRACT_NAME);
   if (gemeenteNaam) {
-    return `Geen zorggroep contract<br><small>${gemeenteNaam}</small>`;
+    return isGenericLabel
+      ? `Geen zorggroep contract<br><small>${gemeenteNaam}</small>`
+      : `${label}<br><small>${gemeenteNaam} • Geen contract</small>`;
   }
-  return "Geen zorggroep contract";
+  return isGenericLabel
+    ? "Geen zorggroep contract"
+    : `${label}<br><small>Geen contract</small>`;
 }
 
 function highlightFeature(e) {
@@ -1566,7 +1582,7 @@ function onEachFeature(feature, layer) {
         return;
       }
       const gemeenteNaam = municipalityForPoint([event.latlng.lng, event.latlng.lat]) || "";
-      layer.setTooltipContent(buildNoContractTooltipText(gemeenteNaam));
+      layer.setTooltipContent(buildNoContractTooltipText(gemeenteNaam, getZorggroepName(feature)));
       if (typeof layer.openTooltip === "function") {
         layer.openTooltip(event.latlng);
         activeTooltipLayer = layer;
@@ -1598,7 +1614,7 @@ function onEachFeature(feature, layer) {
 
   const overlapGemeenten = Array.isArray(feature?.properties?.overlapGemeenten) ? feature.properties.overlapGemeenten : [];
   const tooltipText = isNoContractFeature(feature)
-    ? buildNoContractTooltipText()
+    ? buildNoContractTooltipText("", getZorggroepName(feature))
     : overlapGemeenten.length
       ? `${getZorggroepName(feature)}<br><small>Overlap: ${overlapGemeenten.join(", ")}</small>`
       : getZorggroepName(feature);
