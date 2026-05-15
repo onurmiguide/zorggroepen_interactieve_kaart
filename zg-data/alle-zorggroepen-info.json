@@ -26,11 +26,11 @@
       ]
     },
     {
-      "name": "Zuid-Holland-Zuid (overig)",
+      "name": "Geen zorggroep contract",
       "website": "",
-      "note": "Overig deel van Zuid-Holland-Zuid zonder gecontracteerde zorggroepcontext.",
+      "note": "Niet-gecontracteerde restcontext voor gebieden zonder actieve zorggroepkoppeling, waaronder het overig deel van Zuid-Holland-Zuid.",
       "mapsTo": [
-        "Zuid-Holland-Zuid (overig)"
+        "Geen zorggroep contract"
       ]
     },
     {
@@ -56,7 +56,7 @@
       "mapsTo": [
         "ZHZ CZ",
         "ZHZ VGZ",
-        "Zuid-Holland-Zuid (overig)"
+        "Geen zorggroep contract"
       ]
     },
     {

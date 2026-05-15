@@ -1,5 +1,16 @@
-﻿{
+{
   "updates": [
+    {
+      "date": "2026-05-15",
+      "title": "ZHZ overig hernoemd naar Geen zorggroep contract",
+      "scope": "kaart",
+      "description": "De zichtbare naam van het overig deel van Zuid-Holland-Zuid is gelijkgetrokken met de feitelijke routering. Deze zone wordt nu niet meer als aparte ZHZ-overig label getoond, maar gewoon als Geen zorggroep contract.",
+      "summary": [
+        "De kaart toont voor het overig deel van Zuid-Holland-Zuid nu de naam Geen zorggroep contract.",
+        "De onderliggende no-contract route bleef al hetzelfde; het ging hier vooral om een duidelijkere en minder verwarrende zichtbare labelnaam.",
+        "Ook de Alle zorggroepen-pagina en de gekoppelde zorggroepinfo gebruiken nu dezelfde naamgeving."
+      ]
+    },
     {
       "date": "2026-05-15",
       "title": "Spelling Meditta rechtgetrokken in kaart en overzichten",
@@ -302,4 +313,3 @@
     }
   ]
 }
-

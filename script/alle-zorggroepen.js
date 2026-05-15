@@ -253,7 +253,7 @@ function splitZuidHollandZuidItem(item) {
       ]
     },
     {
-      zorggroep: "Zuid-Holland-Zuid (overig)",
+      zorggroep: "Geen zorggroep contract",
       regio: "Zuid-Holland-Zuid",
       website: item.website || "",
       cities: ["Goeree-Overflakkee"]
