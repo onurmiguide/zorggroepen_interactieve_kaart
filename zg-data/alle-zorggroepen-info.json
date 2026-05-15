@@ -85,14 +85,27 @@
     {
       "name": "Cohesie Huisartsenzorg",
       "website": "https://www.cohesie.org/",
-      "note": "Nog niet gekoppeld aan een aparte kaartregio.",
-      "mapsTo": []
+      "note": "Gemeentelijke inschatting op basis van de offici?le regiobeschrijving Noord-Limburg op de website van Cohesie.",
+      "mapsTo": [],
+      "municipalities": [
+        "Beesel",
+        "Bergen (L)",
+        "Gennep",
+        "Horst aan de Maas",
+        "Mook en Middelaar",
+        "Peel en Maas",
+        "Venlo",
+        "Venray"
+      ]
     },
     {
       "name": "Cooperatie Dokterscoop U.A.",
       "website": "https://diabetesketenzorg.dokterscoop.nl/",
-      "note": "Nog niet gekoppeld aan een aparte kaartregio.",
-      "mapsTo": []
+      "note": "Gemeentelijke inschatting op basis van de offici?le beschrijving van het oude werkgebied Skarsterl?n/Joure e.o. op de website van Dokterscoop.",
+      "mapsTo": [],
+      "municipalities": [
+        "De Fryske Marren"
+      ]
     },
     {
       "name": "Coöperatieve Huisartsengroep Haaksbergen",
@@ -225,8 +238,20 @@
     {
       "name": "Groninger Huisartsen Coöperatie",
       "website": "https://www.doknoord.nl/",
-      "note": "Nog niet gekoppeld aan een aparte kaartregio.",
-      "mapsTo": []
+      "note": "Gemeentelijke inschatting op basis van de offici?le regiobeschrijving van DokNoord/Groninger Huisartsen Co?peratie voor de provincie Groningen. Noord-Drenthe is hier bewust buiten gelaten om overlap met Dokter Drenthe te beperken.",
+      "mapsTo": [],
+      "municipalities": [
+        "Eemsdelta",
+        "Groningen",
+        "Het Hogeland",
+        "Midden-Groningen",
+        "Oldambt",
+        "Pekela",
+        "Stadskanaal",
+        "Veendam",
+        "Westerkwartier",
+        "Westerwolde"
+      ]
     },
     {
       "name": "Hadoks",
@@ -298,8 +323,15 @@
     {
       "name": "Huisartsencoöperatie Flevoland",
       "website": "https://www.medrie.nl/",
-      "note": "Geen aparte website gevonden; mogelijk via Medrie.",
-      "mapsTo": []
+      "note": "Gemeentelijke inschatting op basis van de offici?le Medrie-regiobeschrijving voor Flevoland. Almere is buiten deze no-contract laag gehouden omdat Almere al een eigen contractregio op de kaart heeft.",
+      "mapsTo": [],
+      "municipalities": [
+        "Dronten",
+        "Lelystad",
+        "Noordoostpolder",
+        "Urk",
+        "Zeewolde"
+      ]
     },
     {
       "name": "Huisartsencoöperatie West-Brabant",
@@ -324,8 +356,17 @@
     {
       "name": "Huisartsen Gelderse Vallei",
       "website": "https://www.huisartsengeldersevallei.nl/",
-      "note": "Nog niet gekoppeld aan een aparte kaartregio.",
-      "mapsTo": []
+      "note": "Gemeentelijke inschatting op basis van de offici?le regiobeschrijving van Huisartsen Gelderse Vallei: zeven gemeenten in de Gelderse Vallei.",
+      "mapsTo": [],
+      "municipalities": [
+        "Barneveld",
+        "Ede",
+        "Renswoude",
+        "Rhenen",
+        "Scherpenzeel",
+        "Veenendaal",
+        "Wageningen"
+      ]
     },
     {
       "name": "Huisartsen Oene-Epe",
@@ -443,8 +484,14 @@
     {
       "name": "HuisartsenZorg Oost-Achterhoek",
       "website": "https://www.hoogzorg.nl/",
-      "note": "Nog niet gekoppeld aan een aparte kaartregio.",
-      "mapsTo": []
+      "note": "Gemeentelijke inschatting op basis van de offici?le beschrijving van de regio Oost-Achterhoek.",
+      "mapsTo": [],
+      "municipalities": [
+        "Aalten",
+        "Berkelland",
+        "Oost Gelre",
+        "Winterswijk"
+      ]
     },
     {
       "name": "Huisartsenzorg Oude IJssel",
@@ -507,8 +554,21 @@
     {
       "name": "Medicamus",
       "website": "https://www.medicamus.nl/",
-      "note": "Nog niet gekoppeld aan een aparte kaartregio.",
-      "mapsTo": []
+      "note": "Gemeentelijke inschatting op basis van de offici?le regiobeschrijving Noordwest-Veluwe en Zeewolde. Gemeenten in Noord-Holland zijn meegenomen waar de website expliciet naar huisartsenposten en praktijkgebieden verwijst.",
+      "mapsTo": [],
+      "municipalities": [
+        "Den Helder",
+        "Elburg",
+        "Ermelo",
+        "Harderwijk",
+        "Hollands Kroon",
+        "Nunspeet",
+        "Oldebroek",
+        "Putten",
+        "Schagen",
+        "Texel",
+        "Zeewolde"
+      ]
     },
     {
       "name": "Medicamus Academie",
@@ -587,8 +647,19 @@
     {
       "name": "PrimaCura",
       "website": "https://www.primacura.nl/",
-      "note": "Nog niet gekoppeld aan een aparte kaartregio.",
-      "mapsTo": []
+      "note": "Gemeentelijke inschatting op basis van de offici?le beschrijving Tilburg en omliggende gemeenten op de website van PrimaCura.",
+      "mapsTo": [],
+      "municipalities": [
+        "Dongen",
+        "Gilze en Rijen",
+        "Goirle",
+        "Heusden",
+        "Hilvarenbeek",
+        "Loon op Zand",
+        "Oisterwijk",
+        "Tilburg",
+        "Waalwijk"
+      ]
     },
     {
       "name": "Regionale Huisartsen Organisatie Gooi & Omstreken",
@@ -648,8 +719,23 @@
     {
       "name": "Twentse Huisartsen Onderneming Oost Nederland",
       "website": "https://www.sht-thoon.nl/",
-      "note": "Nog niet gekoppeld aan een aparte kaartregio.",
-      "mapsTo": []
+      "note": "Gemeentelijke inschatting op basis van de offici?le beschrijving Twente en omgeving op de website van THOON. Gemeenten die al aan een specifiekere no-contract zorggroep hangen, worden in de kaart automatisch niet dubbel getekend.",
+      "mapsTo": [],
+      "municipalities": [
+        "Borne",
+        "Dinkelland",
+        "Enschede",
+        "Haaksbergen",
+        "Hellendoorn",
+        "Hengelo",
+        "Hof van Twente",
+        "Losser",
+        "Oldenzaal",
+        "Rijssen-Holten",
+        "Tubbergen",
+        "Twenterand",
+        "Wierden"
+      ]
     },
     {
       "name": "UNICUM Lekstroom",

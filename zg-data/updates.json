@@ -1,6 +1,19 @@
 {
   "updates": [
     {
+      "date": "2026-05-15",
+      "title": "Alle zorggroepen uitgebreid met filterlijst, websites en extra no-contract regio-inschattingen",
+      "scope": "website",
+      "description": "De nieuwe pagina Alle zorggroepen is verder uitgewerkt zodat de kaart niet alleen visueel bruikbaar is, maar ook sneller navigeerbaar en beter uitlegbaar wordt. Tegelijk zijn meerdere grijze no-contract zorggroepen verrijkt met gemeenten op basis van openbare bronnen en offici?le zorggroepwebsites.",
+      "summary": [
+        "Onder de kaart staat nu een alfabetische lijst met zorggroepen die direct meefiltert met Alle zorggroepen, Gecontracteerd en Geen contract.",
+        "Per zorggroep wordt nu ook de website zichtbaar in die lijst, zodat gebruikers niet eerst op de kaart hoeven te klikken om de bron te zien.",
+        "De no-contract kaartlaag is verder verrijkt met extra gemeentekoppelingen op basis van openbare bronnen en offici?le websites, waardoor minder losse restgemeenten overblijven en meer grijze gebieden nu als echte zorggroep zichtbaar zijn.",
+        "De kaart houdt nu beter rekening met overlap: brede no-contract inschattingen tekenen niet meer over bestaande contractgebieden of al-gekoppelde no-contract zorggroepen heen.",
+        "De disclaimer op de pagina blijft expliciet aangeven dat een deel van de no-contract indeling nog een best-effort inschatting is en in volgende updates verder verfijnd wordt."
+      ]
+    },
+    {
       "date": "2026-05-12",
       "title": "Nieuwe pagina Alle zorggroepen met contract- en no-contract kaartlaag",
       "scope": "website",

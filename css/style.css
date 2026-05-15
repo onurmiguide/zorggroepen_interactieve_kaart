@@ -658,6 +658,114 @@ body.dark-mode .sticky.top-0 {
   }
 }
 
+.map-name-directory__item {
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 12px 14px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.dark .map-name-directory__item {
+  border-color: #334155;
+  background: rgba(15, 23, 42, 0.92);
+}
+
+.map-name-directory__item-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.map-name-directory__name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.45;
+}
+
+.dark .map-name-directory__name {
+  color: #f8fafc;
+}
+
+.map-name-directory__badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 9999px;
+  padding: 4px 9px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.map-name-directory__badge--contracted {
+  border: 1px solid #a7f3d0;
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.map-name-directory__badge--no-contract {
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  color: #475569;
+}
+
+.dark .map-name-directory__badge--contracted {
+  border-color: rgba(16, 185, 129, 0.35);
+  background: rgba(6, 78, 59, 0.25);
+  color: #a7f3d0;
+}
+
+.dark .map-name-directory__badge--no-contract {
+  border-color: rgba(148, 163, 184, 0.35);
+  background: rgba(15, 23, 42, 0.6);
+  color: #cbd5e1;
+}
+
+.map-name-directory__website {
+  margin-top: 8px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.map-name-directory__link {
+  color: #2563eb;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  word-break: break-word;
+}
+
+.dark .map-name-directory__link {
+  color: #93c5fd;
+}
+
+.map-name-directory__muted,
+.map-name-directory__empty {
+  color: #64748b;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.dark .map-name-directory__muted,
+.dark .map-name-directory__empty {
+  color: #94a3b8;
+}
+
+.map-name-directory__empty {
+  border: 1px dashed #cbd5e1;
+  border-radius: 16px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.dark .map-name-directory__empty {
+  border-color: #334155;
+  background: rgba(15, 23, 42, 0.45);
+}
+
 .zorggroep-detail-popup .leaflet-popup-content-wrapper {
   border-radius: 18px;
   padding: 0;

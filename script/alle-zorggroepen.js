@@ -128,6 +128,12 @@ let noContractGroupLayer;
 let genericUncoveredLayer;
 let activeInfoPopup = null;
 let currentMapFilter = "all";
+let zorggroepDirectoryEntries = {
+  all: [],
+  contracted: [],
+  "no-contract": []
+};
+let genericUncoveredCount = 0;
 
 function normalizeText(value) {
   return String(value || "")
@@ -445,7 +451,99 @@ function buildInfoLookup(entries) {
   return { infoByGroup, infoByMunicipality };
 }
 
-function buildNoContractGroupFeatures(entries, gemeenteFeatures) {
+function firstNonEmptyString(values) {
+  for (const value of values || []) {
+    const cleanValue = String(value || "").trim();
+    if (cleanValue) {
+      return cleanValue;
+    }
+  }
+  return "";
+}
+
+function sortDirectoryEntries(entries) {
+  return [...entries].sort((a, b) => a.name.localeCompare(b.name, "nl", { sensitivity: "base" }));
+}
+
+function buildDirectoryEntries(contractFeatures, noContractFeatures, infoByGroup) {
+  const contracted = sortDirectoryEntries((contractFeatures || []).map((feature) => {
+    const zorggroepNaam = String(feature?.properties?.zorggroep || "").trim();
+    const infoEntries = infoByGroup.get(normalizeText(zorggroepNaam)) || [];
+    const website = firstNonEmptyString([
+      feature?.properties?.website,
+      ...infoEntries.map((entry) => entry.website)
+    ]);
+
+    return {
+      name: zorggroepNaam,
+      status: "contracted",
+      website
+    };
+  }));
+
+  const noContract = sortDirectoryEntries((noContractFeatures || []).map((feature) => ({
+    name: String(feature?.properties?.zorggroep || "").trim(),
+    status: "no-contract",
+    website: String(feature?.properties?.website || "").trim()
+  })));
+
+  return {
+    contracted,
+    "no-contract": noContract,
+    all: sortDirectoryEntries([...contracted, ...noContract])
+  };
+}
+
+function renderZorggroepDirectory() {
+  const container = document.getElementById("mapNameDirectory");
+  const countElement = document.getElementById("mapNameCount");
+  const hintElement = document.getElementById("mapNameDirectoryHint");
+  if (!container || !countElement || !hintElement) {
+    return;
+  }
+
+  const entries = zorggroepDirectoryEntries[currentMapFilter] || [];
+  const countLabel = `${entries.length} zorggroep${entries.length === 1 ? "" : "en"}`;
+  countElement.textContent = countLabel;
+
+  if (entries.length === 0) {
+    container.innerHTML = `<div class="map-name-directory__empty">Geen zorggroepen zichtbaar voor deze filter.</div>`;
+  } else {
+    container.innerHTML = entries.map((entry) => {
+      const statusClass = entry.status === "contracted"
+        ? "map-name-directory__badge map-name-directory__badge--contracted"
+        : "map-name-directory__badge map-name-directory__badge--no-contract";
+      const statusLabel = entry.status === "contracted" ? "Gecontracteerd" : "Geen contract";
+      const websiteHtml = entry.website
+        ? `<a class="map-name-directory__link" href="${escapeHtml(entry.website)}" target="_blank" rel="noopener noreferrer">${escapeHtml(entry.website)}</a>`
+        : `<span class="map-name-directory__muted">Geen website gekoppeld</span>`;
+
+      return `
+        <article class="map-name-directory__item">
+          <div class="map-name-directory__item-head">
+            <div class="map-name-directory__name">${escapeHtml(entry.name)}</div>
+            <span class="${statusClass}">${statusLabel}</span>
+          </div>
+          <div class="map-name-directory__website">${websiteHtml}</div>
+        </article>
+      `;
+    }).join("");
+  }
+
+  if (currentMapFilter === "contracted") {
+    hintElement.textContent = "Deze lijst toont de zorggroepen die in de kaart als gecontracteerd zichtbaar zijn.";
+  } else if (currentMapFilter === "no-contract") {
+    hintElement.textContent = genericUncoveredCount > 0
+      ? `Deze lijst toont de no-contract zorggroepen die al aan een gemeente zijn gekoppeld. Daarnaast blijven nog ${genericUncoveredCount} losse gemeenten zonder betrouwbare zorggroepkoppeling buiten deze lijst.`
+      : "Deze lijst toont de no-contract zorggroepen die nu al betrouwbaar aan gemeenten zijn gekoppeld.";
+  } else {
+    hintElement.textContent = genericUncoveredCount > 0
+      ? `Deze lijst combineert gecontracteerde en no-contract zorggroepen. Daarnaast zijn er nog ${genericUncoveredCount} losse gemeenten zonder betrouwbare zorggroepkoppeling.`
+      : "Deze lijst combineert alle zorggroepen die nu al zichtbaar en benoemd zijn op de kaart.";
+  }
+}
+
+function buildNoContractGroupFeatures(entries, gemeenteFeatures, contractFeatures) {
   const gemeenteByNormName = new Map();
   for (const feature of gemeenteFeatures) {
     const naam = feature?.properties?.naam;
@@ -455,6 +553,14 @@ function buildNoContractGroupFeatures(entries, gemeenteFeatures) {
     }
   }
 
+  const contractCoveredGemeenten = new Set();
+  for (const feature of contractFeatures || []) {
+    for (const gemeente of feature?.properties?.gemeenten || []) {
+      contractCoveredGemeenten.add(normalizeText(gemeente));
+    }
+  }
+
+  const claimedNoContractGemeenten = new Set();
   const features = [];
   for (const entry of entries || []) {
     const municipalities = Array.isArray(entry?.municipalities) ? entry.municipalities : [];
@@ -466,10 +572,17 @@ function buildNoContractGroupFeatures(entries, gemeenteFeatures) {
     const multiPolygonCoords = [];
     const matchedMunicipalities = [];
     for (const municipality of municipalities) {
-      const gemeenteFeature = gemeenteByNormName.get(normalizeText(municipality));
+      const municipalityKey = normalizeText(municipality);
+      if (!municipalityKey || contractCoveredGemeenten.has(municipalityKey) || claimedNoContractGemeenten.has(municipalityKey)) {
+        continue;
+      }
+
+      const gemeenteFeature = gemeenteByNormName.get(municipalityKey);
       if (!gemeenteFeature) {
         continue;
       }
+
+      claimedNoContractGemeenten.add(municipalityKey);
       matchedMunicipalities.push(gemeenteFeature.properties.naam);
       multiPolygonCoords.push(...geometryToMultiPolygonParts(gemeenteFeature.geometry));
     }
@@ -765,6 +878,7 @@ function renderUncoveredLayer(gemeenteFeatures, contractFeatures, noContractFeat
     const naam = gemeenteFeature?.properties?.naam;
     return naam && !coveredGemeenten.has(normalizeText(naam));
   });
+  genericUncoveredCount = uncoveredFeatures.length;
 
   genericUncoveredLayer = L.geoJSON(uncoveredFeatures, {
     interactive: true,
@@ -828,6 +942,7 @@ function setMapFilter(filterValue) {
   currentMapFilter = filterValue || "all";
   updateFilterButtons();
   applyLayerVisibility();
+  renderZorggroepDirectory();
 }
 
 function initMapFilterButtons() {
@@ -915,7 +1030,8 @@ async function init() {
     const infoEntries = Array.isArray(infoData.entries) ? infoData.entries : [];
     const { infoByGroup } = buildInfoLookup(infoEntries);
     const contractFeatures = buildContractFeatures(zorggroepen, gemeenteFeatures);
-    const noContractFeatures = buildNoContractGroupFeatures(infoEntries, gemeenteFeatures);
+    const noContractFeatures = buildNoContractGroupFeatures(infoEntries, gemeenteFeatures, contractFeatures);
+    zorggroepDirectoryEntries = buildDirectoryEntries(contractFeatures, noContractFeatures, infoByGroup);
 
     renderNoContractGroupLayer(noContractFeatures);
     renderUncoveredLayer(gemeenteFeatures, contractFeatures, noContractFeatures);
