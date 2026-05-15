@@ -32,7 +32,7 @@ const FALLBACK_OCR_DATA = {
     { zorggroep: "Kennemerland", facturatiestroom: "Afhankelijk van zorgverzekeraar (Stroom 2/3)", detected_in_ocr: false },
     { zorggroep: "Ketenzorg Friesland", facturatiestroom: FACTURATIESTROMEN.STROOM_1, detected_in_ocr: false },
     { zorggroep: "Kop NoordHolland", facturatiestroom: "Afhankelijk van zorgverzekeraar (Stroom 2/3)", detected_in_ocr: false },
-    { zorggroep: "Medita / Meditta", facturatiestroom: FACTURATIESTROMEN.STROOM_1, detected_in_ocr: false },
+    { zorggroep: "Meditta", facturatiestroom: FACTURATIESTROMEN.STROOM_1, detected_in_ocr: false },
     { zorggroep: "RHOGO", facturatiestroom: FACTURATIESTROMEN.STROOM_1, detected_in_ocr: false },
     { zorggroep: "Rijn en Duin", facturatiestroom: FACTURATIESTROMEN.STROOM_1, detected_in_ocr: false },
     { zorggroep: "Rijnmond Dokters", facturatiestroom: FACTURATIESTROMEN.STROOM_1, detected_in_ocr: false },

@@ -1,5 +1,16 @@
-{
+﻿{
   "updates": [
+    {
+      "date": "2026-05-15",
+      "title": "Spelling Meditta rechtgetrokken in kaart en overzichten",
+      "scope": "kaart",
+      "description": "De zorggroepnaam Meditta stond nog op meerdere plekken met een t als Medita. Die spelling is nu overal in de relevante kaart- en overzichtsbestanden gelijkgetrokken.",
+      "summary": [
+        "De zorggroepnaam en regio zijn in de hoofdbronbestanden aangepast van Medita naar Meditta.",
+        "Ook de gekoppelde info-directory en het data-overzicht gebruiken nu dezelfde spelling.",
+        "Hierdoor is de naam nu consistent zichtbaar op de zorggroepenkaart, de Alle zorggroepen-pagina en in de ondersteunende overzichten."
+      ]
+    },
     {
       "date": "2026-05-15",
       "title": "Alle zorggroepen uitgebreid met filterlijst, websites en extra no-contract regio-inschattingen",
@@ -87,9 +98,9 @@
       "date": "2026-04-15",
       "title": "Salland-contract en HUMO-zorggroep toegevoegd",
       "scope": "kaart",
-      "description": "De postcode-tool houdt nu rekening met het nieuwe contract met Salland in niet-gecontracteerde regio’s en met de nieuwe zorggroep HUMO voor Oss, Uden en Veghel.",
+      "description": "De postcode-tool houdt nu rekening met het nieuwe contract met Salland in niet-gecontracteerde regioâ€™s en met de nieuwe zorggroep HUMO voor Oss, Uden en Veghel.",
       "summary": [
-        "In regio’s zonder zorggroepcontract routeert Salland nu naar facturatiemodule 'MiGuide' in plaats van 'ZoHealthy'.",
+        "In regioâ€™s zonder zorggroepcontract routeert Salland nu naar facturatiemodule 'MiGuide' in plaats van 'ZoHealthy'.",
         "HUMO is als nieuwe zorggroep toegevoegd op basis van PDOK-gemeenten voor Oss, Uden en Veghel.",
         "Verwijzingen uit HUMO-regio volgen nu de zorggroeproute en geven facturatiemodule 'Zorggroep'."
       ]
@@ -121,7 +132,7 @@
       "date": "2026-04-13",
       "title": "ZHZ-modules volgen nu de regio in plaats van generieke MiGuide-fallback",
       "scope": "kaart",
-      "description": "Voor ZHZ CZ en ZHZ VGZ wordt de facturatiemodule nu zone-first bepaald, zodat contractverzekeraars binnen die regio’s niet meer onterecht op MiGuide uitkomen.",
+      "description": "Voor ZHZ CZ en ZHZ VGZ wordt de facturatiemodule nu zone-first bepaald, zodat contractverzekeraars binnen die regioâ€™s niet meer onterecht op MiGuide uitkomen.",
       "summary": [
         "Postcodes in de ZHZ VGZ-zone, zoals 3352TH, geven nu voor FBTO de facturatiemodule 'Zuid Holland Zuid - VGZ' in plaats van 'MiGuide'.",
         "Dezelfde aanpak is doorgetrokken naar ZHZ CZ, zodat de statische ZHZ-module binnen de juiste zone leidend blijft.",
@@ -146,7 +157,7 @@
       "description": "De filterkolom is stabieler gemaakt zodat zoekresultaten de layout niet meer laten verspringen, en de resetknop sluit nu beter aan op de rest van de interface.",
       "summary": [
         "De balk 'Gevonden gemeente' houdt nu vaste ruimte vast zodat de rechter filterkolom niet meer omlaag springt na een postcodezoekopdracht.",
-        "Lange zorggroepnamen in de custom dropdowns blijven nu op één regel met afkapping, zodat onderliggende blokken niet meer overlappen.",
+        "Lange zorggroepnamen in de custom dropdowns blijven nu op Ã©Ã©n regel met afkapping, zodat onderliggende blokken niet meer overlappen.",
         "De resetknop gebruikt nu dezelfde lichte roodtint als de concept/demo-badge voor een duidelijkere maar rustige actieknop."
       ]
     },
@@ -291,3 +302,4 @@
     }
   ]
 }
+
