@@ -1,6 +1,17 @@
 {
   "updates": [
     {
+      "date": "2026-05-19",
+      "title": "HOOG aangepast naar geen contract op basis van juni-overzicht",
+      "scope": "kaart",
+      "description": "Het nieuwe bestand Overzicht_zorggroepen_juni is naast de huidige kaart gelegd. HOOG stond in de tool nog als gecontracteerde zorggroep, maar staat in het juni-overzicht met contractstatus 'Noe' en begindatum 'Onderhandeling'.",
+      "summary": [
+        "HOOG wordt in de hoofdkaart nu behandeld als geen zorggroepcontract in plaats van als zorggroepdeclaratie.",
+        "De gebieden Zutphen en Apeldoorn blijven zichtbaar onder de naam HOOG, maar krijgen op de Alle zorggroepen-pagina de grijze geen-contract status.",
+        "De duidelijke contractlijst uit het juni-overzicht is gebruikt als leidraad; twijfelgevallen met lege contractcel, zoals West-Friesland, zijn nog niet automatisch omgezet."
+      ]
+    },
+    {
       "date": "2026-05-15",
       "title": "Breda routeert nu zichtbaar naar HHT & HZGB",
       "scope": "kaart",

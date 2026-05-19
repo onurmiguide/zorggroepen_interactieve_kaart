@@ -202,7 +202,7 @@ const BESLISBOOM_ROUTE_BY_ZORGGROEP_2026 = new Map([
   ["rhogo", "zorggroep"],
   ["rhogo regionale huisartsen organisatie gooi en omstreken bv", "zorggroep"],
   ["unicum", "zorggroep"],
-  ["hoog", "zorggroep"],
+  ["hoog", "no_contract"],
   ["medita", "zorggroep"],
   ["meditta", "zorggroep"],
   ["hozl", "zorggroep"],

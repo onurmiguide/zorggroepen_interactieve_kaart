@@ -409,6 +409,16 @@
       ]
     },
     {
+      "name": "HOOG",
+      "website": "https://www.hoogzorg.nl/",
+      "note": "Volgens Overzicht_zorggroepen_juni staat HOOG nog op onderhandeling en is dit daarom geen gecontracteerde zorggroep in de kaart.",
+      "mapsTo": [],
+      "municipalities": [
+        "Zutphen",
+        "Apeldoorn"
+      ]
+    },
+    {
       "name": "Huisartsenorganisatie Regio Zutphen",
       "website": "https://www.hoogzorg.nl/",
       "note": "Gekoppeld aan de huidige HOOG-regio.",
