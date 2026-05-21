@@ -1,6 +1,17 @@
 {
   "updates": [
     {
+      "date": "2026-05-21",
+      "title": "Uitzondering 1432JZ naar Stichting Amsterdamse Gezondheidscentra",
+      "scope": "kaart",
+      "description": "Postcode 1432JZ ligt qua gemeente bij Aalsmeer en kwam daardoor automatisch uit op Amstelland. Voor deze specifieke huisartspraktijk geldt een uitzondering: de praktijk werkt niet via Amstelland maar via Stichting Amsterdamse Gezondheidscentra.",
+      "summary": [
+        "1432JZ is toegevoegd als exacte postcode-uitzondering.",
+        "De zorggroepcontext wordt nu Zorggroep Gezondheid Amsterdam in plaats van Amstelland.",
+        "De statusmelding toont nu ook de uitzonderingsnotitie, zodat medewerkers zien waarom deze postcode anders routeert dan de gemeente suggereert."
+      ]
+    },
+    {
       "date": "2026-05-19",
       "title": "HOOG aangepast naar geen contract op basis van juni-overzicht",
       "scope": "kaart",

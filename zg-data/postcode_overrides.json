@@ -1601,6 +1601,11 @@
       "zorggroep": "Geen zorggroep contract",
       "source_sheet": "HAP Oostergo uitzondering",
       "insurer_concerns": []
+    },
+    "1432JZ": {
+      "zorggroep": "Zorggroep Gezondheid Amsterdam",
+      "source_sheet": "Handmatige uitzondering",
+      "note": "Huisartspraktijk op 1432JZ werkt niet via Amstelland maar via Stichting Amsterdamse Gezondheidscentra."
     }
   },
   "location_postcode6_overrides": {

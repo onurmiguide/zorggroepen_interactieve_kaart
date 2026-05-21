@@ -110,7 +110,7 @@ function renderUpdates(updates) {
 }
 
 async function loadUpdates() {
-  const response = await fetch("zg-data/updates.json");
+  const response = await fetch("zg-data/updates.json", { cache: "no-store" });
   if (!response.ok) {
     throw new Error(`updates.json laden mislukt (${response.status})`);
   }

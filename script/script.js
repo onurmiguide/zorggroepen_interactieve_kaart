@@ -2666,6 +2666,7 @@ function loadPostcodeOverrideData(data) {
     exact.set(normalized, {
       zorggroep,
       sourceSheet,
+      note: String(row.note || "").trim(),
       insurerConcerns: sourceSheet.startsWith("ZHZ leefstijl coalitie")
         ? []
         : (Array.isArray(row.insurer_concerns) ? row.insurer_concerns.map((value) => normalizeInsurerKey(value)) : [])
@@ -3120,7 +3121,8 @@ function setupGemeenteSearch(features) {
           if (usingLocationFallback) {
             showStatus(`Postbuspostcode ${normalizedInput} valt qua gemeente onder ${locationLabel || "deze locatie"} en gebruikt ${resolvedZorggroepName} als zorggroepcontext.`);
           } else {
-            showStatus(`Postcode ${normalizedInput} gekoppeld aan ${resolvedZorggroepName}${locationLabel ? ` bij ${locationLabel}` : ""}.`);
+            const overrideNote = String(effectivePostcodeOverride.note || "").trim();
+            showStatus(`Postcode ${normalizedInput} gekoppeld aan ${resolvedZorggroepName}${locationLabel ? ` bij ${locationLabel}` : ""}.${overrideNote ? ` Uitzondering: ${overrideNote}` : ""}`);
           }
         } else {
           const locationLabel = woonplaatsNaam || gemeenteNaam;
