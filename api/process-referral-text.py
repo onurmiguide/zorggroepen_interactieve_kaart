@@ -4,7 +4,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from ._shared import service
+from ._shared import get_allowed_origins, service
 
 
 class ReferralTextRequest(BaseModel):
@@ -20,7 +20,7 @@ app = FastAPI(title="Losse verwijzing tekstverwerking", version="0.1.0")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=get_allowed_origins(),
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],

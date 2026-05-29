@@ -61,9 +61,10 @@ http://127.0.0.1:8001
 
 Voor AI-aanvulling via ApiFreeLLM:
 
-- zet environment variable `APIFREELLM_API_KEY`
-- lokaal in je shell of in je deployplatform
-- op Vercel via `Project Settings > Environment Variables`
+- zet `APIFREELLM_API_KEY` alleen server-side, bijvoorbeeld lokaal in je shell of in je deployplatform
+- zet deze key nooit in browsercode, `window.*`, HTML, `NEXT_PUBLIC_*`, `VITE_*` of een client-side configbestand
+- op Vercel: sla de variable op als Sensitive Environment Variable en redeploy daarna de app
+- als de bestaande key zichtbaar is geweest voor projectleden of in logs, roteer de key eerst bij ApiFreeLLM en vervang daarna de Vercel-variable
 
 ## GLM-OCR lokaal
 
@@ -134,7 +135,13 @@ GLM_OCR_PROVIDER=huggingface
 GLM_OCR_API_TOKEN=hf_...
 ```
 
-De proxy roept dan `https://router.huggingface.co/v1/chat/completions` aan met `model: "zai-org/GLM-OCR"` en een `image_url` data URL.
+Zet `GLM_OCR_API_TOKEN` ook alleen server-side. De browser roept uitsluitend de eigen proxy-endpoint `/api/glm-ocr` aan; de proxy roept daarna `https://router.huggingface.co/v1/chat/completions` aan met `model: "zai-org/GLM-OCR"` en een `image_url` data URL.
+
+Optioneel kun je toegestane frontend origins beperken met:
+
+```text
+REFERRAL_ALLOWED_ORIGINS=https://zorggroepen-interactieve-kaart.vercel.app,https://zorgtool-miguide.vercel.app
+```
 
 ## API
 

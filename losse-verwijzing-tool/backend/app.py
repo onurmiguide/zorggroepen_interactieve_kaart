@@ -1,10 +1,31 @@
 from __future__ import annotations
 
+import os
+
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from .service import build_output, call_glm_ocr, load_schema, process_upload
+
+
+DEFAULT_ALLOWED_ORIGINS = [
+    "http://127.0.0.1:5500",
+    "http://localhost:5500",
+    "http://127.0.0.1:5501",
+    "http://localhost:5501",
+    "http://127.0.0.1:8000",
+    "http://localhost:8000",
+    "https://zorgtool-miguide.vercel.app",
+    "https://zorggroepen-interactieve-kaart.vercel.app",
+]
+
+
+def get_allowed_origins() -> list[str]:
+    raw = os.getenv("REFERRAL_ALLOWED_ORIGINS", "").strip()
+    if not raw:
+        return DEFAULT_ALLOWED_ORIGINS
+    return [origin.strip() for origin in raw.split(",") if origin.strip()]
 
 
 class ReferralTextRequest(BaseModel):
@@ -27,15 +48,7 @@ app = FastAPI(title="Losse verwijzing backend", version="0.1.0")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://127.0.0.1:5500",
-        "http://localhost:5500",
-        "http://127.0.0.1:5501",
-        "http://localhost:5501",
-        "http://127.0.0.1:8000",
-        "http://localhost:8000",
-        "https://zorgtool-miguide.vercel.app",
-    ],
+    allow_origins=get_allowed_origins(),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

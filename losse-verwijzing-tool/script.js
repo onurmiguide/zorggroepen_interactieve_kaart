@@ -6,7 +6,6 @@ const TESSERACT_CDN_URL = "https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tess
 const SHOULD_USE_REMOTE_API = ["127.0.0.1", "localhost"].includes(window.location.hostname);
 const GLM_OCR_MODEL_ID = "zai-org/GLM-OCR";
 const GLM_OCR_ENDPOINT = String(window.GLM_OCR_ENDPOINT || window.GLM_OCR_API_URL || "").trim();
-const GLM_OCR_API_TOKEN = String(window.GLM_OCR_API_TOKEN || "").trim();
 const PREFERRED_OCR_PROVIDER = String(window.REFERRAL_OCR_PROVIDER || (GLM_OCR_ENDPOINT ? "glm-ocr" : "tesseract")).toLowerCase();
 
 const FALLBACK_SCHEMA = {
@@ -632,9 +631,6 @@ async function runGlmOcr(imageDataUrl, contextLabel) {
   const headers = {
     "Content-Type": "application/json"
   };
-  if (GLM_OCR_API_TOKEN) {
-    headers.Authorization = `Bearer ${GLM_OCR_API_TOKEN}`;
-  }
 
   const prompt = "Extract all readable text from this Dutch medical referral document. Return only plain text.";
   const body = isChatCompletionsEndpoint(GLM_OCR_ENDPOINT)
