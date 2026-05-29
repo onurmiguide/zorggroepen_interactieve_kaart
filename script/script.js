@@ -3058,10 +3058,15 @@ function setupGemeenteSearch(features) {
         if (effectivePostcodeOverride?.zorggroep) {
           const overrideFeature = getFeatureByZorggroepName(effectivePostcodeOverride.zorggroep);
           const resolvedZorggroepName = overrideFeature ? getZorggroepName(overrideFeature) : effectivePostcodeOverride.zorggroep;
-          const preferredLocation = [woonplaatsNaam, gemeenteNaam].find((name) =>
+          const locationCandidates = [woonplaatsNaam, gemeenteNaam].filter(Boolean);
+          const preferredLocation = locationCandidates.find((name) =>
             featureMatchesLocationName(overrideFeature, name)
           );
-          setGemeenteContext(preferredLocation || woonplaatsNaam || gemeenteNaam, [woonplaatsNaam, gemeenteNaam]);
+          const clearLocationScopeForNoContractOverride = !preferredLocation && isNoContractZorggroepName(resolvedZorggroepName);
+          setGemeenteContext(
+            clearLocationScopeForNoContractOverride ? "" : (preferredLocation || woonplaatsNaam || gemeenteNaam),
+            locationCandidates
+          );
 
           updateGemeenteFoundDisplay();
           currentFilter = resolvedZorggroepName;

@@ -1,6 +1,17 @@
 {
   "updates": [
     {
+      "date": "2026-05-29",
+      "title": "Postcode 6151JA uit Meditta-route gehaald",
+      "scope": "kaart",
+      "description": "Postcode 6151JA ligt in Munstergeleen en kwam via de brede Sittard/Geleen-context onder Meditta terecht. Voor deze postcode is nu een exacte uitzondering toegevoegd.",
+      "summary": [
+        "6151JA is toegevoegd als exacte postcode-uitzondering.",
+        "De zorggroepcontext wordt nu Geen zorggroep contract in plaats van Meditta.",
+        "De statusmelding toont de uitzonderingsnotitie zodat zichtbaar is waarom deze postcode afwijkt van de bredere gemeentecontext."
+      ]
+    },
+    {
       "date": "2026-05-21",
       "title": "Uitzondering 1432JZ naar Stichting Amsterdamse Gezondheidscentra",
       "scope": "kaart",

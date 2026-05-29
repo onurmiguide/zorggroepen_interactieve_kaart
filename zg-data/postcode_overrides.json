@@ -1606,6 +1606,11 @@
       "zorggroep": "Zorggroep Gezondheid Amsterdam",
       "source_sheet": "Handmatige uitzondering",
       "note": "Huisartspraktijk op 1432JZ werkt niet via Amstelland maar via Stichting Amsterdamse Gezondheidscentra."
+    },
+    "6151JA": {
+      "zorggroep": "Geen zorggroep contract",
+      "source_sheet": "Handmatige uitzondering",
+      "note": "Postcode 6151JA ligt in Munstergeleen en hoort niet onder de Meditta-route."
     }
   },
   "location_postcode6_overrides": {
