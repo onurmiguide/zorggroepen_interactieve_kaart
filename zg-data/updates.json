@@ -2,6 +2,17 @@
   "updates": [
     {
       "date": "2026-05-29",
+      "title": "Postcode-uitzonderingen voor LCK en HOOG toegevoegd",
+      "scope": "kaart",
+      "description": "De postcodes 1961JC, 1967KD en 7323EP kwamen via brede plaats- of gemeentecontext onder LCK of HOOG terecht. Voor deze specifieke postcodes zijn nu exacte uitzonderingen toegevoegd.",
+      "summary": [
+        "1961JC is toegevoegd als uitzonderingspostcode en routeert nu naar Geen zorggroep contract.",
+        "1967KD routeert niet meer onder LCK maar naar Geen zorggroep contract.",
+        "7323EP routeert niet meer onder HOOG maar naar Geen zorggroep contract."
+      ]
+    },
+    {
+      "date": "2026-05-29",
       "title": "Postcode 6151JA uit Meditta-route gehaald",
       "scope": "kaart",
       "description": "Postcode 6151JA ligt in Munstergeleen en kwam via de brede Sittard/Geleen-context onder Meditta terecht. Voor deze postcode is nu een exacte uitzondering toegevoegd.",

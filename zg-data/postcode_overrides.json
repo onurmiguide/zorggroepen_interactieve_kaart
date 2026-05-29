@@ -1611,6 +1611,21 @@
       "zorggroep": "Geen zorggroep contract",
       "source_sheet": "Handmatige uitzondering",
       "note": "Postcode 6151JA ligt in Munstergeleen en hoort niet onder de Meditta-route."
+    },
+    "1961JC": {
+      "zorggroep": "Geen zorggroep contract",
+      "source_sheet": "Handmatige uitzondering",
+      "note": "Postcode 1961JC is als uitzonderingspostcode uit de brede LCK-route gehaald."
+    },
+    "1967KD": {
+      "zorggroep": "Geen zorggroep contract",
+      "source_sheet": "Handmatige uitzondering",
+      "note": "Postcode 1967KD hoort niet onder de LCK-route."
+    },
+    "7323EP": {
+      "zorggroep": "Geen zorggroep contract",
+      "source_sheet": "Handmatige uitzondering",
+      "note": "Postcode 7323EP hoort niet onder de HOOG-route."
     }
   },
   "location_postcode6_overrides": {

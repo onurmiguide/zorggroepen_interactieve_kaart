@@ -2,7 +2,7 @@
 const AUTH_SESSION_KEY = "miguide_auth_ok";
 const AUTH_PASSWORD_FALLBACK = "MiGuide#2026!@";
 const ZORGGROEPEN_URL = "zg-data/zorggroepen.json";
-const POSTCODE_OVERRIDES_URL = "zg-data/postcode_overrides.json";
+const POSTCODE_OVERRIDES_URL = "zg-data/postcode_overrides.json?v=20260529-lck-hoog-exceptions";
 const PDOK_GEMEENTE_ITEMS_URL = "https://api.pdok.nl/kadaster/brk-bestuurlijke-gebieden/ogc/v1/collections/gemeentegebied/items?f=json&limit=100";
 const PDOK_POSTCODE_WFS_URL = "https://service.pdok.nl/cbs/postcode6/2024/wfs/v1_0";
 const NL_DEFAULT_CENTER = [52.2, 5.3];
