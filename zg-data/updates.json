@@ -2,6 +2,17 @@
   "updates": [
     {
       "date": "2026-05-29",
+      "title": "Zorggroep Almere routeert weer via Zorggroep voor VGZ-labels",
+      "scope": "kaart",
+      "description": "Postcodes in Almere, zoals 1313GA en 1328MB, kwamen bij VGZ-concernverzekeraars zoals IZA en VGZ nog uit op MiGuide - VGZ door een oude expliciete uitzondering. Die uitzondering is verwijderd omdat Zorggroep Almere een gecontracteerde zorggroep is.",
+      "summary": [
+        "1313GA met IZA routeert nu via facturatiemodule Zorggroep.",
+        "1328MB met VGZ routeert nu via facturatiemodule Zorggroep.",
+        "De normale zorggroeproute van Zorggroep Almere heeft nu voorrang boven de generieke VGZ/MiGuide-route."
+      ]
+    },
+    {
+      "date": "2026-05-29",
       "title": "Postcode-uitzonderingen voor LCK en HOOG toegevoegd",
       "scope": "kaart",
       "description": "De postcodes 1961JC, 1967KD en 7323EP kwamen via brede plaats- of gemeentecontext onder LCK of HOOG terecht. Voor deze specifieke postcodes zijn nu exacte uitzonderingen toegevoegd.",
@@ -280,7 +291,7 @@
       "summary": [
         "De brede regel die rode verzekeraars automatisch naar ZoHealthy stuurde is verwijderd voor algemene zorggroeproutes.",
         "Voorbeelden zoals Eindhoven / StroomZ / CZ komen nu weer uit op Facturatiemodule 'Zorggroep'.",
-        "Expliciete uitzonderingen blijven bestaan, zoals Gezondheid Amsterdam + DSW -> ZoHealthy en Almere + VGZ -> MiGuide - VGZ."
+        "Expliciete uitzonderingen blijven bestaan, zoals Gezondheid Amsterdam + DSW -> ZoHealthy. De eerdere Almere + VGZ-uitzondering is op 2026-05-29 vervangen door de normale zorggroeproute."
       ]
     },
     {

@@ -1006,16 +1006,6 @@ function resolveWorkbookSpecialRouting(feature, insurerName = "") {
     };
   }
 
-  // Zorggroep Almere volgt in principe de normale zorggroeproute.
-  // Alleen VGZ (en labels) blijft een expliciete uitzondering naar MiGuide - VGZ.
-  if ((zorggroepNorm === "zorggroep almere" || zorggroepNorm === "almere") && insurerNorm === "vgz") {
-    return {
-      routeType: "workbook_special_almere_vgz",
-      moduleName: "MiGuide - VGZ",
-      stroom: FACTURATIESTROMEN.STROOM_2
-    };
-  }
-
   return null;
 }
 
