@@ -1828,11 +1828,13 @@ function updateGemeenteFoundDisplay() {
 
   if (!currentGemeente) {
     el.textContent = "";
+    el.classList.remove("is-visible");
     el.classList.add("opacity-0", "pointer-events-none");
     return;
   }
 
   el.textContent = `Gevonden gemeente: ${currentGemeente}`;
+  el.classList.add("is-visible");
   el.classList.remove("opacity-0", "pointer-events-none");
 }
 

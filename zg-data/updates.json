@@ -2,6 +2,17 @@
   "updates": [
     {
       "date": "2026-06-03",
+      "title": "Facturatiestroom-filter overlap opgelost",
+      "scope": "frontend",
+      "description": "De Facturatiestroom-select schoof op lagere desktophoogtes over het onderste paneel doordat de lege gevonden-gemeente melding nog ruimte reserveerde.",
+      "summary": [
+        "De lege gemeente-status klapt nu volledig in.",
+        "De filterkolom is compacter gemaakt boven de Zorggroep-select.",
+        "De desktopgrid gebruikt bij compacte hoogtes een max-content rij zodat de onderste panelen niet onder de filters schuiven."
+      ]
+    },
+    {
+      "date": "2026-06-03",
       "title": "Hamburgermenu en landing opgeschoond",
       "scope": "website",
       "description": "De documentatie is uit de landing-kaarten gehaald en de menulabels zijn gelijkgetrokken met de toolnamen.",
