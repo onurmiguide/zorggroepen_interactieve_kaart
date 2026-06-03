@@ -1631,6 +1631,11 @@
       "zorggroep": "ESV",
       "source_sheet": "Handmatige uitzondering",
       "note": "Postcode 6741AC hoort onder de ESV-facturatiemodule en niet onder de brede Eemland-context."
+    },
+    "8401PA": {
+      "zorggroep": "Geen zorggroep contract",
+      "source_sheet": "Handmatige uitzondering",
+      "note": "Postcode 8401PA valt niet onder Zorggroep/Ketenzorg Friesland."
     }
   },
   "location_postcode6_overrides": {

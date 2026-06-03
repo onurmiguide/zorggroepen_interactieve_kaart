@@ -2,6 +2,17 @@
   "updates": [
     {
       "date": "2026-06-03",
+      "title": "Postcode 8401PA uit Friesland-route gehaald",
+      "scope": "kaart",
+      "description": "Postcode 8401PA kwam via de brede Friesland-context onder Ketenzorg Friesland terecht. Voor deze postcode is nu een exacte uitzondering toegevoegd.",
+      "summary": [
+        "8401PA routeert nu naar Geen zorggroep contract.",
+        "De postcode valt niet meer onder Zorggroep/Ketenzorg Friesland.",
+        "De statusmelding toont de uitzonderingsnotitie zodat zichtbaar is waarom deze postcode afwijkt."
+      ]
+    },
+    {
+      "date": "2026-06-03",
       "title": "Postcode 6741AC routeert naar ESV",
       "scope": "kaart",
       "description": "Postcode 6741AC kwam via de brede plaats- en gemeentecontext van Lunteren/Ede uit op Eemland. Voor deze postcode is nu een exacte uitzondering toegevoegd naar ESV, conform de ESV-facturatiemodule.",
