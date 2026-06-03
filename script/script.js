@@ -500,13 +500,13 @@ function updateAppHeader(view) {
   }
 
   if (view === APP_VIEWS.MAP) {
-    title.textContent = "Zorggroepen Interactieve Kaart";
+    title.textContent = "Zorgtool";
     subtitle.textContent = "Zoek snel op gemeente, postcode en zorggroep";
     return;
   }
 
   if (view === APP_VIEWS.WIP) {
-    title.textContent = "Losse verwijzing verwerken";
+    title.textContent = "Losse verwijzing tool";
     subtitle.textContent = "Work in progress";
     return;
   }
@@ -544,14 +544,19 @@ function showAppView(view) {
 function initLandingPage() {
   const openMapTool = document.getElementById("openMapTool");
   const openReferralTool = document.getElementById("openReferralTool");
-  const menuHomeButton = document.getElementById("menuHomeButton");
+  const menuZorgtoolButton = document.getElementById("menuZorgtoolButton");
+
+  const openZorgtool = async () => {
+    showAppView(APP_VIEWS.MAP);
+    if (window.location.hash !== "#zorgtool") {
+      history.replaceState(null, "", "#zorgtool");
+    }
+    await ensureMapAppInitialized();
+  };
 
   if (openMapTool && !openMapTool.dataset.bound) {
     openMapTool.dataset.bound = "1";
-    openMapTool.addEventListener("click", async () => {
-      showAppView(APP_VIEWS.MAP);
-      await ensureMapAppInitialized();
-    });
+    openMapTool.addEventListener("click", openZorgtool);
   }
 
   if (openReferralTool && !openReferralTool.dataset.bound) {
@@ -561,18 +566,22 @@ function initLandingPage() {
     });
   }
 
-  if (menuHomeButton && !menuHomeButton.dataset.bound) {
-    menuHomeButton.dataset.bound = "1";
-    menuHomeButton.addEventListener("click", () => {
-      showAppView(APP_VIEWS.LANDING);
-      const menu = menuHomeButton.closest("details");
+  if (menuZorgtoolButton && !menuZorgtoolButton.dataset.bound) {
+    menuZorgtoolButton.dataset.bound = "1";
+    menuZorgtoolButton.addEventListener("click", async () => {
+      await openZorgtool();
+      const menu = menuZorgtoolButton.closest("details");
       if (menu) {
         menu.open = false;
       }
     });
   }
 
-  showAppView(APP_VIEWS.LANDING);
+  if (window.location.hash === "#zorgtool") {
+    openZorgtool();
+  } else {
+    showAppView(APP_VIEWS.LANDING);
+  }
 }
 
 async function sha256Hex(input) {

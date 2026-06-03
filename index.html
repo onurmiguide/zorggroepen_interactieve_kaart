@@ -53,9 +53,9 @@
           Menu
         </summary>
         <ul role="listbox" class="w-56 rounded-md bg-white p-1 shadow-xl outline-1 -outline-offset-1 outline-slate-200 dark:bg-slate-900 dark:outline-slate-700">
-          <li><button id="menuHomeButton" type="button" class="block w-full rounded px-3 py-2 text-left text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 focus:bg-slate-100 focus:text-slate-900 focus:outline-none dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white dark:focus:bg-slate-800 dark:focus:text-white">Landing page</button></li>
-          <li><a href="alle-zorggroepen.html" title="Bekijk alle zorggroepen op de kaart" class="block rounded px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 focus:bg-slate-100 focus:text-slate-900 focus:outline-none dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white dark:focus:bg-slate-800 dark:focus:text-white">Alle zorggroepen</a></li>
-          <li><a href="data-overzicht.html" title="Bekijk alle gebruikte data" class="block rounded px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 focus:bg-slate-100 focus:text-slate-900 focus:outline-none dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white dark:focus:bg-slate-800 dark:focus:text-white">Data-overzicht</a></li>
+          <li><button id="menuZorgtoolButton" type="button" class="block w-full rounded px-3 py-2 text-left text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 focus:bg-slate-100 focus:text-slate-900 focus:outline-none dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white dark:focus:bg-slate-800 dark:focus:text-white">Zorgtool</button></li>
+          <li><a href="losse-verwijzing-tool/index.html" title="Open losse verwijzing tool" class="block rounded px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 focus:bg-slate-100 focus:text-slate-900 focus:outline-none dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white dark:focus:bg-slate-800 dark:focus:text-white">Losse verwijzing tool</a></li>
+          <li><a href="alle-zorggroepen.html" title="Bekijk de zorggroep kaart" class="block rounded px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 focus:bg-slate-100 focus:text-slate-900 focus:outline-none dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white dark:focus:bg-slate-800 dark:focus:text-white">Zorggroep kaart</a></li>
           <li><a href="updates.html" title="Bekijk recente wijzigingen" class="block rounded px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 focus:bg-slate-100 focus:text-slate-900 focus:outline-none dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white dark:focus:bg-slate-800 dark:focus:text-white">Updates</a></li>
           <li><a href="documentatie.html" title="Bekijk documentatie" class="block rounded px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 focus:bg-slate-100 focus:text-slate-900 focus:outline-none dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white dark:focus:bg-slate-800 dark:focus:text-white">Documentatie</a></li>
           <li><a href="https://github.com/onurmiguide/zorggroepen_interactieve_kaart" target="_blank" rel="noopener noreferrer" class="block rounded px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 focus:bg-slate-100 focus:text-slate-900 focus:outline-none dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white dark:focus:bg-slate-800 dark:focus:text-white">GitHub repo</a></li>
@@ -83,42 +83,32 @@
             <button id="openMapTool" type="button" class="tool-card group rounded-[24px] border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg dark:border-slate-700 dark:from-slate-900 dark:to-slate-950">
               <div class="flex items-start justify-between gap-3">
                 <div>
-                  <div class="text-lg font-semibold text-slate-900 dark:text-slate-100">Zorggroepen Interactieve Kaart</div>
+                  <div class="text-lg font-semibold text-slate-900 dark:text-slate-100">Zorgtool</div>
                   <div class="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">Zoek op gemeente, postcode en zorgverzekeraar en bekijk direct de juiste zorggroepcontext.</div>
                 </div>
                 <div class="rounded-2xl bg-sky-100 px-3 py-2 text-sm font-medium text-sky-700 dark:bg-sky-950/40 dark:text-sky-300">Live</div>
               </div>
-              <div class="mt-6 inline-flex items-center gap-2 text-sm font-medium text-sky-700 dark:text-sky-300">Open kaart <span aria-hidden="true">-></span></div>
+              <div class="mt-6 inline-flex items-center gap-2 text-sm font-medium text-sky-700 dark:text-sky-300">Open zorgtool <span aria-hidden="true">-></span></div>
             </button>
             <button id="openReferralTool" type="button" class="tool-card group rounded-[24px] border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg dark:border-slate-700 dark:from-slate-900 dark:to-slate-950">
               <div class="flex items-start justify-between gap-3">
                 <div>
-                  <div class="text-lg font-semibold text-slate-900 dark:text-slate-100">Losse verwijzing verwerken</div>
+                  <div class="text-lg font-semibold text-slate-900 dark:text-slate-100">Losse verwijzing tool</div>
                   <div class="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">Volgende tool in opbouw voor losse verwijzingen, routering en vervolgacties.</div>
                 </div>
                 <div class="rounded-2xl bg-amber-100 px-3 py-2 text-sm font-medium text-amber-800 dark:bg-amber-950/40 dark:text-amber-300">Work in progress</div>
               </div>
-              <div class="mt-6 inline-flex items-center gap-2 text-sm font-medium text-amber-700 dark:text-amber-300">Bekijk status <span aria-hidden="true">-></span></div>
+              <div class="mt-6 inline-flex items-center gap-2 text-sm font-medium text-amber-700 dark:text-amber-300">Open tool <span aria-hidden="true">-></span></div>
             </button>
             <a href="alle-zorggroepen.html" class="tool-card group rounded-[24px] border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg dark:border-slate-700 dark:from-slate-900 dark:to-slate-950">
               <div class="flex items-start justify-between gap-3">
                 <div>
-                  <div class="text-lg font-semibold text-slate-900 dark:text-slate-100">Alle zorggroepen</div>
+                  <div class="text-lg font-semibold text-slate-900 dark:text-slate-100">Zorggroep kaart</div>
                   <div class="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">Eenvoudige kaart met alle gecontracteerde zorggroepen in kleur en overige gebieden in grijs.</div>
                 </div>
                 <div class="rounded-2xl bg-emerald-100 px-3 py-2 text-sm font-medium text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300">Nieuw</div>
               </div>
-              <div class="mt-6 inline-flex items-center gap-2 text-sm font-medium text-emerald-700 dark:text-emerald-300">Open overzicht <span aria-hidden="true">-></span></div>
-            </a>
-            <a href="documentatie.html" class="tool-card group rounded-[24px] border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg dark:border-slate-700 dark:from-slate-900 dark:to-slate-950">
-              <div class="flex items-start justify-between gap-3">
-                <div>
-                  <div class="text-lg font-semibold text-slate-900 dark:text-slate-100">Documentatie</div>
-                  <div class="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">Uitleg over structuur, databronnen, postcodeflow en onderhoud van de tool.</div>
-                </div>
-                <div class="rounded-2xl bg-slate-100 px-3 py-2 text-sm font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-200">Docs</div>
-              </div>
-              <div class="mt-6 inline-flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300">Open documentatie <span aria-hidden="true">-></span></div>
+              <div class="mt-6 inline-flex items-center gap-2 text-sm font-medium text-emerald-700 dark:text-emerald-300">Open kaart <span aria-hidden="true">-></span></div>
             </a>
           </div>
         </div>
@@ -253,6 +243,6 @@
   </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="script/script.js?v=20260603-8401pa-friesland"></script>
+  <script src="script/script.js?v=20260603-menu-toolnames"></script>
 </body>
 </html>
