@@ -2,6 +2,17 @@
   "updates": [
     {
       "date": "2026-06-03",
+      "title": "Documentatiepagina toegevoegd",
+      "scope": "website",
+      "description": "Er is een aparte documentatiepagina toegevoegd met uitleg over de structuur, databronnen, postcodeflow, beslislogica en onderhoud van de zorggroepentool.",
+      "summary": [
+        "Nieuwe pagina documentatie.html toegevoegd.",
+        "Het menu en de landing bevatten nu een ingang naar de documentatie.",
+        "De pagina beschrijft waar zorggroepen, postcode-uitzonderingen, facturatiemodules en updates worden onderhouden."
+      ]
+    },
+    {
+      "date": "2026-06-03",
       "title": "Postcode 8401PA uit Friesland-route gehaald",
       "scope": "kaart",
       "description": "Postcode 8401PA kwam via de brede Friesland-context onder Ketenzorg Friesland terecht. Voor deze postcode is nu een exacte uitzondering toegevoegd.",
