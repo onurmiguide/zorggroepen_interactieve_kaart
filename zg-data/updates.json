@@ -1,6 +1,17 @@
 {
   "updates": [
     {
+      "date": "2026-06-03",
+      "title": "Postcode 6741AC routeert naar ESV",
+      "scope": "kaart",
+      "description": "Postcode 6741AC kwam via de brede plaats- en gemeentecontext van Lunteren/Ede uit op Eemland. Voor deze postcode is nu een exacte uitzondering toegevoegd naar ESV, conform de ESV-facturatiemodule.",
+      "summary": [
+        "6741AC met Zilveren Kruis routeert nu naar zorggroepcontext ESV.",
+        "De facturatiemodule wordt ESV in plaats van Zorggroep.",
+        "De prestatiecode blijft daarmee CoOL-MiGuide, zoals in de facturatiemodule-template."
+      ]
+    },
+    {
       "date": "2026-05-29",
       "title": "Zorggroep Almere routeert weer via Zorggroep voor VGZ-labels",
       "scope": "kaart",
