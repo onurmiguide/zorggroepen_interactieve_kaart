@@ -26,7 +26,7 @@ services:
       - key: DATABASE_URL
         fromDatabase:
           name: miguide-admin-db
-          property: connectionString
+          property: externalConnectionString
       # Sterke sessiesleutel wordt automatisch gegenereerd door Render.
       - key: ADMIN_JWT_SECRET
         generateValue: true
