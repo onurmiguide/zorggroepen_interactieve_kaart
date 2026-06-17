@@ -59,7 +59,7 @@
           <li><a href="alle-zorggroepen.html" title="Bekijk de zorggroep kaart" class="block rounded px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 focus:bg-slate-100 focus:text-slate-900 focus:outline-none dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white dark:focus:bg-slate-800 dark:focus:text-white">Zorggroep kaart</a></li>
           <li><a href="updates.html" title="Bekijk recente wijzigingen" class="block rounded px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 focus:bg-slate-100 focus:text-slate-900 focus:outline-none dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white dark:focus:bg-slate-800 dark:focus:text-white">Updates</a></li>
           <li><a href="documentatie.html" title="Bekijk documentatie" class="block rounded px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 focus:bg-slate-100 focus:text-slate-900 focus:outline-none dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white dark:focus:bg-slate-800 dark:focus:text-white">Documentatie</a></li>
-          <li><a href="admin/index.html" title="Open de adminomgeving" class="block rounded px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 focus:bg-slate-100 focus:text-slate-900 focus:outline-none dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white dark:focus:bg-slate-800 dark:focus:text-white">Admin</a></li>
+          <li id="adminMenuItem"><a href="admin/index.html" title="Open de adminomgeving" class="block rounded px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 focus:bg-slate-100 focus:text-slate-900 focus:outline-none dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white dark:focus:bg-slate-800 dark:focus:text-white">Admin</a></li>
           <li><a href="https://github.com/onurmiguide/zorggroepen_interactieve_kaart" target="_blank" rel="noopener noreferrer" class="block rounded px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 focus:bg-slate-100 focus:text-slate-900 focus:outline-none dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white dark:focus:bg-slate-800 dark:focus:text-white">GitHub repo</a></li>
         </ul>
       </details>
@@ -245,6 +245,20 @@
   </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    // De adminomgeving werkt alleen lokaal (lokale backend op poort 8000).
+    // Verberg daarom de Admin-knop op de live/online site om verwarring te voorkomen.
+    (function () {
+      var host = window.location.hostname;
+      var isLocal = host === "127.0.0.1" || host === "localhost";
+      if (!isLocal) {
+        ["adminLink", "adminMenuItem"].forEach(function (id) {
+          var el = document.getElementById(id);
+          if (el) el.remove();
+        });
+      }
+    })();
+  </script>
   <script src="script/script.js?v=20260603-facturatiestroom-layout"></script>
 </body>
 </html>
