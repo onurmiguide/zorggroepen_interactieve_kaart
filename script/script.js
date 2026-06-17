@@ -4,6 +4,10 @@ const AUTH_PASSWORD_FALLBACK = "MiGuide#2026!@";
 const ZORGGROEPEN_URL = "zg-data/zorggroepen.json";
 const POSTCODE_OVERRIDES_URL = "zg-data/postcode_overrides.json?v=20260603-8401pa-friesland";
 
+// Online admin-backend (Render). De publieke kaart op Vercel leest hiervandaan de
+// live admin-data. Overschrijfbaar via window.MIGUIDE_ADMIN_API.
+const ADMIN_ONLINE_BASE = "https://miguide-admin.onrender.com";
+
 // Admin public API: de kaart probeert eerst de actuele data uit de admin-backend
 // te laden en valt terug op het statische JSON-bestand als de backend niet draait.
 const PUBLIC_API_BASE = (function resolvePublicApiBase() {
@@ -15,8 +19,24 @@ const PUBLIC_API_BASE = (function resolvePublicApiBase() {
   if (loc.protocol === "file:") return "http://127.0.0.1:8000";
   if (loc.port === "8000") return ""; // same-origin: backend serveert de site zelf
   if (isLocalHost) return "http://127.0.0.1:8000"; // bijv. Live Server op :5500
-  return ""; // productie: same-origin proberen, anders fallback naar JSON
+  return ADMIN_ONLINE_BASE; // productie (Vercel): lees live van de online admin-backend
 })();
+
+// Korte timeout voor de online API: een gratis Render-service "slaapt" na inactiviteit
+// (koude start ~50s). We wachten niet zo lang, maar vallen snel terug op de statische
+// JSON. De afgebroken aanvraag wekt Render alsnog, dus een herlaad toont de live data.
+const PUBLIC_API_TIMEOUT_MS = 4500;
+
+function fetchWithTimeout(url, options = {}, timeoutMs = PUBLIC_API_TIMEOUT_MS) {
+  if (typeof AbortController === "undefined") {
+    return fetch(url, options);
+  }
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  return fetch(url, { ...options, signal: controller.signal }).finally(() =>
+    clearTimeout(timer)
+  );
+}
 const PUBLIC_ZORGGROEPEN_URL = `${PUBLIC_API_BASE}/api/public/zorggroepen`;
 const PUBLIC_POSTCODE_OVERRIDES_URL = `${PUBLIC_API_BASE}/api/public/postcode-overrides`;
 
@@ -40,7 +60,7 @@ function applyZorggroepColorOverrides(zorggroepen) {
 async function loadZorggroepData() {
   // 1) Probeer de admin public API (actuele data, inclusief admin-wijzigingen).
   try {
-    const response = await fetch(PUBLIC_ZORGGROEPEN_URL, { headers: { Accept: "application/json" } });
+    const response = await fetchWithTimeout(PUBLIC_ZORGGROEPEN_URL, { headers: { Accept: "application/json" } });
     if (response.ok) {
       const data = await response.json();
       if (data && Array.isArray(data.zorggroepen) && data.zorggroepen.length) {
@@ -65,7 +85,7 @@ async function loadZorggroepData() {
 async function loadPostcodeOverrides() {
   // 1) Probeer de admin public API.
   try {
-    const response = await fetch(PUBLIC_POSTCODE_OVERRIDES_URL, { headers: { Accept: "application/json" } });
+    const response = await fetchWithTimeout(PUBLIC_POSTCODE_OVERRIDES_URL, { headers: { Accept: "application/json" } });
     if (response.ok) {
       const data = await response.json();
       if (data && (data.exact_postcode6_overrides || data.postcode4_range_overrides || data.location_postcode6_overrides)) {

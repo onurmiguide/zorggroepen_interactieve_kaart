@@ -78,6 +78,19 @@ class Settings:
         return [origin.strip() for origin in raw.split(",") if origin.strip()]
 
     @property
+    def allowed_origin_regex(self) -> str:
+        """Regex voor toegestane origins (naast de vaste lijst).
+
+        Standaard matcht dit elk Vercel-domein (productie én previews), zodat de
+        publieke kaart op Vercel de publieke admin-API mag aanroepen zonder dat we
+        het exacte domein hoeven te kennen. Overschrijfbaar via env.
+        """
+        return os.getenv(
+            "ADMIN_ALLOWED_ORIGIN_REGEX",
+            r"https://([a-z0-9-]+\.)*vercel\.app",
+        ).strip()
+
+    @property
     def database_url(self) -> str:
         if self.database_url_env:
             url = self.database_url_env

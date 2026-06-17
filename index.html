@@ -246,19 +246,26 @@
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
-    // De adminomgeving werkt alleen lokaal (lokale backend op poort 8000).
-    // Verberg daarom de Admin-knop op de live/online site om verwarring te voorkomen.
+    // Admin-knop: lokaal opent die de lokale backend (admin/index.html op :8000).
+    // Op de live/online site (Vercel) wijst hij naar de online admin op Render.
     (function () {
+      var ONLINE_ADMIN_URL = "https://miguide-admin.onrender.com/admin/";
       var host = window.location.hostname;
       var isLocal = host === "127.0.0.1" || host === "localhost";
       if (!isLocal) {
         ["adminLink", "adminMenuItem"].forEach(function (id) {
           var el = document.getElementById(id);
-          if (el) el.remove();
+          if (!el) return;
+          var anchor = el.tagName === "A" ? el : el.querySelector("a");
+          if (anchor) {
+            anchor.setAttribute("href", ONLINE_ADMIN_URL);
+            anchor.setAttribute("target", "_blank");
+            anchor.setAttribute("rel", "noopener");
+          }
         });
       }
     })();
   </script>
-  <script src="script/script.js?v=20260603-facturatiestroom-layout"></script>
+  <script src="script/script.js?v=20260617-online-admin"></script>
 </body>
 </html>
