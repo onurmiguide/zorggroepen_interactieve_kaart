@@ -3,6 +3,7 @@ en de hardcoded 2026-beslisboomwaarden uit script/script.js."""
 from __future__ import annotations
 
 import json
+import os
 import re
 
 from sqlalchemy import func, select
@@ -219,6 +220,35 @@ def _seed_postcode_overrides(db: Session) -> int:
 
     db.commit()
     return added
+
+
+def ensure_seed_admin(db: Session) -> bool:
+    """Maak bij de allereerste start een super_admin aan uit env-variabelen.
+
+    Handig voor online hosting (Render): zet SEED_ADMIN_EMAIL en SEED_ADMIN_PASSWORD
+    als environment variables; bij een lege gebruikerstabel wordt de admin aangemaakt.
+    Lokaal gebruik je gewoon scripts/seed_admin.py.
+    """
+    from ..models import ROLE_SUPER_ADMIN, User
+    from ..security import hash_password
+
+    if (db.scalar(select(func.count()).select_from(User)) or 0) > 0:
+        return False
+    email = os.getenv("SEED_ADMIN_EMAIL", "").strip().lower()
+    password = os.getenv("SEED_ADMIN_PASSWORD", "")
+    if not email or len(password) < 8:
+        return False
+    db.add(
+        User(
+            name=os.getenv("SEED_ADMIN_NAME", "MiGuide Admin").strip() or "MiGuide Admin",
+            email=email,
+            password_hash=hash_password(password),
+            role=ROLE_SUPER_ADMIN,
+            is_active=True,
+        )
+    )
+    db.commit()
+    return True
 
 
 def import_seed(db: Session) -> dict[str, int]:

@@ -33,7 +33,7 @@ from .routers import (
     publish,
 )
 from .security import require_editor
-from .services.import_seed import import_seed
+from .services.import_seed import ensure_seed_admin, import_seed
 
 settings = get_settings()
 
@@ -44,6 +44,7 @@ async def lifespan(app: FastAPI):
     db = SessionLocal()
     try:
         import_seed(db)
+        ensure_seed_admin(db)
     finally:
         db.close()
     yield

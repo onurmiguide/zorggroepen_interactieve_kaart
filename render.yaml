@@ -1,0 +1,46 @@
+# Render Blueprint voor de MiGuide admin-backend (FastAPI + PostgreSQL).
+# Maak op render.com een "Blueprint" aan vanuit deze repo, of richt handmatig
+# een Web Service + PostgreSQL in met dezelfde instellingen.
+#
+# De frontend/kaart blijft op Vercel; deze service draait alleen de admin-backend
+# + admin-UI (same-origin, dus de sessie-cookie werkt).
+
+databases:
+  - name: miguide-admin-db
+    plan: free
+
+services:
+  - type: web
+    name: miguide-admin
+    runtime: python
+    plan: free
+    region: frankfurt
+    branch: main
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.6"
+      # Database-URL wordt automatisch ingevuld vanuit de PostgreSQL hierboven.
+      - key: DATABASE_URL
+        fromDatabase:
+          name: miguide-admin-db
+          property: connectionString
+      # Sterke sessiesleutel wordt automatisch gegenereerd door Render.
+      - key: ADMIN_JWT_SECRET
+        generateValue: true
+      # Cookie alleen via https (Render draait op https).
+      - key: ADMIN_COOKIE_SECURE
+        value: "true"
+      # Vul hier je Vercel-domein in zodat de publieke kaart de API mag aanroepen.
+      - key: ADMIN_ALLOWED_ORIGINS
+        value: "https://zorggroepen-interactieve-kaart.vercel.app"
+      # Eerste super_admin wordt bij de allereerste start aangemaakt uit deze waarden.
+      - key: SEED_ADMIN_EMAIL
+        value: "admin@miguide.nl"
+      - key: SEED_ADMIN_NAME
+        value: "MiGuide Admin"
+      # Wachtwoord NIET in dit bestand: zet je veilig in het Render-dashboard.
+      - key: SEED_ADMIN_PASSWORD
+        sync: false

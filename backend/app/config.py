@@ -52,15 +52,23 @@ class Settings:
         # Cookie alleen 'secure' in productie; lokaal over http moet dat uit.
         self.cookie_secure: bool = os.getenv("ADMIN_COOKIE_SECURE", "false").lower() == "true"
 
+        # Externe database (bijv. Render PostgreSQL) via DATABASE_URL; anders lokaal SQLite.
+        self.database_url_env = os.getenv("DATABASE_URL", "").strip()
+
         db_path_env = os.getenv("ADMIN_DB_PATH", "").strip()
         if db_path_env:
             self.db_path = Path(db_path_env)
         else:
             self.db_path = BASE_DIR / "data" / "miguide_admin.db"
-        self.db_path.parent.mkdir(parents=True, exist_ok=True)
+        if not self.database_url_env:
+            self.db_path.parent.mkdir(parents=True, exist_ok=True)
 
         self.zorggroepen_seed_path = REPO_ROOT / "zg-data" / "zorggroepen.json"
         self.postcode_overrides_seed_path = REPO_ROOT / "zg-data" / "postcode_overrides.json"
+
+    @property
+    def is_sqlite(self) -> bool:
+        return not self.database_url_env
 
     @property
     def allowed_origins(self) -> list[str]:
@@ -71,6 +79,14 @@ class Settings:
 
     @property
     def database_url(self) -> str:
+        if self.database_url_env:
+            url = self.database_url_env
+            # Render/Heroku geven 'postgres://...'; SQLAlchemy + psycopg3 wil 'postgresql+psycopg://'.
+            if url.startswith("postgres://"):
+                url = "postgresql+psycopg://" + url[len("postgres://"):]
+            elif url.startswith("postgresql://"):
+                url = "postgresql+psycopg://" + url[len("postgresql://"):]
+            return url
         return f"sqlite:///{self.db_path.as_posix()}"
 
 

@@ -12,7 +12,9 @@ settings = get_settings()
 
 engine = create_engine(
     settings.database_url,
-    connect_args={"check_same_thread": False},
+    # check_same_thread is alleen voor SQLite; PostgreSQL accepteert dit niet.
+    connect_args={"check_same_thread": False} if settings.is_sqlite else {},
+    pool_pre_ping=not settings.is_sqlite,
     future=True,
 )
 

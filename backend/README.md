@@ -122,6 +122,40 @@ Na de deploy van die branch werkt de live site bij.
 - Pushen vereist dat git op deze machine toegang heeft tot de repo (credential helper
   of token).
 
+## Online hosten (Render + PostgreSQL)
+
+De admin draait online als je een host met een continu proces + een blijvende
+database gebruikt. SQLite/local werkt niet op Vercel (geen blijvend bestandssysteem).
+
+**Stappen op [render.com](https://render.com):**
+
+1. **New → Blueprint**, kies deze repo. Render leest `render.yaml` en maakt:
+   - een **PostgreSQL**-database (`miguide-admin-db`), en
+   - een **Web Service** (`miguide-admin`) die `uvicorn backend.app.main:app` draait.
+   (Of handmatig: New → PostgreSQL, en New → Web Service met dezelfde build/start commands.)
+2. Zet in het Render-dashboard de variabele **`SEED_ADMIN_PASSWORD`** (een sterk
+   wachtwoord). De andere env-vars vult de blueprint in:
+   - `DATABASE_URL` (automatisch uit de database)
+   - `ADMIN_JWT_SECRET` (automatisch gegenereerd)
+   - `ADMIN_COOKIE_SECURE=true`, `ADMIN_ALLOWED_ORIGINS` (je Vercel-domein),
+     `SEED_ADMIN_EMAIL`, `SEED_ADMIN_NAME`.
+3. Deploy. Bij de eerste start worden de data geseed (zorggroepen, verzekeraars,
+   facturatie, postcodes) en wordt de **eerste super_admin** aangemaakt uit
+   `SEED_ADMIN_EMAIL` + `SEED_ADMIN_PASSWORD`.
+4. Open `https://<jouw-service>.onrender.com/admin/` en log in. De admin-UI én API
+   draaien same-origin, dus de veilige sessie-cookie werkt meteen.
+
+**Let op:**
+- De gratis Render-service "slaapt" na inactiviteit; de eerste aanvraag daarna duurt
+  even (koude start).
+- De **Publiceren-knop** (commit/push naar GitHub) is bedoeld voor lokaal gebruik;
+  op de hosted omgeving heeft die geen git-toegang. De online admin schrijft gewoon
+  naar de database.
+- Wil je dat de publieke kaart (Vercel) live de online data leest, zet dan op de
+  kaartpagina `window.MIGUIDE_ADMIN_API = "https://<jouw-service>.onrender.com"`.
+  Anders blijft de kaart de `zg-data` JSON gebruiken (en kun je die met de
+  Publiceren-knop lokaal bijwerken).
+
 ## Rollen
 
 | Rol | Mag |
