@@ -4,3 +4,18 @@ __pycache__/
 .env
 .env.*
 !.env.example
+
+# Python virtual environment (admin backend)
+.venv/
+
+# Lokale admin-database (wordt bij eerste start automatisch geseed)
+backend/data/
+*.db
+*.sqlite
+*.sqlite3
+
+# Lokale databackups gemaakt tijdens de admin-build
+backups/
+
+# Preview/launch helper
+.claude/launch.json

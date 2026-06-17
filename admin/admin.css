@@ -1,0 +1,182 @@
+/* Admin UI styling. Bouwt voort op Tailwind (CDN) met een paar component-klassen. */
+
+:root { color-scheme: light dark; }
+html, body { height: 100%; }
+
+/* Inputs */
+.ad-input,
+.ad-select,
+.ad-textarea {
+  width: 100%;
+  border-radius: 0.5rem;
+  border: 1px solid rgb(203 213 225);
+  background: #fff;
+  padding: 0.5rem 0.65rem;
+  font-size: 0.875rem;
+  color: rgb(15 23 42);
+  outline: none;
+  transition: border-color .15s, box-shadow .15s;
+}
+.ad-textarea { min-height: 4.5rem; resize: vertical; }
+.ad-input:focus,
+.ad-select:focus,
+.ad-textarea:focus {
+  border-color: rgb(14 165 233);
+  box-shadow: 0 0 0 3px rgba(14,165,233,.18);
+}
+.dark .ad-input,
+.dark .ad-select,
+.dark .ad-textarea {
+  background: rgb(2 6 23);
+  border-color: rgb(51 65 85);
+  color: rgb(226 232 240);
+}
+
+/* Buttons */
+.ad-btn-primary,
+.ad-btn-ghost,
+.ad-btn-danger,
+.ad-btn-soft {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .4rem;
+  border-radius: 0.55rem;
+  padding: 0.5rem 0.9rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .15s, border-color .15s, opacity .15s;
+  white-space: nowrap;
+}
+.ad-btn-primary { background: rgb(2 132 199); color: #fff; border: 1px solid rgb(2 132 199); }
+.ad-btn-primary:hover { background: rgb(3 105 161); }
+.ad-btn-primary:disabled { opacity: .6; cursor: not-allowed; }
+.ad-btn-ghost { background: #fff; color: rgb(15 23 42); border: 1px solid rgb(203 213 225); }
+.ad-btn-ghost:hover { background: rgb(248 250 252); }
+.dark .ad-btn-ghost { background: rgb(2 6 23); color: rgb(226 232 240); border-color: rgb(51 65 85); }
+.dark .ad-btn-ghost:hover { background: rgb(30 41 59); }
+.ad-btn-danger { background: rgb(220 38 38); color: #fff; border: 1px solid rgb(220 38 38); }
+.ad-btn-danger:hover { background: rgb(185 28 28); }
+.ad-btn-soft { background: rgb(241 245 249); color: rgb(51 65 85); border: 1px solid transparent; padding: 0.35rem 0.6rem; font-size: .78rem; }
+.ad-btn-soft:hover { background: rgb(226 232 240); }
+.dark .ad-btn-soft { background: rgb(30 41 59); color: rgb(203 213 225); }
+.dark .ad-btn-soft:hover { background: rgb(51 65 85); }
+
+/* Gekleurde varianten van de soft-knop, zodat acties te onderscheiden zijn. */
+.ad-btn-soft-edit,
+.ad-btn-soft-warn,
+.ad-btn-soft-danger,
+.ad-btn-soft-ok {
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 0.5rem; padding: 0.35rem 0.6rem; font-size: .78rem; font-weight: 600;
+  cursor: pointer; border: 1px solid transparent; transition: background .15s;
+}
+/* Bewerken = blauw (zacht/transparant) */
+.ad-btn-soft-edit { background: rgba(37,99,235,.09); color: rgb(37 99 235); border-color: rgba(37,99,235,.18); }
+.ad-btn-soft-edit:hover { background: rgba(37,99,235,.16); }
+.dark .ad-btn-soft-edit { background: rgba(59,130,246,.14); color: rgb(147 197 253); border-color: rgba(59,130,246,.25); }
+/* Deactiveren = amber/oranje (zacht/transparant) */
+.ad-btn-soft-warn { background: rgba(217,119,6,.10); color: rgb(180 83 9); border-color: rgba(217,119,6,.20); }
+.ad-btn-soft-warn:hover { background: rgba(217,119,6,.18); }
+.dark .ad-btn-soft-warn { background: rgba(245,158,11,.14); color: rgb(253 230 138); border-color: rgba(245,158,11,.25); }
+/* Verwijderen = rood (zacht/transparant) */
+.ad-btn-soft-danger { background: rgba(220,38,38,.09); color: rgb(220 38 38); border-color: rgba(220,38,38,.18); }
+.ad-btn-soft-danger:hover { background: rgba(220,38,38,.16); }
+.dark .ad-btn-soft-danger { background: rgba(248,113,113,.14); color: rgb(252 165 165); border-color: rgba(248,113,113,.25); }
+/* Activeren = groen (zacht/transparant) */
+.ad-btn-soft-ok { background: rgba(22,163,74,.10); color: rgb(21 128 61); border-color: rgba(22,163,74,.20); }
+.ad-btn-soft-ok:hover { background: rgba(22,163,74,.18); }
+.dark .ad-btn-soft-ok { background: rgba(34,197,94,.14); color: rgb(134 239 172); border-color: rgba(34,197,94,.25); }
+
+.ad-icon-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  height: 2.25rem; width: 2.25rem; border-radius: 9999px;
+  border: 1px solid rgb(148 163 184); background: #fff; color: rgb(15 23 42);
+  font-size: 1.1rem; cursor: pointer;
+}
+.ad-icon-btn:hover { background: rgb(248 250 252); }
+.dark .ad-icon-btn { background: rgb(2 6 23); color: rgb(226 232 240); border-color: rgb(71 85 105); }
+
+/* Tabs */
+.ad-tab {
+  border-radius: 0.5rem; padding: 0.5rem 0.9rem; font-size: 0.85rem; font-weight: 600;
+  color: rgb(71 85 105); white-space: nowrap; cursor: pointer; border: 1px solid transparent;
+}
+.ad-tab:hover { background: rgb(241 245 249); }
+.ad-tab.is-active { background: rgb(2 132 199); color: #fff; }
+.dark .ad-tab { color: rgb(148 163 184); }
+.dark .ad-tab:hover { background: rgb(30 41 59); }
+.dark .ad-tab.is-active { background: rgb(2 132 199); color: #fff; }
+
+/* Cards */
+.ad-card {
+  border-radius: 0.85rem; border: 1px solid rgb(226 232 240); background: #fff; padding: 1rem 1.1rem;
+}
+.dark .ad-card { border-color: rgb(51 65 85); background: rgb(15 23 42); }
+
+/* Tables */
+.ad-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+.ad-table thead th {
+  position: sticky; top: 0; text-align: left; font-weight: 600; color: rgb(71 85 105);
+  background: rgb(248 250 252); padding: 0.55rem 0.7rem; border-bottom: 1px solid rgb(226 232 240);
+  white-space: nowrap;
+}
+.ad-table tbody td { padding: 0.55rem 0.7rem; border-bottom: 1px solid rgb(241 245 249); vertical-align: top; }
+.ad-table tbody tr:hover { background: rgb(248 250 252); }
+.dark .ad-table thead th { background: rgb(15 23 42); color: rgb(148 163 184); border-color: rgb(51 65 85); }
+.dark .ad-table tbody td { border-color: rgb(30 41 59); }
+.dark .ad-table tbody tr:hover { background: rgb(30 41 59); }
+
+.ad-table-wrap { max-height: 62vh; overflow: auto; border: 1px solid rgb(226 232 240); border-radius: 0.7rem; }
+.dark .ad-table-wrap { border-color: rgb(51 65 85); }
+
+/* Badges */
+.ad-badge {
+  display: inline-flex; align-items: center; gap: .3rem; border-radius: 9999px;
+  padding: 0.1rem 0.55rem; font-size: 0.72rem; font-weight: 600; border: 1px solid transparent;
+}
+.ad-badge-green { background: rgb(220 252 231); color: rgb(22 101 52); }
+.ad-badge-red { background: rgb(254 226 226); color: rgb(153 27 27); }
+.ad-badge-slate { background: rgb(241 245 249); color: rgb(51 65 85); }
+.ad-badge-blue { background: rgb(219 234 254); color: rgb(30 64 175); }
+.ad-badge-amber { background: rgb(254 243 199); color: rgb(146 64 14); }
+.dark .ad-badge-green { background: rgba(22,101,52,.25); color: rgb(134 239 172); }
+.dark .ad-badge-red { background: rgba(153,27,27,.25); color: rgb(252 165 165); }
+.dark .ad-badge-slate { background: rgb(30 41 59); color: rgb(203 213 225); }
+.dark .ad-badge-blue { background: rgba(30,64,175,.25); color: rgb(147 197 253); }
+.dark .ad-badge-amber { background: rgba(146,64,14,.25); color: rgb(253 230 138); }
+
+/* Chips (aliases) */
+.ad-chip {
+  display: inline-flex; align-items: center; gap: .3rem; border-radius: 9999px;
+  background: rgb(241 245 249); color: rgb(51 65 85); padding: 0.12rem 0.5rem; font-size: 0.74rem; font-weight: 600;
+}
+.dark .ad-chip { background: rgb(30 41 59); color: rgb(203 213 225); }
+.ad-chip button { cursor: pointer; border: none; background: none; color: inherit; font-size: 0.85rem; line-height: 1; }
+
+/* KPI */
+.ad-kpi { border-radius: 0.85rem; border: 1px solid rgb(226 232 240); background: #fff; padding: 1rem; }
+.dark .ad-kpi { border-color: rgb(51 65 85); background: rgb(15 23 42); }
+.ad-kpi .num { font-size: 1.7rem; font-weight: 700; color: rgb(15 23 42); line-height: 1; }
+.dark .ad-kpi .num { color: rgb(226 232 240); }
+.ad-kpi .lbl { margin-top: .3rem; font-size: 0.78rem; font-weight: 600; color: rgb(100 116 139); }
+
+/* Toast */
+.ad-toast {
+  border-radius: 0.7rem; padding: 0.7rem 0.9rem; font-size: 0.85rem; font-weight: 500;
+  box-shadow: 0 10px 30px rgba(0,0,0,.18); border: 1px solid transparent; animation: ad-toast-in .18s ease-out;
+}
+.ad-toast-success { background: rgb(220 252 231); color: rgb(22 101 52); border-color: rgb(134 239 172); }
+.ad-toast-error { background: rgb(254 226 226); color: rgb(153 27 27); border-color: rgb(252 165 165); }
+.ad-toast-info { background: rgb(219 234 254); color: rgb(30 64 175); border-color: rgb(147 197 253); }
+@keyframes ad-toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* Diff blocks in history */
+.ad-diff { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-size: 0.72rem; white-space: pre-wrap; word-break: break-word; }
+.ad-diff-old { color: rgb(153 27 27); }
+.ad-diff-new { color: rgb(22 101 52); }
+.dark .ad-diff-old { color: rgb(252 165 165); }
+.dark .ad-diff-new { color: rgb(134 239 172); }
+
+.ad-field-error { border-color: rgb(220 38 38) !important; box-shadow: 0 0 0 3px rgba(220,38,38,.15) !important; }

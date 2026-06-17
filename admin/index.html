@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MiGuide Zorgtools - Admin</title>
+  <link rel="icon" type="image/svg+xml" href="../zg-data/map-find-search-svgrepo-com.svg" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config = { darkMode: "class" };</script>
+  <link rel="stylesheet" href="admin.css?v=20260611-admin-kleur2" />
+</head>
+<body class="min-h-full bg-slate-100 text-slate-800 antialiased dark:bg-slate-950 dark:text-slate-200">
+
+  <!-- LOGIN VIEW -->
+  <section id="loginView" class="hidden min-h-screen items-center justify-center p-4">
+    <div class="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-6 shadow-lg dark:border-slate-700 dark:bg-slate-900">
+      <div class="mb-5 flex flex-col items-center text-center">
+        <img src="../zg-data/MiGuide_Logo_Nieuw.png" data-logo-light="../zg-data/MiGuide_Logo_Nieuw.png" data-logo-dark="../zg-data/MiGuide_Logo_White.png" id="loginLogo" alt="MiGuide" class="mb-3 w-[130px]" />
+        <h1 class="text-lg font-semibold text-slate-900 dark:text-slate-100">Adminomgeving</h1>
+        <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Log in om zorggroepen en facturatie te beheren.</p>
+      </div>
+      <form id="loginForm" class="grid gap-3">
+        <label class="grid gap-1 text-sm">
+          <span class="font-medium text-slate-700 dark:text-slate-200">E-mail</span>
+          <input id="loginEmail" type="email" autocomplete="username" required class="ad-input" placeholder="admin@miguide.nl" />
+        </label>
+        <label class="grid gap-1 text-sm">
+          <span class="font-medium text-slate-700 dark:text-slate-200">Wachtwoord</span>
+          <input id="loginPassword" type="password" autocomplete="current-password" required class="ad-input" placeholder="••••••••" />
+        </label>
+        <button type="submit" id="loginSubmit" class="ad-btn-primary mt-1">Inloggen</button>
+        <p id="loginError" class="hidden rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-300"></p>
+      </form>
+    </div>
+  </section>
+
+  <!-- APP VIEW -->
+  <section id="appView" class="hidden">
+    <header class="app-topbar sticky top-0 z-40 flex flex-wrap items-center gap-2 border-b border-slate-200 bg-white/95 px-3 py-2.5 shadow-sm backdrop-blur sm:gap-3 sm:px-4 dark:border-slate-800 dark:bg-slate-900/95">
+      <img src="../zg-data/MiGuide_Logo_Nieuw.png" data-logo-light="../zg-data/MiGuide_Logo_Nieuw.png" data-logo-dark="../zg-data/MiGuide_Logo_White.png" id="siteLogo" alt="MiGuide" class="w-[104px] sm:w-[118px]" />
+      <div class="min-w-0">
+        <div class="truncate text-[1rem] font-semibold leading-tight tracking-tight text-slate-900 dark:text-slate-100">Admin</div>
+        <div class="hidden truncate text-xs font-medium text-slate-500 sm:block dark:text-slate-400">Beheer zorggroepen, verzekeraars, facturatie en gebruikers</div>
+      </div>
+      <div class="ml-auto flex items-center gap-2">
+        <span id="dataVersionBadge" class="hidden rounded-lg border border-slate-300 bg-slate-50 px-2.5 py-1 text-[11px] font-semibold text-slate-600 sm:inline-block dark:border-slate-600 dark:bg-slate-950 dark:text-slate-300"></span>
+        <button id="themeToggle" class="ad-icon-btn" type="button" aria-label="Schakel dark mode" title="Dark mode"><span id="themeToggleIcon">&#9728;</span></button>
+        <div class="hidden text-right sm:block">
+          <div id="currentUserName" class="text-sm font-semibold text-slate-800 dark:text-slate-100"></div>
+          <div id="currentUserRole" class="text-[11px] font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400"></div>
+        </div>
+        <button id="publishBtn" type="button" class="ad-btn-primary hidden" title="Wijzigingen publiceren naar zg-data + GitHub">Publiceren</button>
+        <a href="../index.html" class="ad-btn-ghost" title="Terug naar de kaart">&#8592; Kaart</a>
+        <button id="logoutBtn" type="button" class="ad-btn-ghost">Uitloggen</button>
+      </div>
+    </header>
+
+    <nav class="sticky top-[57px] z-30 flex gap-1 overflow-x-auto border-b border-slate-200 bg-white px-2 py-1.5 dark:border-slate-800 dark:bg-slate-900" id="tabNav"></nav>
+
+    <main id="tabContent" class="mx-auto w-[96%] max-w-[1320px] py-5"></main>
+  </section>
+
+  <!-- MODAL -->
+  <div id="modalRoot" class="fixed inset-0 z-[100] hidden items-center justify-center p-4">
+    <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" data-modal-close></div>
+    <div class="relative z-10 w-full max-w-2xl max-h-[88vh] overflow-auto rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-900">
+      <div class="flex items-center justify-between border-b border-slate-200 px-5 py-3 dark:border-slate-700">
+        <h2 id="modalTitle" class="text-base font-semibold text-slate-900 dark:text-slate-100">Titel</h2>
+        <button class="ad-icon-btn" data-modal-close aria-label="Sluiten">&times;</button>
+      </div>
+      <div id="modalBody" class="px-5 py-4"></div>
+      <div id="modalFooter" class="flex items-center justify-end gap-2 border-t border-slate-200 px-5 py-3 dark:border-slate-700"></div>
+    </div>
+  </div>
+
+  <!-- TOASTS -->
+  <div id="toastRoot" class="fixed bottom-4 right-4 z-[200] flex w-80 max-w-[92vw] flex-col gap-2"></div>
+
+  <script src="../shared/api-client.js?v=20260611-admin-kleur"></script>
+  <script src="admin.js?v=20260611-admin-kleur"></script>
+</body>
+</html>

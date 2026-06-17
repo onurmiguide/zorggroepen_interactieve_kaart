@@ -3,6 +3,89 @@ const AUTH_SESSION_KEY = "miguide_auth_ok";
 const AUTH_PASSWORD_FALLBACK = "MiGuide#2026!@";
 const ZORGGROEPEN_URL = "zg-data/zorggroepen.json";
 const POSTCODE_OVERRIDES_URL = "zg-data/postcode_overrides.json?v=20260603-8401pa-friesland";
+
+// Admin public API: de kaart probeert eerst de actuele data uit de admin-backend
+// te laden en valt terug op het statische JSON-bestand als de backend niet draait.
+const PUBLIC_API_BASE = (function resolvePublicApiBase() {
+  if (typeof window !== "undefined" && window.MIGUIDE_ADMIN_API !== undefined) {
+    return String(window.MIGUIDE_ADMIN_API).replace(/\/$/, "");
+  }
+  const loc = window.location;
+  const isLocalHost = loc.hostname === "127.0.0.1" || loc.hostname === "localhost";
+  if (loc.protocol === "file:") return "http://127.0.0.1:8000";
+  if (loc.port === "8000") return ""; // same-origin: backend serveert de site zelf
+  if (isLocalHost) return "http://127.0.0.1:8000"; // bijv. Live Server op :5500
+  return ""; // productie: same-origin proberen, anders fallback naar JSON
+})();
+const PUBLIC_ZORGGROEPEN_URL = `${PUBLIC_API_BASE}/api/public/zorggroepen`;
+const PUBLIC_POSTCODE_OVERRIDES_URL = `${PUBLIC_API_BASE}/api/public/postcode-overrides`;
+
+// Laatst geladen data-versie uit de admin-API (voor optionele refresh).
+let currentZorggroepDataVersion = null;
+
+// Handmatige kleuren per zorggroep (genormaliseerde naam -> hex), ingesteld via de admin.
+const zorggroepColorOverrides = new Map();
+
+function applyZorggroepColorOverrides(zorggroepen) {
+  zorggroepColorOverrides.clear();
+  for (const item of zorggroepen || []) {
+    const name = item && item.zorggroep;
+    const color = item && item.color;
+    if (name && color) {
+      zorggroepColorOverrides.set(normalizeText(name), String(color).trim());
+    }
+  }
+}
+
+async function loadZorggroepData() {
+  // 1) Probeer de admin public API (actuele data, inclusief admin-wijzigingen).
+  try {
+    const response = await fetch(PUBLIC_ZORGGROEPEN_URL, { headers: { Accept: "application/json" } });
+    if (response.ok) {
+      const data = await response.json();
+      if (data && Array.isArray(data.zorggroepen) && data.zorggroepen.length) {
+        currentZorggroepDataVersion = data.data_version || null;
+        data.__source = "api";
+        return data;
+      }
+    }
+  } catch (error) {
+    // Backend niet bereikbaar -> stil terugvallen op statische JSON.
+  }
+  // 2) Fallback: statisch JSON-bestand (werkt zonder backend, bijv. op Vercel of Live Server).
+  const fallbackResponse = await fetch(ZORGGROEPEN_URL);
+  if (!fallbackResponse.ok) {
+    throw new Error(`zorggroepen.json laden mislukt (${fallbackResponse.status})`);
+  }
+  const fallbackData = await fallbackResponse.json();
+  fallbackData.__source = "json";
+  return fallbackData;
+}
+
+async function loadPostcodeOverrides() {
+  // 1) Probeer de admin public API.
+  try {
+    const response = await fetch(PUBLIC_POSTCODE_OVERRIDES_URL, { headers: { Accept: "application/json" } });
+    if (response.ok) {
+      const data = await response.json();
+      if (data && (data.exact_postcode6_overrides || data.postcode4_range_overrides || data.location_postcode6_overrides)) {
+        return data;
+      }
+    }
+  } catch (error) {
+    // stil terugvallen op JSON
+  }
+  // 2) Fallback: statisch JSON-bestand.
+  try {
+    const fallbackResponse = await fetch(POSTCODE_OVERRIDES_URL);
+    if (fallbackResponse.ok) {
+      return await fallbackResponse.json();
+    }
+  } catch (error) {
+    // geen overrides beschikbaar
+  }
+  return null;
+}
 const PDOK_GEMEENTE_ITEMS_URL = "https://api.pdok.nl/kadaster/brk-bestuurlijke-gebieden/ogc/v1/collections/gemeentegebied/items?f=json&limit=100";
 const PDOK_POSTCODE_WFS_URL = "https://service.pdok.nl/cbs/postcode6/2024/wfs/v1_0";
 const NL_DEFAULT_CENTER = [52.2, 5.3];
@@ -1432,6 +1515,10 @@ function isNoContractZorggroepName(zorggroepName) {
 function colorFromString(str) {
   const input = String(str || "Onbekend");
   const normalized = normalizeText(input);
+  // Handmatig ingestelde kleur via de admin gaat voor (behalve geen-contract grijs).
+  if (!isNoContractZorggroepName(input) && zorggroepColorOverrides.has(normalized)) {
+    return zorggroepColorOverrides.get(normalized);
+  }
   if (isNoContractZorggroepName(input)) {
     return "#9ca3af";
   }
@@ -3520,22 +3607,16 @@ async function init() {
   try {
     createMap();
 
-    const [zorggroepResponse, gemeenteFeatures, postcodeOverrides] = await Promise.all([
-      fetch(ZORGGROEPEN_URL),
+    const [zorggroepData, gemeenteFeatures, postcodeOverrides] = await Promise.all([
+      loadZorggroepData(),
       fetchAllGemeenteFeatures(),
-      fetch(POSTCODE_OVERRIDES_URL)
-        .then((response) => (response.ok ? response.json() : null))
-        .catch(() => null)
+      loadPostcodeOverrides()
     ]);
 
-    if (!zorggroepResponse.ok) {
-      throw new Error(`zorggroepen.json laden mislukt (${zorggroepResponse.status})`);
-    }
-
-    const zorggroepData = await zorggroepResponse.json();
     const zorggroepen = Array.isArray(zorggroepData.zorggroepen) ? zorggroepData.zorggroepen : [];
     const contractsByZorggroep = extractContractsByZorggroep(zorggroepData);
 
+    applyZorggroepColorOverrides(zorggroepen);
     allFeatures = buildZorggroepFeatures(zorggroepen, gemeenteFeatures, contractsByZorggroep);
     gemeenteFeaturesStore = gemeenteFeatures;
     if (postcodeOverrides) {
