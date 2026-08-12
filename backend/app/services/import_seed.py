@@ -110,6 +110,45 @@ def _seed_zorgverzekeraars(db: Session) -> int:
     return added
 
 
+def _ensure_default_zorgverzekeraars(db: Session) -> int:
+    """Voegt ontbrekende standaard-zorgverzekeraars additief toe (idempotent).
+
+    De gewone seed (`_seed_zorgverzekeraars`) slaat een reeds-gevulde tabel over.
+    Deze functie draait bij elke start en houdt de admin-database in sync met
+    DEFAULT_ZORGVERZEKERAARS, zodat later toegevoegde verzekeraars (zoals SZVK)
+    ook in een al-geseede database verschijnen. Bestaande rijen (ook inactieve)
+    worden nooit aangeraakt, zodat handmatige admin-keuzes intact blijven.
+    """
+    existing = {
+        normalize_text(zv.name) for zv in db.scalars(select(Zorgverzekeraar)).all()
+    }
+    concern_to_labels: dict[str, list[str]] = {}
+    for label in sc.DEFAULT_ZORGVERZEKERAARS:
+        concern = sc.INSURER_LABEL_TO_CONCERN.get(normalize_text(label), normalize_text(label))
+        concern_to_labels.setdefault(concern, []).append(label)
+
+    added = 0
+    for label in sc.DEFAULT_ZORGVERZEKERAARS:
+        key = normalize_text(label)
+        if key in existing:
+            continue
+        concern = sc.INSURER_LABEL_TO_CONCERN.get(key, key)
+        aliases = [l for l in concern_to_labels.get(concern, []) if l != label]
+        db.add(
+            Zorgverzekeraar(
+                name=label,
+                concern_key=concern,
+                aliases=json.dumps(aliases, ensure_ascii=False),
+                is_active=True,
+            )
+        )
+        existing.add(key)
+        added += 1
+    if added:
+        db.commit()
+    return added
+
+
 def _seed_facturatiestromen(db: Session) -> int:
     if _count(db, Facturatiestroom) > 0:
         return 0
@@ -260,6 +299,8 @@ def import_seed(db: Session) -> dict[str, int]:
         "routing_rules": _seed_routing_rules(db),
         "postcode_overrides": _seed_postcode_overrides(db),
     }
+    # Additief: houd de verzekeraarslijst in sync ook als de tabel al geseed was.
+    result["zorgverzekeraars_toegevoegd"] = _ensure_default_zorgverzekeraars(db)
     if db.get(AppMeta, "data_version") is None:
         set_data_version(db, "1")
     return result

@@ -8,7 +8,8 @@
       "summary": [
         "SZVK is nu selecteerbaar in de zorgverzekeraar-dropdown.",
         "Bij keuze voor SZVK resulteert dit in facturatiemodule 'ZoHealthy' (Stroom 3), net als de andere ZoHealthy-verzekeraars.",
-        "Zowel de volledige naam als de afkorting SZVK worden correct herkend."
+        "Zowel de volledige naam als de afkorting SZVK worden correct herkend.",
+        "SZVK staat nu ook in de online adminomgeving, zodat de kaart en de admin overeenkomen."
       ],
       "commit": "2f1fed3"
     },

@@ -15,6 +15,7 @@ DEFAULT_ZORGVERZEKERAARS = [
     "Aevitae (Eucare)", "Aevitae", "Eucare", "Care4Life", "CZ",
     "Nationale-Nederlanden", "OHRA", "Just", "CZ direct", "DSW", "Stad Holland",
     "Salland", "Zorg & Zekerheid", "AZVZ",
+    "Stichting Ziektekostenverzekering Krijgsmacht (SZVK)",
 ]
 
 # INSURER_LABEL_TO_CONCERN (genormaliseerde label -> concern_key)
@@ -39,6 +40,7 @@ INSURER_LABEL_TO_CONCERN = {
     "salland": "salland",
     "zorg zekerheid": "zorg zekerheid", "zorg en zekerheid": "zorg zekerheid",
     "zorg zekerheid av": "zorg zekerheid", "azvz": "zorg zekerheid",
+    "stichting ziektekostenverzekering krijgsmacht szvk": "szvk", "szvk": "szvk",
 }
 
 # FACTURATIESTROMEN
