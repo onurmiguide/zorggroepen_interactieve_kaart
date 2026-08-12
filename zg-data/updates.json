@@ -2,6 +2,17 @@
   "updates": [
     {
       "date": "2026-08-12",
+      "title": "Regio-correcties: ZHZ-gemeenten en Kop van Noord-Holland / West-Friesland",
+      "scope": "kaart",
+      "description": "Twee gebieden zijn completer op de kaart gezet zodat postcodes en gemeenten in de juiste zorggroep vallen.",
+      "summary": [
+        "Zuid-Holland Zuid (ZHZ) omvat nu ook West Betuwe, Altena en Vijfheerenlanden; de spelling van Hardinxveld-Giessendam is gecorrigeerd zodat die gemeente correct op de kaart verschijnt.",
+        "West-Friesland heet op de kaart nu 'Kop van Noord-Holland en West-Friesland' en dekt het postcodegebied 1600 t/m 1800 en 1870 t/m 1873.",
+        "De nieuwe postcode-ranges zijn ook toegevoegd aan de online adminomgeving, zodat kaart en admin overeenkomen."
+      ]
+    },
+    {
+      "date": "2026-08-12",
       "title": "Zorgverzekeraar SZVK toegevoegd (routeert naar ZoHealthy)",
       "scope": "kaart",
       "description": "Stichting Ziektekostenverzekering Krijgsmacht (SZVK) is toegevoegd als zorgverzekeraar in de Zorgtool.",

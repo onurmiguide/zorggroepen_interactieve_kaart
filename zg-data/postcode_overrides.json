@@ -1648,6 +1648,18 @@
   },
   "postcode4_range_overrides": [
     {
+      "start": "1600",
+      "end": "1800",
+      "zorggroep": "West-Friesland",
+      "source_sheet": "Kop van Noord-Holland en West-Friesland"
+    },
+    {
+      "start": "1870",
+      "end": "1873",
+      "zorggroep": "West-Friesland",
+      "source_sheet": "Kop van Noord-Holland en West-Friesland"
+    },
+    {
       "start": "1398",
       "end": "1412",
       "zorggroep": "RHOGO",

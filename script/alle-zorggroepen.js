@@ -244,13 +244,16 @@ function splitZuidHollandZuidItem(item) {
       website: item.website || "",
       cities: [
         "Alblasserdam",
+        "Altena",
         "Dordrecht",
         "Gorinchem",
-        "Hardinxveld-Giesendam",
+        "Hardinxveld-Giessendam",
         "Hendrik Ido Ambacht",
         "Molenlanden",
         "Papendrecht",
         "Sliedrecht",
+        "Vijfheerenlanden",
+        "West Betuwe",
         "Zwijndrecht"
       ]
     },

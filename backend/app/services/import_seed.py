@@ -261,6 +261,47 @@ def _seed_postcode_overrides(db: Session) -> int:
     return added
 
 
+def _ensure_postcode_ranges(db: Session) -> int:
+    """Voegt ontbrekende postcode4-ranges uit de JSON additief toe (idempotent).
+
+    Houdt de admin-database in sync met postcode_overrides.json, ook nadat de
+    tabel al geseed is (bijv. bij nieuwe ranges zoals Kop van Noord-Holland en
+    West-Friesland). Bestaande rijen worden nooit aangeraakt.
+    """
+    if not settings.postcode_overrides_seed_path.exists():
+        return 0
+    data = json.loads(settings.postcode_overrides_seed_path.read_text(encoding="utf-8"))
+    existing = {
+        (r.start_pc4, r.end_pc4, normalize_text(r.zorggroep))
+        for r in db.scalars(select(PostcodeRangeOverride)).all()
+    }
+    added = 0
+    for row in data.get("postcode4_range_overrides") or []:
+        start = str(row.get("start") or row.get("from") or "").strip()
+        end = str(row.get("end") or row.get("to") or "").strip()
+        zorggroep = str(row.get("zorggroep") or "")
+        if not start or not end:
+            continue
+        key = (start, end, normalize_text(zorggroep))
+        if key in existing:
+            continue
+        db.add(
+            PostcodeRangeOverride(
+                start_pc4=start,
+                end_pc4=end,
+                zorggroep=zorggroep,
+                source_sheet=str(row.get("source_sheet") or ""),
+                insurer_concerns=json.dumps(row.get("insurer_concerns") or [], ensure_ascii=False),
+                is_active=True,
+            )
+        )
+        existing.add(key)
+        added += 1
+    if added:
+        db.commit()
+    return added
+
+
 def ensure_seed_admin(db: Session) -> bool:
     """Maak bij de allereerste start een super_admin aan uit env-variabelen.
 
@@ -301,6 +342,8 @@ def import_seed(db: Session) -> dict[str, int]:
     }
     # Additief: houd de verzekeraarslijst in sync ook als de tabel al geseed was.
     result["zorgverzekeraars_toegevoegd"] = _ensure_default_zorgverzekeraars(db)
+    # Additief: houd de postcode4-ranges in sync ook als de tabel al geseed was.
+    result["postcode_ranges_toegevoegd"] = _ensure_postcode_ranges(db)
     if db.get(AppMeta, "data_version") is None:
         set_data_version(db, "1")
     return result
