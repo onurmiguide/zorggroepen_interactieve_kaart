@@ -834,6 +834,22 @@ function getZorggroepName(feature) {
   return feature?.properties?.zorggroep || "Onbekend";
 }
 
+// Verwijzingen uit de regio Zuid-Holland Zuid (ZHZ) mogen alleen via Monter worden
+// verwerkt en niet via Zorgdomein. Herkent de ZHZ-zorggroepen (ZHZ CZ / ZHZ VGZ /
+// Zuid Holland Zuid); het no-contract deel (Goeree-Overflakkee) valt hier bewust buiten.
+function isZhzReferralFeature(feature) {
+  const norm = normalizeText(getZorggroepName(feature));
+  return norm.startsWith("zhz") || norm === "zuid holland zuid";
+}
+
+function zhzReferralNoticeHtml() {
+  return `
+    <div style="margin-bottom:10px; padding:8px 10px; border:1px solid #f59e0b; background:#fef3c7; border-radius:8px; color:#92400e; font-size:0.8rem; line-height:1.35;">
+      <strong>⚠️ Let op — regio Zuid-Holland Zuid (ZHZ):</strong> verwijzingen uit deze regio mogen uitsluitend via <strong>Monter</strong> worden verwerkt, niet via <strong>Zorgdomein</strong>.
+    </div>
+  `;
+}
+
 function normalizeFacturatiestroom(value, feature = null, insurerName = "") {
   const raw = String(value || "").trim() || "Onbekend";
   const rawNorm = normalizeText(raw);
@@ -994,12 +1010,13 @@ function updateFacturatiemoduleContext() {
   if (!box) {
     return;
   }
-  const renderResultBox = (moduleName = "", prestatiecode = "") => {
+  const renderResultBox = (moduleName = "", prestatiecode = "", noticeHtml = "") => {
     if (!moduleName && !prestatiecode) {
       box.innerHTML = "";
       return;
     }
     box.innerHTML = `
+      ${noticeHtml}
       <div><strong>Facturatiemodule:</strong> ${moduleName}</div>
       <div style="margin-top:14px; padding-top:12px; border-top:1px solid rgba(148,163,184,0.45);"><strong>Prestatiecode:</strong> ${prestatiecode}</div>
     `;
@@ -1058,7 +1075,8 @@ function updateFacturatiemoduleContext() {
 
   const moduleName = resolveFacturatiemoduleName(zorgproduct, representativeFeature, currentZorgverzekeraar);
   const prestatiecode = resolvePrestatiecodeByFacturatiemodule(moduleName || "");
-  renderResultBox(moduleName || "Onbekend", prestatiecode);
+  const noticeHtml = isZhzReferralFeature(representativeFeature) ? zhzReferralNoticeHtml() : "";
+  renderResultBox(moduleName || "Onbekend", prestatiecode, noticeHtml);
 }
 
 function normalizeContractValue(value) {
@@ -1666,9 +1684,12 @@ function popupContent(feature) {
     contractRow = `<div>Contractregels: ${contractedCount}</div>`;
   }
 
+  const zhzNotice = isZhzReferralFeature(feature) ? zhzReferralNoticeHtml() : "";
+
   return `
     <div>
       <strong>${zorggroep}</strong>
+      ${zhzNotice}
       <div>Regio: ${regio}</div>
       <div>Gemeenten: ${gemeenten.length}</div>
       ${overlapGemeenten.length ? `<div style="color:#dc2626;"><strong>Overlap:</strong> ${overlapGemeenten.join(", ")}</div>` : ""}
