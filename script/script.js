@@ -495,6 +495,7 @@ const customSelectTypeaheadTimers = new Map();
 let appInitialized = false;
 let currentAppView = APP_VIEWS.LANDING;
 let zorgverzekeraarNoticeAcknowledged = false;
+let zhzReferralAcknowledged = false;
 
 const NO_ZORGGROEP_CONTRACT_NAME = "Geen zorggroep contract";
 const OVERLAP_GEMEENTE_OWNER_OVERRIDES = new Map([
@@ -847,14 +848,6 @@ function isZhzReferralFeature(feature) {
   return norm.startsWith("zhz") || norm === "zuid holland zuid";
 }
 
-function zhzReferralNoticeHtml() {
-  return `
-    <div style="margin-bottom:10px; padding:8px 10px; border:1px solid #f59e0b; background:#fef3c7; border-radius:8px; color:#92400e; font-size:0.8rem; line-height:1.35;">
-      <strong>⚠️ Let op — regio Zuid-Holland Zuid (ZHZ):</strong> verwijzingen uit deze regio mogen uitsluitend via <strong>Monter</strong> worden verwerkt, niet via <strong>Zorgdomein</strong>.
-    </div>
-  `;
-}
-
 // Bepaalt of de huidige zoek-/filterselectie (gemeente/postcode → zorggroep) op ZHZ uitkomt.
 function currentSelectionIsZhz() {
   if (currentFilter && currentFilter !== "ALL") {
@@ -873,13 +866,26 @@ function currentSelectionIsZhz() {
   return false;
 }
 
-// Toont/verbergt de persistente ZHZ-banner onder de zoekbalk.
-function updateZhzSearchNotice() {
-  const el = document.getElementById("zhzReferralNotice");
+// Toont/verbergt de gecentreerde ZHZ-melding (modal). Verschijnt zodra de selectie
+// op ZHZ uitkomt en nog niet is weggeklikt; sluiten kan via het kruisje of "Begrepen".
+function updateZhzReferralModal() {
+  const el = document.getElementById("zhzReferralModal");
   if (!el) {
     return;
   }
-  el.hidden = !currentSelectionIsZhz();
+  const shouldShow = currentSelectionIsZhz() && !zhzReferralAcknowledged;
+  el.classList.toggle("opacity-0", !shouldShow);
+  el.classList.toggle("pointer-events-none", !shouldShow);
+  const panel = el.firstElementChild;
+  if (panel) {
+    panel.classList.toggle("-translate-y-2", !shouldShow);
+    panel.classList.toggle("translate-y-0", shouldShow);
+  }
+}
+
+function dismissZhzReferralModal() {
+  zhzReferralAcknowledged = true;
+  updateZhzReferralModal();
 }
 
 function normalizeFacturatiestroom(value, feature = null, insurerName = "") {
@@ -1042,13 +1048,12 @@ function updateFacturatiemoduleContext() {
   if (!box) {
     return;
   }
-  const renderResultBox = (moduleName = "", prestatiecode = "", noticeHtml = "") => {
+  const renderResultBox = (moduleName = "", prestatiecode = "") => {
     if (!moduleName && !prestatiecode) {
       box.innerHTML = "";
       return;
     }
     box.innerHTML = `
-      ${noticeHtml}
       <div><strong>Facturatiemodule:</strong> ${moduleName}</div>
       <div style="margin-top:14px; padding-top:12px; border-top:1px solid rgba(148,163,184,0.45);"><strong>Prestatiecode:</strong> ${prestatiecode}</div>
     `;
@@ -1107,8 +1112,7 @@ function updateFacturatiemoduleContext() {
 
   const moduleName = resolveFacturatiemoduleName(zorgproduct, representativeFeature, currentZorgverzekeraar);
   const prestatiecode = resolvePrestatiecodeByFacturatiemodule(moduleName || "");
-  const noticeHtml = isZhzReferralFeature(representativeFeature) ? zhzReferralNoticeHtml() : "";
-  renderResultBox(moduleName || "Onbekend", prestatiecode, noticeHtml);
+  renderResultBox(moduleName || "Onbekend", prestatiecode);
 }
 
 function normalizeContractValue(value) {
@@ -1716,12 +1720,9 @@ function popupContent(feature) {
     contractRow = `<div>Contractregels: ${contractedCount}</div>`;
   }
 
-  const zhzNotice = isZhzReferralFeature(feature) ? zhzReferralNoticeHtml() : "";
-
   return `
     <div>
       <strong>${zorggroep}</strong>
-      ${zhzNotice}
       <div>Regio: ${regio}</div>
       <div>Gemeenten: ${gemeenten.length}</div>
       ${overlapGemeenten.length ? `<div style="color:#dc2626;"><strong>Overlap:</strong> ${overlapGemeenten.join(", ")}</div>` : ""}
@@ -2666,7 +2667,7 @@ function refreshDependentFilters() {
   initAllCustomSelects();
   updateZorgverzekeraarNotice();
   updateFacturatiemoduleContext();
-  updateZhzSearchNotice();
+  updateZhzReferralModal();
 }
 
 function autoSelectSingleDependentOptions(scopedFeatures) {
@@ -3165,6 +3166,8 @@ function setupGemeenteSearch(features) {
 
   async function executeSearch() {
     const rawValue = input.value.trim();
+    // Nieuwe zoekactie: toon de ZHZ-melding zo nodig opnieuw.
+    zhzReferralAcknowledged = false;
 
     if (isPostcodeInput(rawValue)) {
       hideSuggestions();
@@ -3342,6 +3345,7 @@ function setupGemeenteSearch(features) {
       setGemeenteContext("");
       currentZorgverzekeraar = "ALL";
       zorgverzekeraarNoticeAcknowledged = false;
+      zhzReferralAcknowledged = false;
       currentFilter = "ALL";
       currentDeclaratiestroom = "ALL";
       updateGemeenteFoundDisplay();
@@ -3384,6 +3388,25 @@ function setupGemeenteSearch(features) {
 
       refreshDependentFilters();
       applyActiveFilters();
+    });
+  }
+
+  ["zhzReferralModalClose", "zhzReferralModalConfirm"].forEach((btnId) => {
+    const btn = document.getElementById(btnId);
+    if (btn && !btn.dataset.bound) {
+      btn.dataset.bound = "1";
+      btn.addEventListener("click", dismissZhzReferralModal);
+    }
+  });
+
+  const zhzModal = document.getElementById("zhzReferralModal");
+  if (zhzModal && !zhzModal.dataset.bound) {
+    zhzModal.dataset.bound = "1";
+    // Klik op de donkere achtergrond sluit de melding ook.
+    zhzModal.addEventListener("click", (event) => {
+      if (event.target === zhzModal) {
+        dismissZhzReferralModal();
+      }
     });
   }
 

@@ -17,11 +17,11 @@
       "date": "2026-08-12",
       "title": "Melding bij ZHZ: verwijzingen alleen via Monter, niet Zorgdomein",
       "scope": "kaart",
-      "description": "Zodra een gemeente- of postcodezoekactie uitkomt op zorggroep ZHZ (Zuid-Holland Zuid), verschijnt er een duidelijke melding op het scherm.",
+      "description": "Zodra een gemeente- of postcodezoekactie uitkomt op zorggroep ZHZ (Zuid-Holland Zuid), verschijnt er een duidelijke melding in het midden van het scherm.",
       "summary": [
-        "Bij een ZHZ-resultaat verschijnt onder de zoekbalk een banner dat verwijzingen uit deze regio uitsluitend via Monter verwerkt mogen worden en niet via Zorgdomein.",
-        "De melding wordt ook getoond in het facturatiemodule-resultaatvak en in de kaart-popup van een ZHZ-zorggroep.",
-        "De banner verdwijnt automatisch weer bij een niet-ZHZ selectie."
+        "Bij een ZHZ-resultaat verschijnt nu een nette melding (pop-up) midden op het scherm dat verwijzingen uit deze regio uitsluitend via Monter verwerkt mogen worden en niet via Zorgdomein.",
+        "De melding is weg te klikken via het kruisje rechtsboven, de knop 'Begrepen' of door naast de melding te klikken.",
+        "Bij een nieuwe zoekactie die weer op ZHZ uitkomt, verschijnt de melding opnieuw."
       ],
       "commit": "6899691"
     },
