@@ -850,6 +850,33 @@ function zhzReferralNoticeHtml() {
   `;
 }
 
+// Bepaalt of de huidige zoek-/filterselectie (gemeente/postcode → zorggroep) op ZHZ uitkomt.
+function currentSelectionIsZhz() {
+  if (currentFilter && currentFilter !== "ALL") {
+    const feature = getFeatureByZorggroepName(currentFilter);
+    if (feature) {
+      return isZhzReferralFeature(feature);
+    }
+    const norm = normalizeText(currentFilter);
+    return norm.startsWith("zhz") || norm === "zuid holland zuid";
+  }
+  if (currentGemeente) {
+    return allFeatures.some(
+      (feature) => featureMatchesCurrentGemeente(feature) && isZhzReferralFeature(feature)
+    );
+  }
+  return false;
+}
+
+// Toont/verbergt de persistente ZHZ-banner onder de zoekbalk.
+function updateZhzSearchNotice() {
+  const el = document.getElementById("zhzReferralNotice");
+  if (!el) {
+    return;
+  }
+  el.hidden = !currentSelectionIsZhz();
+}
+
 function normalizeFacturatiestroom(value, feature = null, insurerName = "") {
   const raw = String(value || "").trim() || "Onbekend";
   const rawNorm = normalizeText(raw);
@@ -2634,6 +2661,7 @@ function refreshDependentFilters() {
   initAllCustomSelects();
   updateZorgverzekeraarNotice();
   updateFacturatiemoduleContext();
+  updateZhzSearchNotice();
 }
 
 function autoSelectSingleDependentOptions(scopedFeatures) {
