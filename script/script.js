@@ -146,7 +146,8 @@ const DEFAULT_ZORGVERZEKERAARS = [
   "Stad Holland",
   "Salland",
   "Zorg & Zekerheid",
-  "AZVZ"
+  "AZVZ",
+  "Stichting Ziektekostenverzekering Krijgsmacht (SZVK)"
 ];
 
 const FACTURATIESTROMEN = {
@@ -201,7 +202,9 @@ const INSURER_LABEL_TO_CONCERN = new Map([
   ["zorg zekerheid", "zorg zekerheid"],
   ["zorg en zekerheid", "zorg zekerheid"],
   ["zorg zekerheid av", "zorg zekerheid"],
-  ["azvz", "zorg zekerheid"]
+  ["azvz", "zorg zekerheid"],
+  ["stichting ziektekostenverzekering krijgsmacht szvk", "szvk"],
+  ["szvk", "szvk"]
 ]);
 
 const ZORGGROEP_DECLARATIESTROOM_FALLBACK = {
@@ -266,7 +269,8 @@ const ZOHEALTHY_INSURERS_2026_CONFIRMED = new Set([
   "cz",
   "dsw",
   "salland",
-  "zorg zekerheid"
+  "zorg zekerheid",
+  "szvk"
 ]);
 
 const DECLARATIE_PER_VERZEKERAAR_OUTPUT = {
@@ -279,7 +283,8 @@ const DECLARATIE_PER_VERZEKERAAR_OUTPUT = {
   "cz": FACTURATIESTROMEN.STROOM_3,
   "dsw": FACTURATIESTROMEN.STROOM_3,
   "salland": FACTURATIESTROMEN.STROOM_3,
-  "zorg zekerheid": FACTURATIESTROMEN.STROOM_3
+  "zorg zekerheid": FACTURATIESTROMEN.STROOM_3,
+  "szvk": FACTURATIESTROMEN.STROOM_3
 };
 
 const ZOHEALTHY_INSURERS = new Set(ZOHEALTHY_INSURERS_2026_CONFIRMED);
