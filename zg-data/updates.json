@@ -1,6 +1,42 @@
 {
   "updates": [
     {
+      "date": "2026-08-12",
+      "title": "Zorgverzekeraar SZVK toegevoegd (routeert naar ZoHealthy)",
+      "scope": "kaart",
+      "description": "Stichting Ziektekostenverzekering Krijgsmacht (SZVK) is toegevoegd als zorgverzekeraar in de Zorgtool.",
+      "summary": [
+        "SZVK is nu selecteerbaar in de zorgverzekeraar-dropdown.",
+        "Bij keuze voor SZVK resulteert dit in facturatiemodule 'ZoHealthy' (Stroom 3), net als de andere ZoHealthy-verzekeraars.",
+        "Zowel de volledige naam als de afkorting SZVK worden correct herkend."
+      ],
+      "commit": "2f1fed3"
+    },
+    {
+      "date": "2026-08-12",
+      "title": "Melding bij ZHZ: verwijzingen alleen via Monter, niet Zorgdomein",
+      "scope": "kaart",
+      "description": "Zodra een gemeente- of postcodezoekactie uitkomt op zorggroep ZHZ (Zuid-Holland Zuid), verschijnt er een duidelijke melding op het scherm.",
+      "summary": [
+        "Bij een ZHZ-resultaat verschijnt onder de zoekbalk een banner dat verwijzingen uit deze regio uitsluitend via Monter verwerkt mogen worden en niet via Zorgdomein.",
+        "De melding wordt ook getoond in het facturatiemodule-resultaatvak en in de kaart-popup van een ZHZ-zorggroep.",
+        "De banner verdwijnt automatisch weer bij een niet-ZHZ selectie."
+      ],
+      "commit": "6899691"
+    },
+    {
+      "date": "2026-08-12",
+      "title": "Adminomgeving nu ook online beschikbaar",
+      "scope": "website",
+      "description": "De adminomgeving voor het beheren van zorggroepen, verzekeraars, facturatie en postcodes draait nu ook online, zodat wijzigingen niet meer alleen lokaal gemaakt kunnen worden.",
+      "summary": [
+        "De Admin-knop op de site opent nu de online adminomgeving.",
+        "De kaart leest waar mogelijk live de actuele admin-data, met terugval op de vaste databestanden.",
+        "Wijzigingen in de admin worden zo direct zichtbaar op de kaart."
+      ],
+      "commit": "fa31501"
+    },
+    {
       "date": "2026-06-03",
       "title": "Facturatiestroom-filter overlap opgelost",
       "scope": "frontend",
