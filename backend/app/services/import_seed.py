@@ -261,6 +261,42 @@ def _seed_postcode_overrides(db: Session) -> int:
     return added
 
 
+def _ensure_exact_postcode_overrides(db: Session) -> int:
+    """Voegt ontbrekende exacte PC6-overrides uit de JSON additief toe (idempotent).
+
+    Houdt de admin-database in sync met de exacte postcode-uitzonderingen uit
+    postcode_overrides.json, ook nadat de tabel al geseed is. Bestaande rijen
+    (per postcode6) worden nooit aangeraakt.
+    """
+    if not settings.postcode_overrides_seed_path.exists():
+        return 0
+    data = json.loads(settings.postcode_overrides_seed_path.read_text(encoding="utf-8"))
+    existing = {
+        (r.postcode6 or "").upper().replace(" ", "")
+        for r in db.scalars(select(PostcodeOverride)).all()
+    }
+    added = 0
+    for pc6, row in (data.get("exact_postcode6_overrides") or {}).items():
+        key = str(pc6).upper().replace(" ", "")
+        if not key or key in existing:
+            continue
+        db.add(
+            PostcodeOverride(
+                postcode6=key,
+                zorggroep=str(row.get("zorggroep") or ""),
+                source_sheet=str(row.get("source_sheet") or ""),
+                note=str(row.get("note") or ""),
+                insurer_concerns=json.dumps(row.get("insurer_concerns") or [], ensure_ascii=False),
+                is_active=True,
+            )
+        )
+        existing.add(key)
+        added += 1
+    if added:
+        db.commit()
+    return added
+
+
 def _ensure_postcode_ranges(db: Session) -> int:
     """Voegt ontbrekende postcode4-ranges uit de JSON additief toe (idempotent).
 
@@ -342,7 +378,8 @@ def import_seed(db: Session) -> dict[str, int]:
     }
     # Additief: houd de verzekeraarslijst in sync ook als de tabel al geseed was.
     result["zorgverzekeraars_toegevoegd"] = _ensure_default_zorgverzekeraars(db)
-    # Additief: houd de postcode4-ranges in sync ook als de tabel al geseed was.
+    # Additief: houd de postcode-uitzonderingen in sync ook als de tabel al geseed was.
+    result["postcode_exact_toegevoegd"] = _ensure_exact_postcode_overrides(db)
     result["postcode_ranges_toegevoegd"] = _ensure_postcode_ranges(db)
     if db.get(AppMeta, "data_version") is None:
         set_data_version(db, "1")

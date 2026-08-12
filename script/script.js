@@ -2,7 +2,7 @@
 const AUTH_SESSION_KEY = "miguide_auth_ok";
 const AUTH_PASSWORD_FALLBACK = "MiGuide#2026!@";
 const ZORGGROEPEN_URL = "zg-data/zorggroepen.json";
-const POSTCODE_OVERRIDES_URL = "zg-data/postcode_overrides.json?v=20260603-8401pa-friesland";
+const POSTCODE_OVERRIDES_URL = "zg-data/postcode_overrides.json?v=20260812-poort-van-west-hoeven";
 
 // Online admin-backend (Render). De publieke kaart op Vercel leest hiervandaan de
 // live admin-data. Overschrijfbaar via window.MIGUIDE_ADMIN_API.

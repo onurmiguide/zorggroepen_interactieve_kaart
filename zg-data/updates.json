@@ -2,6 +2,17 @@
   "updates": [
     {
       "date": "2026-08-12",
+      "title": "Postcodecorrecties: Poort van West (Leerdam) en HAT Hoeven",
+      "scope": "kaart",
+      "description": "Twee huisartspraktijken routeren nu naar de juiste zorggroep op basis van hun postcode.",
+      "summary": [
+        "4142AZ (Huisartsen Poort van West, Leerdam) valt nu onder ZHZ VGZ in plaats van UNICUM.",
+        "4741AM (Het huisartsenteam Hoeven - Schrauwen en Dijkers) valt nu onder HHT (Breda) in plaats van 'Geen zorggroep contract'.",
+        "Beide zijn exacte postcode-uitzonderingen en ook toegevoegd aan de online adminomgeving."
+      ]
+    },
+    {
+      "date": "2026-08-12",
       "title": "Regio-correcties: ZHZ-gemeenten en Kop van Noord-Holland / West-Friesland",
       "scope": "kaart",
       "description": "Twee gebieden zijn completer op de kaart gezet zodat postcodes en gemeenten in de juiste zorggroep vallen.",

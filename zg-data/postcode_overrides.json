@@ -13,6 +13,16 @@
     "RHOGO"
   ],
   "exact_postcode6_overrides": {
+    "4142AZ": {
+      "zorggroep": "Zuid-Holland-Zuid",
+      "source_sheet": "ZHZ leefstijl coalitie VGZ",
+      "note": "Huisartsen Poort van West (Leerdam) valt onder ZHZ VGZ, niet UNICUM."
+    },
+    "4741AM": {
+      "zorggroep": "HHT & HZGB",
+      "source_sheet": "Handmatig - HHT Breda",
+      "note": "Het huisartsenteam Hoeven (Schrauwen en Dijkers) valt onder HHT (Breda)."
+    },
     "2241KE": {
       "zorggroep": "Hadoks",
       "source_sheet": "Hadoks"
