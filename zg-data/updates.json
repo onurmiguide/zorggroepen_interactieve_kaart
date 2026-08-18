@@ -12,7 +12,7 @@
       ]
     },
     {
-      "date": "2026-08-18",
+      "date": "2026-08-12",
       "title": "Postcodecorrecties: Poort van West (Leerdam) en HAT Hoeven",
       "scope": "kaart",
       "description": "Twee huisartspraktijken routeren nu naar de juiste zorggroep op basis van hun postcode.",
@@ -23,7 +23,7 @@
       ]
     },
     {
-      "date": "2026-08-18",
+      "date": "2026-08-12",
       "title": "Regio-correcties: ZHZ-gemeenten en Kop van Noord-Holland / West-Friesland",
       "scope": "kaart",
       "description": "Twee gebieden zijn completer op de kaart gezet zodat postcodes en gemeenten in de juiste zorggroep vallen.",
@@ -34,7 +34,7 @@
       ]
     },
     {
-      "date": "2026-08-18",
+      "date": "2026-08-12",
       "title": "Zorgverzekeraar SZVK toegevoegd (routeert naar ZoHealthy)",
       "scope": "kaart",
       "description": "Stichting Ziektekostenverzekering Krijgsmacht (SZVK) is toegevoegd als zorgverzekeraar in de Zorgtool.",
@@ -47,7 +47,7 @@
       "commit": "2f1fed3"
     },
     {
-      "date": "2026-08-18",
+      "date": "2026-08-12",
       "title": "Melding bij ZHZ: verwijzingen alleen via Monter, niet Zorgdomein",
       "scope": "kaart",
       "description": "Zodra een gemeente- of postcodezoekactie uitkomt op zorggroep ZHZ (Zuid-Holland Zuid), verschijnt er een duidelijke melding in het midden van het scherm.",
@@ -59,7 +59,7 @@
       "commit": "6899691"
     },
     {
-      "date": "2026-08-18",
+      "date": "2026-08-12",
       "title": "Adminomgeving nu ook online beschikbaar",
       "scope": "website",
       "description": "De adminomgeving voor het beheren van zorggroepen, verzekeraars, facturatie en postcodes draait nu ook online, zodat wijzigingen niet meer alleen lokaal gemaakt kunnen worden.",
