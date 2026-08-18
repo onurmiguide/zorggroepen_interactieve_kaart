@@ -734,7 +734,7 @@
 
   function zorggroepDatalist() {
     const names = (state.cache.zorggroepen || []).map((z) => z.name);
-    const extra = ["Geen zorggroep contract", "ESV", "LCK", "ZHZ CZ", "ZHZ VGZ", "Zorggroep Gezondheid Amsterdam"];
+    const extra = ["Geen zorggroep contract", "ESV", "Kennemerland", "ZHZ CZ", "ZHZ VGZ", "Zorggroep Gezondheid Amsterdam"];
     const all = Array.from(new Set([...names, ...extra]));
     return `<datalist id="zgNames">${all.map((n) => `<option value="${escapeHtml(n)}"></option>`).join("")}</datalist>`;
   }

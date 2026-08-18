@@ -261,6 +261,36 @@ def _seed_postcode_overrides(db: Session) -> int:
     return added
 
 
+def _apply_zorggroep_corrections(db: Session) -> int:
+    """Past bekende zorggroep-datacorrecties toe op een al-geseede database (idempotent).
+
+    - "LCK" is geen zorggroep (dat zijn de leefstijlcoaches in Kennemerland); de
+      juiste zorggroep is Kennemerland (HOZK/HZK). Hernoem de bestaande rij.
+    - West-Friesland-regio bijtrekken naar "Kop van Noord-Holland en West-Friesland"
+      als die nog op de oude standaardwaarde staat.
+    Bestaande, al gecorrigeerde of handmatig aangepaste rijen worden niet aangeraakt.
+    """
+    changed = 0
+
+    lck = db.scalar(select(Zorggroep).where(Zorggroep.name == "LCK"))
+    has_kennemerland = (
+        db.scalar(select(func.count()).select_from(Zorggroep).where(Zorggroep.name == "Kennemerland")) or 0
+    )
+    if lck is not None and not has_kennemerland:
+        lck.name = "Kennemerland"
+        lck.regio = "Kennemerland"
+        changed += 1
+
+    wf = db.scalar(select(Zorggroep).where(Zorggroep.name == "West-Friesland"))
+    if wf is not None and wf.regio == "West-Friesland":
+        wf.regio = "Kop van Noord-Holland en West-Friesland"
+        changed += 1
+
+    if changed:
+        db.commit()
+    return changed
+
+
 def _ensure_exact_postcode_overrides(db: Session) -> int:
     """Voegt ontbrekende exacte PC6-overrides uit de JSON additief toe (idempotent).
 
@@ -381,6 +411,8 @@ def import_seed(db: Session) -> dict[str, int]:
     # Additief: houd de postcode-uitzonderingen in sync ook als de tabel al geseed was.
     result["postcode_exact_toegevoegd"] = _ensure_exact_postcode_overrides(db)
     result["postcode_ranges_toegevoegd"] = _ensure_postcode_ranges(db)
+    # Datacorrecties op bestaande rijen (bijv. LCK -> Kennemerland).
+    result["zorggroep_correcties"] = _apply_zorggroep_corrections(db)
     if db.get(AppMeta, "data_version") is None:
         set_data_version(db, "1")
     return result

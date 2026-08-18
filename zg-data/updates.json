@@ -2,6 +2,17 @@
   "updates": [
     {
       "date": "2026-08-12",
+      "title": "LCK-gebied hernoemd naar zorggroep Kennemerland",
+      "scope": "kaart",
+      "description": "Het gebied dat als 'LCK' werd getoond, is de zorggroep Kennemerland (HOZK/HZK). LCK zijn de leefstijlcoaches in Kennemerland en is zelf geen zorggroep.",
+      "summary": [
+        "Postcodes in dit gebied (o.a. 1971GC, IJmuiden - Huisartsenpraktijk 't Plein) tonen nu zorggroep 'Kennemerland' in plaats van 'LCK'.",
+        "De facturatiemodule volgt nu de standaard zorggroeproute ('Zorggroep'); de prestatiecode blijft CoOL-MiGuide.",
+        "Doorgevoerd in de kaart, de 'Alle zorggroepen'-pagina, de adminomgeving en de online admin-database."
+      ]
+    },
+    {
+      "date": "2026-08-12",
       "title": "Postcodecorrecties: Poort van West (Leerdam) en HAT Hoeven",
       "scope": "kaart",
       "description": "Twee huisartspraktijken routeren nu naar de juiste zorggroep op basis van hun postcode.",

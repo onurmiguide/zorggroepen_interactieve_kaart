@@ -2,11 +2,11 @@
   "source": "Interne zorggroepenlijst met websites",
   "entries": [
     {
-      "name": "LCK",
+      "name": "Kennemerland",
       "website": "",
-      "note": "Interne regiolabel voor Kennemerland-gebied in deze kaart.",
+      "note": "Zorggroep Kennemerland (o.a. HOZK/HZK). LCK betreft de leefstijlcoaches in Kennemerland en is geen zorggroep.",
       "mapsTo": [
-        "LCK"
+        "Kennemerland"
       ]
     },
     {
@@ -462,9 +462,9 @@
     {
       "name": "Huisartsenvereniging Midden-Kennemerland",
       "website": "https://www.hv-mk.nl/",
-      "note": "Aanvullende regio-organisatie binnen het LCK-gebied.",
+      "note": "Aanvullende regio-organisatie binnen het Kennemerland-gebied.",
       "mapsTo": [
-        "LCK"
+        "Kennemerland"
       ]
     },
     {
@@ -538,9 +538,9 @@
     {
       "name": "Huisartsen Zuid Kennemerland",
       "website": "https://hzk.nl/",
-      "note": "Aanvullende regio-organisatie binnen het LCK-gebied.",
+      "note": "Aanvullende regio-organisatie binnen het Kennemerland-gebied.",
       "mapsTo": [
-        "LCK"
+        "Kennemerland"
       ]
     },
     {
