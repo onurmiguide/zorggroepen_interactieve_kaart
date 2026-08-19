@@ -147,7 +147,8 @@ const DEFAULT_ZORGVERZEKERAARS = [
   "Salland",
   "Zorg & Zekerheid",
   "AZVZ",
-  "Stichting Ziektekostenverzekering Krijgsmacht (SZVK)"
+  "Stichting Ziektekostenverzekering Krijgsmacht (SZVK)",
+  "RMA"
 ];
 
 const FACTURATIESTROMEN = {
@@ -496,6 +497,7 @@ let appInitialized = false;
 let currentAppView = APP_VIEWS.LANDING;
 let zorgverzekeraarNoticeAcknowledged = false;
 let zhzReferralAcknowledged = false;
+let rmaNoticeAcknowledged = false;
 
 const NO_ZORGGROEP_CONTRACT_NAME = "Geen zorggroep contract";
 const OVERLAP_GEMEENTE_OWNER_OVERRIDES = new Map([
@@ -2016,6 +2018,28 @@ function updateZorgverzekeraarNotice() {
   }
 }
 
+// Melding bij RMA (asielzoekersverzekering): de GLI wordt niet vergoed.
+function updateRmaNotice() {
+  const el = document.getElementById("rmaNotice");
+  if (!el) {
+    return;
+  }
+  const insurerKey = normalizeInsurerKey(currentZorgverzekeraar);
+  const shouldShow = insurerKey === "rma" && !rmaNoticeAcknowledged;
+  el.classList.toggle("opacity-0", !shouldShow);
+  el.classList.toggle("pointer-events-none", !shouldShow);
+  const panel = el.firstElementChild;
+  if (panel) {
+    panel.classList.toggle("-translate-y-2", !shouldShow);
+    panel.classList.toggle("translate-y-0", shouldShow);
+  }
+}
+
+function dismissRmaNotice() {
+  rmaNoticeAcknowledged = true;
+  updateRmaNotice();
+}
+
 function closeAllCustomSelectMenus(exceptSelectId = "") {
   document.querySelectorAll("[data-custom-select]").forEach((root) => {
     const selectId = root.getAttribute("data-custom-select") || "";
@@ -2666,6 +2690,7 @@ function refreshDependentFilters() {
   autoSelectSingleDependentOptions(scoped);
   initAllCustomSelects();
   updateZorgverzekeraarNotice();
+  updateRmaNotice();
   updateFacturatiemoduleContext();
   updateZhzReferralModal();
 }
@@ -2741,6 +2766,7 @@ function setupFilterControls() {
   verzekeraarSelect.addEventListener("change", (event) => {
     currentZorgverzekeraar = event.target.value;
     zorgverzekeraarNoticeAcknowledged = false;
+    rmaNoticeAcknowledged = false;
     currentFilter = "ALL";
     currentDeclaratiestroom = "ALL";
     refreshDependentFilters();
@@ -3346,6 +3372,7 @@ function setupGemeenteSearch(features) {
       currentZorgverzekeraar = "ALL";
       zorgverzekeraarNoticeAcknowledged = false;
       zhzReferralAcknowledged = false;
+      rmaNoticeAcknowledged = false;
       currentFilter = "ALL";
       currentDeclaratiestroom = "ALL";
       updateGemeenteFoundDisplay();
@@ -3406,6 +3433,24 @@ function setupGemeenteSearch(features) {
     zhzModal.addEventListener("click", (event) => {
       if (event.target === zhzModal) {
         dismissZhzReferralModal();
+      }
+    });
+  }
+
+  ["rmaNoticeClose", "rmaNoticeConfirm"].forEach((btnId) => {
+    const btn = document.getElementById(btnId);
+    if (btn && !btn.dataset.bound) {
+      btn.dataset.bound = "1";
+      btn.addEventListener("click", dismissRmaNotice);
+    }
+  });
+
+  const rmaModal = document.getElementById("rmaNotice");
+  if (rmaModal && !rmaModal.dataset.bound) {
+    rmaModal.dataset.bound = "1";
+    rmaModal.addEventListener("click", (event) => {
+      if (event.target === rmaModal) {
+        dismissRmaNotice();
       }
     });
   }

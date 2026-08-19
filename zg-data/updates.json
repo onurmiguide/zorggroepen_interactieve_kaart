@@ -1,6 +1,17 @@
 {
   "updates": [
     {
+      "date": "2026-08-19",
+      "title": "Zorgverzekeraar RMA toegevoegd (GLI niet vergoed)",
+      "scope": "kaart",
+      "description": "RMA is de ziektekostenverzekering voor asielzoekers. De GLI wordt binnen deze verzekering niet vergoed.",
+      "summary": [
+        "RMA is nu selecteerbaar in de zorgverzekeraar-dropdown.",
+        "Bij keuze voor RMA verschijnt een duidelijke melding dat de GLI (Gecombineerde Leefstijlinterventie) niet wordt vergoed binnen deze verzekering.",
+        "De melding is weg te klikken via het kruisje, de knop 'Begrepen' of door naast de melding te klikken."
+      ]
+    },
+    {
       "date": "2026-08-18",
       "title": "LCK-gebied hernoemd naar zorggroep Kennemerland",
       "scope": "kaart",

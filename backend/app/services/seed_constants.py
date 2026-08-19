@@ -16,6 +16,7 @@ DEFAULT_ZORGVERZEKERAARS = [
     "Nationale-Nederlanden", "OHRA", "Just", "CZ direct", "DSW", "Stad Holland",
     "Salland", "Zorg & Zekerheid", "AZVZ",
     "Stichting Ziektekostenverzekering Krijgsmacht (SZVK)",
+    "RMA",
 ]
 
 # INSURER_LABEL_TO_CONCERN (genormaliseerde label -> concern_key)
