@@ -3528,8 +3528,6 @@ function splitZuidHollandZuidItem(item) {
         "Molenlanden",
         "Papendrecht",
         "Sliedrecht",
-        "Vijfheerenlanden",
-        "West Betuwe",
         "Zwijndrecht"
       ]
     },

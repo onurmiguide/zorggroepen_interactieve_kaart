@@ -2,6 +2,17 @@
   "updates": [
     {
       "date": "2026-08-19",
+      "title": "Correcties: Veenendaal onder ESV en Gelderse gemeenten uit ZHZ",
+      "scope": "kaart",
+      "description": "ESV (Eerstelijns Samenwerking Veenendaal) dekt nu ook Veenendaal, en enkele Gelderse plaatsen zijn uit de ZHZ VGZ-regio gehaald.",
+      "summary": [
+        "Veenendaal valt nu onder ESV (stond eerder alleen Bennekom/Ede).",
+        "Geldermalsen, Leerdam en Beesd vallen niet meer onder ZHZ VGZ: de gemeenten West Betuwe en Vijfheerenlanden waren te breed meegenomen en zijn eruit gehaald.",
+        "De losse praktijk-uitzondering 4142AZ (Huisartsen Poort van West, Leerdam) blijft wel onder ZHZ VGZ."
+      ]
+    },
+    {
+      "date": "2026-08-19",
       "title": "Zorgverzekeraar RMA toegevoegd (GLI niet vergoed)",
       "scope": "kaart",
       "description": "RMA is de ziektekostenverzekering voor asielzoekers. De GLI wordt binnen deze verzekering niet vergoed.",

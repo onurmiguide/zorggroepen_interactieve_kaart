@@ -286,6 +286,14 @@ def _apply_zorggroep_corrections(db: Session) -> int:
         wf.regio = "Kop van Noord-Holland en West-Friesland"
         changed += 1
 
+    # ESV = Eerstelijns Samenwerking Veenendaal; Veenendaal hoort er dus bij.
+    esv = db.scalar(select(Zorggroep).where(Zorggroep.name == "ESV"))
+    if esv is not None:
+        have = {normalize_text(loc.city_name) for loc in esv.locations}
+        if "veenendaal" not in have:
+            esv.locations.append(ZorggroepLocation(city_name="Veenendaal"))
+            changed += 1
+
     if changed:
         db.commit()
     return changed
