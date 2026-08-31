@@ -270,6 +270,21 @@
       ]
     },
     {
+      "zorggroep": "HCDO",
+      "regio": "Deventer en omgeving",
+      "website": "",
+      "cities": [
+        "Deventer",
+        "Lochem",
+        "Olst-Wijhe",
+        "Raalte",
+        "Hellendoorn",
+        "Rijssen-Holten",
+        "Hof van Twente",
+        "Voorst"
+      ]
+    },
+    {
       "zorggroep": "Eemland",
       "regio": "Eemland",
       "website": "",

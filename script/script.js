@@ -323,6 +323,7 @@ const BESLISBOOM_ROUTE_BY_ZORGGROEP_2026 = new Map([
   ["eemland", "zorggroep"],
   ["eemland huisartsen", "zorggroep"],
   ["kennemerland", "zorggroep"],
+  ["hcdo", "zorggroep"],
   ["kop noord holland", "zorggroep"],
   ["kop noordholland", "zorggroep"],
   ["stroomz", "zorggroep"],

@@ -294,6 +294,17 @@ def _apply_zorggroep_corrections(db: Session) -> int:
             esv.locations.append(ZorggroepLocation(city_name="Veenendaal"))
             changed += 1
 
+    # HCDO (Deventer e.o.) als nieuwe zorggroep toevoegen als die nog niet bestaat.
+    if db.scalar(select(Zorggroep).where(Zorggroep.name == "HCDO")) is None:
+        hcdo = Zorggroep(name="HCDO", regio="Deventer en omgeving", website="", is_active=True)
+        for gemeente in [
+            "Deventer", "Lochem", "Olst-Wijhe", "Raalte",
+            "Hellendoorn", "Rijssen-Holten", "Hof van Twente", "Voorst",
+        ]:
+            hcdo.locations.append(ZorggroepLocation(city_name=gemeente))
+        db.add(hcdo)
+        changed += 1
+
     if changed:
         db.commit()
     return changed

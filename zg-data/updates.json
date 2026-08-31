@@ -1,6 +1,17 @@
 {
   "updates": [
     {
+      "date": "2026-08-31",
+      "title": "Nieuwe zorggroep HCDO (Deventer en omgeving) toegevoegd",
+      "scope": "kaart",
+      "description": "HCDO werkt voor huisartsen in de regio rondom Deventer (Salland/Twente-rand). De zorggroep is op de kaart gezet.",
+      "summary": [
+        "HCDO dekt de gemeenten Deventer, Lochem, Olst-Wijhe, Raalte, Hellendoorn, Rijssen-Holten, Hof van Twente en Voorst (o.a. Bathmen, Diepenveen, Schalkhaar, Epse, Gorssel, Laren (Gld), Olst, Wesepe, Luttenberg, Haarle, Holten, Markelo, Twello, Terwolde, Wilp).",
+        "Let op: Laren betreft hier Laren in Gelderland (gemeente Lochem), niet Laren bij Amsterdam.",
+        "Dit is een schatting op gemeenteniveau; zodra exacte postcodes bekend zijn kan de begrenzing verfijnd worden."
+      ]
+    },
+    {
       "date": "2026-08-25",
       "title": "Correcties: Veenendaal onder ESV en Gelderse gemeenten uit ZHZ",
       "scope": "kaart",
