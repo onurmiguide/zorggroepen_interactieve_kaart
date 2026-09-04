@@ -1,6 +1,26 @@
 {
   "updates": [
     {
+      "date": "2026-09-04",
+      "title": "Kennemerland met CZ of DSW loopt nu via ZoHealthy",
+      "scope": "kaart",
+      "description": "Zorggroep Kennemerland (voorheen als 'LCK' getoond) heeft geen contract met CZ en DSW; declaraties voor die verzekeraars lopen via ZoHealthy.",
+      "summary": [
+        "Kennemerland + CZ of Kennemerland + DSW geeft nu facturatiemodule 'ZoHealthy' (Stroom 3) in plaats van de normale zorggroep-route.",
+        "Bij andere verzekeraars blijft Kennemerland gewoon de zorggroep-route volgen."
+      ]
+    },
+    {
+      "date": "2026-09-04",
+      "title": "Postcode-uitzondering naar een andere regio toont nu de juiste zorggroep",
+      "scope": "kaart",
+      "description": "Een exacte postcode die naar een zorggroep in een ander gebied verwijst, kwam soms uit op 'Geen zorggroep contract'. Dat is opgelost.",
+      "summary": [
+        "Postcode 2241KE (Wassenaar) toont nu correct Hadoks in plaats van 'Geen zorggroep contract'.",
+        "Dezelfde correctie geldt voor vergelijkbare praktijk-uitzonderingen waarvan de zorggroep in een andere gemeente ligt (o.a. 4142AZ Leerdam -> ZHZ VGZ)."
+      ]
+    },
+    {
       "date": "2026-08-31",
       "title": "Nieuwe zorggroep HCDO (Deventer en omgeving) toegevoegd",
       "scope": "kaart",

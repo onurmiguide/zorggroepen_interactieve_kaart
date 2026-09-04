@@ -1192,6 +1192,16 @@ function resolveDecisionTreeRouting2026(feature, insurerName = "") {
     return workbookSpecialRoute;
   }
 
+  // Kennemerland (voorheen LCK) heeft geen contract met CZ en DSW; deelnemers bij
+  // die verzekeraars lopen daarom via ZoHealthy (niet-gecontracteerde zorg).
+  if (zorggroepNorm === "kennemerland" && (insurerNorm === "cz" || insurerNorm === "dsw")) {
+    return {
+      routeType,
+      moduleName: "ZoHealthy",
+      stroom: FACTURATIESTROMEN.STROOM_3
+    };
+  }
+
   if (routeType === "ga") {
     return {
       routeType,
@@ -3254,9 +3264,13 @@ function setupGemeenteSearch(features) {
           const preferredLocation = locationCandidates.find((name) =>
             featureMatchesLocationName(overrideFeature, name)
           );
-          const clearLocationScopeForNoContractOverride = !preferredLocation && isNoContractZorggroepName(resolvedZorggroepName);
+          // Als de override-zorggroep deze locatie geografisch niet dekt (bijv. 2241KE
+          // Wassenaar -> Hadoks, dat in Den Haag e.o. ligt), scope dan op de zorggroep
+          // zelf i.p.v. op de gemeente. Anders reset de gemeente-scope de zorggroep en
+          // valt de facturatiemodule terug op de gemeente (Geen contract).
+          const clearLocationScope = !preferredLocation;
           setGemeenteContext(
-            clearLocationScopeForNoContractOverride ? "" : (preferredLocation || woonplaatsNaam || gemeenteNaam),
+            clearLocationScope ? "" : (preferredLocation || woonplaatsNaam || gemeenteNaam),
             locationCandidates
           );
 
