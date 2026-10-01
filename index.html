@@ -74,11 +74,11 @@
             <div class="inline-flex rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-medium uppercase tracking-[0.18em] text-sky-700 dark:border-sky-900 dark:bg-sky-950/40 dark:text-sky-300">MiGuide intern</div>
             <h1 class="mt-4 max-w-[12ch] text-3xl font-semibold leading-tight text-slate-900 sm:text-4xl dark:text-slate-100">Kies een tool om verder te gaan.</h1>
             <p class="mt-4 max-w-xl text-sm leading-7 text-slate-600 sm:text-base dark:text-slate-300">
-              Deze omgeving bundelt interne zorgtools op een centrale plek. Open de interactieve kaart of bekijk alvast de volgende tool die in ontwikkeling is.
+              Deze omgeving bundelt interne zorgtools op een centrale plek. Open de Zorgtool of bekijk het overzicht van alle zorggroepen.
             </p>
             <div class="mt-8 flex flex-wrap gap-3 text-sm text-slate-500 dark:text-slate-400">
               <div class="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 dark:border-slate-700 dark:bg-slate-950">Kaart, filters en postcode-logica</div>
-              <div class="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 dark:border-slate-700 dark:bg-slate-950">Work in progress modules</div>
+              <div class="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 dark:border-slate-700 dark:bg-slate-950">Overzicht van alle zorggroepen</div>
             </div>
           </div>
           <div class="grid gap-4 p-6 sm:p-8">
@@ -92,16 +92,6 @@
               </div>
               <div class="mt-6 inline-flex items-center gap-2 text-sm font-medium text-sky-700 dark:text-sky-300">Open zorgtool <span aria-hidden="true">-></span></div>
             </button>
-            <button id="openReferralTool" type="button" class="tool-card group rounded-[24px] border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg dark:border-slate-700 dark:from-slate-900 dark:to-slate-950">
-              <div class="flex items-start justify-between gap-3">
-                <div>
-                  <div class="text-lg font-semibold text-slate-900 dark:text-slate-100">Losse verwijzing tool</div>
-                  <div class="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">Volgende tool in opbouw voor losse verwijzingen, routering en vervolgacties.</div>
-                </div>
-                <div class="rounded-2xl bg-amber-100 px-3 py-2 text-sm font-medium text-amber-800 dark:bg-amber-950/40 dark:text-amber-300">Work in progress</div>
-              </div>
-              <div class="mt-6 inline-flex items-center gap-2 text-sm font-medium text-amber-700 dark:text-amber-300">Open tool <span aria-hidden="true">-></span></div>
-            </button>
             <a href="alle-zorggroepen.html" class="tool-card group rounded-[24px] border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg dark:border-slate-700 dark:from-slate-900 dark:to-slate-950">
               <div class="flex items-start justify-between gap-3">
                 <div>
@@ -113,38 +103,6 @@
               <div class="mt-6 inline-flex items-center gap-2 text-sm font-medium text-emerald-700 dark:text-emerald-300">Open kaart <span aria-hidden="true">-></span></div>
             </a>
           </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="wipView" class="mx-auto mt-8 mb-4 w-[96%] max-w-[980px]" hidden>
-      <div class="overflow-hidden rounded-[28px] border border-slate-200 bg-white/90 p-6 shadow-xl shadow-slate-900/5 backdrop-blur sm:p-8 dark:border-slate-700 dark:bg-slate-900/80">
-        <div class="inline-flex rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-medium uppercase tracking-[0.18em] text-amber-700 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-300">Projectstatus</div>
-        <h2 class="mt-4 text-2xl font-semibold text-slate-900 dark:text-slate-100">Losse verwijzing verwerken</h2>
-        <p class="mt-3 max-w-2xl text-sm leading-7 text-slate-600 sm:text-base dark:text-slate-300">
-          Deze tool krijgt een eigen workflow voor intake, routing en opvolging van losse verwijzingen. De functionele en technische uitwerking zit nu in de buildfase.
-        </p>
-
-        <div class="mt-8 grid gap-4 md:grid-cols-3">
-          <div class="rounded-2xl border border-sky-200 bg-sky-50 p-4 dark:border-sky-900 dark:bg-sky-950/30">
-            <div class="text-xs font-medium uppercase tracking-[0.18em] text-sky-700 dark:text-sky-300">Fase 1</div>
-            <div class="mt-2 text-lg font-semibold text-slate-900 dark:text-slate-100">Building</div>
-            <div class="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">Huidige fase. Flow, logica en schermopbouw worden nu gebouwd.</div>
-          </div>
-          <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
-            <div class="text-xs font-medium uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Fase 2</div>
-            <div class="mt-2 text-lg font-semibold text-slate-900 dark:text-slate-100">Testing</div>
-            <div class="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">Na de build volgt functioneel testen en finetuning van de workflow.</div>
-          </div>
-          <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
-            <div class="text-xs font-medium uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Fase 3</div>
-            <div class="mt-2 text-lg font-semibold text-slate-900 dark:text-slate-100">Deployment</div>
-            <div class="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">Daarna volgt livegang en overdracht naar de productie-omgeving.</div>
-          </div>
-        </div>
-
-        <div class="mt-6 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4 text-sm text-slate-600 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300">
-          ETA: volledige deployment verwacht op <strong>18 maart 2026</strong>.
         </div>
       </div>
     </section>
@@ -298,6 +256,6 @@
       }
     })();
   </script>
-  <script src="script/script.js?v=20260904-kennemerland-cz-dsw"></script>
+  <script src="script/script.js?v=20261001-kop-nh-kaart-nl"></script>
 </body>
 </html>

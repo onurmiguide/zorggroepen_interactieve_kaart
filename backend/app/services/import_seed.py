@@ -266,8 +266,8 @@ def _apply_zorggroep_corrections(db: Session) -> int:
 
     - "LCK" is geen zorggroep (dat zijn de leefstijlcoaches in Kennemerland); de
       juiste zorggroep is Kennemerland (HOZK/HZK). Hernoem de bestaande rij.
-    - West-Friesland-regio bijtrekken naar "Kop van Noord-Holland en West-Friesland"
-      als die nog op de oude standaardwaarde staat.
+    - "West-Friesland" heet voortaan "Kop van Noord-Holland" (zelfde gebied). Hernoem
+      de rij en zet postcode-uitzonderingen die nog naar de oude naam wijzen om.
     Bestaande, al gecorrigeerde of handmatig aangepaste rijen worden niet aangeraakt.
     """
     changed = 0
@@ -282,9 +282,21 @@ def _apply_zorggroep_corrections(db: Session) -> int:
         changed += 1
 
     wf = db.scalar(select(Zorggroep).where(Zorggroep.name == "West-Friesland"))
-    if wf is not None and wf.regio == "West-Friesland":
-        wf.regio = "Kop van Noord-Holland en West-Friesland"
+    has_kop = (
+        db.scalar(
+            select(func.count()).select_from(Zorggroep).where(Zorggroep.name == "Kop van Noord-Holland")
+        )
+        or 0
+    )
+    if wf is not None and not has_kop:
+        wf.name = "Kop van Noord-Holland"
+        if wf.regio in ("", "West-Friesland"):
+            wf.regio = "Kop van Noord-Holland en West-Friesland"
         changed += 1
+    for model in (PostcodeRangeOverride, PostcodeOverride):
+        for row in db.scalars(select(model).where(model.zorggroep == "West-Friesland")).all():
+            row.zorggroep = "Kop van Noord-Holland"
+            changed += 1
 
     # ESV = Eerstelijns Samenwerking Veenendaal; Veenendaal hoort er dus bij.
     esv = db.scalar(select(Zorggroep).where(Zorggroep.name == "ESV"))
@@ -427,11 +439,13 @@ def import_seed(db: Session) -> dict[str, int]:
     }
     # Additief: houd de verzekeraarslijst in sync ook als de tabel al geseed was.
     result["zorgverzekeraars_toegevoegd"] = _ensure_default_zorgverzekeraars(db)
+    # Datacorrecties op bestaande rijen (bijv. LCK -> Kennemerland, West-Friesland ->
+    # Kop van Noord-Holland). Vóór de postcode-sync, zodat hernoemde uitzonderingen
+    # niet nog een keer onder de nieuwe naam worden toegevoegd.
+    result["zorggroep_correcties"] = _apply_zorggroep_corrections(db)
     # Additief: houd de postcode-uitzonderingen in sync ook als de tabel al geseed was.
     result["postcode_exact_toegevoegd"] = _ensure_exact_postcode_overrides(db)
     result["postcode_ranges_toegevoegd"] = _ensure_postcode_ranges(db)
-    # Datacorrecties op bestaande rijen (bijv. LCK -> Kennemerland).
-    result["zorggroep_correcties"] = _apply_zorggroep_corrections(db)
     if db.get(AppMeta, "data_version") is None:
         set_data_version(db, "1")
     return result

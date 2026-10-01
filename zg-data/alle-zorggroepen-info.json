@@ -429,9 +429,9 @@
     {
       "name": "Huisartsenorganisatie West-Friesland",
       "website": "https://hwf.nl/",
-      "note": "Directe match met de huidige West-Friesland-regio.",
+      "note": "Directe match met de regio Kop van Noord-Holland (voorheen getoond als West-Friesland).",
       "mapsTo": [
-        "West-Friesland"
+        "Kop van Noord-Holland"
       ]
     },
     {

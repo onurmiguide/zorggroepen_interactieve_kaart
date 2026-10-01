@@ -1,6 +1,26 @@
 {
   "updates": [
     {
+      "date": "2026-10-01",
+      "title": "West-Friesland heet nu Kop van Noord-Holland",
+      "scope": "kaart",
+      "description": "De zorggroep die als 'West-Friesland' werd getoond, heet nu 'Kop van Noord-Holland'.",
+      "summary": [
+        "In de Zorgtool, op de zorggroepkaart en in de adminomgeving staat de zorggroep nu als 'Kop van Noord-Holland'.",
+        "Het gebied blijft hetzelfde, inclusief het postcodegebied 1600 t/m 1800 en 1870 t/m 1873. De facturatiemodule verandert niet."
+      ]
+    },
+    {
+      "date": "2026-10-01",
+      "title": "Kaarten blijven binnen Nederland",
+      "scope": "kaart",
+      "description": "De kaart van de Zorgtool en de zorggroepkaart zijn begrensd tot Nederland.",
+      "summary": [
+        "Je kunt niet meer wegschuiven naar de rest van de wereld; uitzoomen stopt zodra heel Nederland in beeld is.",
+        "Daardoor worden er ook minder kaarttegels geladen."
+      ]
+    },
+    {
       "date": "2026-09-04",
       "title": "Kennemerland met CZ of DSW loopt nu via ZoHealthy",
       "scope": "kaart",

@@ -2,7 +2,7 @@
 const AUTH_SESSION_KEY = "miguide_auth_ok";
 const AUTH_PASSWORD_FALLBACK = "MiGuide#2026!@";
 const ZORGGROEPEN_URL = "zg-data/zorggroepen.json";
-const POSTCODE_OVERRIDES_URL = "zg-data/postcode_overrides.json?v=20260812-poort-van-west-hoeven";
+const POSTCODE_OVERRIDES_URL = "zg-data/postcode_overrides.json?v=20261001-kop-van-noord-holland";
 
 // Online admin-backend (Render). De publieke kaart op Vercel leest hiervandaan de
 // live admin-data. Overschrijfbaar via window.MIGUIDE_ADMIN_API.
@@ -110,6 +110,10 @@ const PDOK_GEMEENTE_ITEMS_URL = "https://api.pdok.nl/kadaster/brk-bestuurlijke-g
 const PDOK_POSTCODE_WFS_URL = "https://service.pdok.nl/cbs/postcode6/2024/wfs/v1_0";
 const NL_DEFAULT_CENTER = [52.2, 5.3];
 const NL_DEFAULT_ZOOM = 8;
+// Kaart begrensd tot Nederland: NL_BOUNDS = heel Nederland (bepaalt hoe ver je kunt
+// uitzoomen), NL_MAX_BOUNDS = iets ruimer gebied waarbinnen je kunt schuiven.
+const NL_BOUNDS = [[50.75, 3.35], [53.56, 7.23]];
+const NL_MAX_BOUNDS = [[50.35, 2.75], [53.95, 7.85]];
 const THEME_STORAGE_KEY = "miguide_theme";
 const DEFAULT_ZORGVERZEKERAARS = [
   "a.s.r.",
@@ -236,6 +240,7 @@ const ZORGGROEP_DECLARATIESTROOM_FALLBACK = {
   "stroomz": "VIPLive",
   "postz": "VIPLive",
   "west friesland": "WAS BOARDS -> Via Declarant Optie Monter?",
+  "kop van noord holland": "WAS BOARDS -> Via Declarant Optie Monter?",
   "hwfriesland": "WAS BOARDS -> Via Declarant Optie Monter?",
   "zuid holland zuid": "Declaratiestromen per zorgverzekeraar",
   "unicum": "VIPLive - Op factuur achteraf",
@@ -294,7 +299,6 @@ const BESLISBOOM_ROUTE_BY_ZORGGROEP_2026 = new Map([
   ["esv", "esv"],
   ["zorggroep gezondheid amsterdam", "ga"],
   ["gezondheid amsterdam", "ga"],
-  ["lck", "lck"],
   ["hht hzgb", "no_contract"],
   ["zorggroep almere", "zorggroep"],
   ["almere", "zorggroep"],
@@ -305,6 +309,7 @@ const BESLISBOOM_ROUTE_BY_ZORGGROEP_2026 = new Map([
   ["zuid holland zuid", "zhz"],
   ["rijnmond dokters", "zorggroep"],
   ["west friesland", "zorggroep"],
+  ["kop van noord holland", "zorggroep"],
   ["ketenzorg friesland", "zorggroep"],
   ["zio", "zorggroep"],
   ["zorg in ontwikkeling", "zorggroep"],
@@ -344,7 +349,6 @@ const FACTURATIEMODULE_TEMPLATES = {
   "CoOL via ZORGVERZEKERAAR - via GA": "CoOL via zorgverzekeraar via GA-route. Specifieke module voor zorgverzekeraar-afhandeling via de GA-constructie.",
   "ESV": "CoOL-MiGuide via ESV. Declaraties voor deelnemers in de ESV-regio worden verwerkt via de ESV-facturatiemodule.",
   "Gezondheid Amsterdam (GA)": "CoOL-MiGuide via zorgverzekeraar voor de GA-regio. Declaraties van deelnemers in de GA-regio worden periodiek via een XML-bestand aangeleverd aan GA.",
-  "LCK": "CoOL-MiGuide via LCK. Declaraties voor deelnemers uit de LCK-regio worden verwerkt via de nieuwe LCK-facturatiemodule.",
   "MiGuide": "CoOL-MiGuide via zorgverzekeraar. Declaraties worden direct vanuit MiGuide gedeclareerd aan andere zorgverzekeraars (niet VGZ), conform contractafspraken.",
   "MiGuide - VGZ": "CoOL via zorgverzekeraar (VGZ). Declaraties worden direct aan VGZ gedeclareerd vanuit MiGuide, conform contract met VGZ.",
   "ZoHealthy": "CoOL via zorgverzekeraar via ZoHealthy. Declaraties lopen via ZoHealthy en de verkooptarieven van ZoHealthy worden gebruikt.",
@@ -358,7 +362,6 @@ const FACTURATIEMODULE_PRESTATIECODE = {
   "CoOL via ZORGVERZEKERAAR - via GA": "CoOL-MiGuide",
   "ESV": "CoOL-MiGuide",
   "Gezondheid Amsterdam (GA)": "CoOL-MiGuide",
-  "LCK": "CoOL-MiGuide",
   "MiGuide": "CoOL-MiGuide",
   "MiGuide - VGZ": "CoOL",
   "ZoHealthy": "CoOL",
@@ -369,8 +372,7 @@ const FACTURATIEMODULE_PRESTATIECODE = {
 
 const APP_VIEWS = {
   LANDING: "landing",
-  MAP: "map",
-  WIP: "wip"
+  MAP: "map"
 };
 
 const CITY_TO_GEMEENTE = {
@@ -516,8 +518,14 @@ function createMap() {
   if (map) {
     return;
   }
-  map = L.map("map").setView([52.1, 5.3], 8);
+  map = L.map("map", {
+    maxBounds: NL_MAX_BOUNDS,
+    maxBoundsViscosity: 1.0,
+    minZoom: 6
+  }).setView([52.1, 5.3], 8);
   applyMapTheme();
+  updateNetherlandsMinZoom();
+  map.on("resize", updateNetherlandsMinZoom);
 
   // Clicking the map background clears polygon selection and shows full result set again.
   map.on("click", () => {
@@ -537,6 +545,23 @@ function createMap() {
   map.on("zoomstart movestart mouseout", () => {
     closeActiveHoverTooltip();
   });
+}
+
+// Minimale zoom = het niveau waarop heel Nederland net in beeld past (afhankelijk van
+// de kaartgrootte), zodat je niet verder kunt uitzoomen naar Europa of de wereld.
+function updateNetherlandsMinZoom() {
+  if (!map) {
+    return;
+  }
+  const size = map.getSize();
+  if (!size.x || !size.y) {
+    return;
+  }
+  // getBoundsZoom rekent met de huidige minZoom; die eerst loslaten zodat de grens
+  // ook weer omlaag kan als de kaart kleiner wordt (bijv. telefoon of smal venster).
+  map.options.minZoom = 0;
+  const fitZoom = map.getBoundsZoom(NL_BOUNDS);
+  map.setMinZoom(Math.max(5, Math.min(fitZoom, NL_DEFAULT_ZOOM)));
 }
 
 function isDarkModeActive() {
@@ -617,12 +642,6 @@ function updateAppHeader(view) {
     return;
   }
 
-  if (view === APP_VIEWS.WIP) {
-    title.textContent = "Losse verwijzing tool";
-    subtitle.textContent = "Work in progress";
-    return;
-  }
-
   title.textContent = "MiGuide Zorg Tools";
   subtitle.textContent = "Kies een tool om verder te gaan";
 }
@@ -631,7 +650,6 @@ function showAppView(view) {
   currentAppView = view;
   const landingView = document.getElementById("landingView");
   const mapView = document.getElementById("kaartView");
-  const wipView = document.getElementById("wipView");
   const setVisible = (element, visible) => {
     if (!element) {
       return;
@@ -642,7 +660,6 @@ function showAppView(view) {
 
   setVisible(landingView, view === APP_VIEWS.LANDING);
   setVisible(mapView, view === APP_VIEWS.MAP);
-  setVisible(wipView, view === APP_VIEWS.WIP);
 
   updateAppHeader(view);
 
@@ -655,7 +672,6 @@ function showAppView(view) {
 
 function initLandingPage() {
   const openMapTool = document.getElementById("openMapTool");
-  const openReferralTool = document.getElementById("openReferralTool");
   const menuZorgtoolButton = document.getElementById("menuZorgtoolButton");
 
   const openZorgtool = async () => {
@@ -669,13 +685,6 @@ function initLandingPage() {
   if (openMapTool && !openMapTool.dataset.bound) {
     openMapTool.dataset.bound = "1";
     openMapTool.addEventListener("click", openZorgtool);
-  }
-
-  if (openReferralTool && !openReferralTool.dataset.bound) {
-    openReferralTool.dataset.bound = "1";
-    openReferralTool.addEventListener("click", () => {
-      window.location.href = "losse-verwijzing-tool/index.html";
-    });
   }
 
   if (menuZorgtoolButton && !menuZorgtoolButton.dataset.bound) {
@@ -1214,14 +1223,6 @@ function resolveDecisionTreeRouting2026(feature, insurerName = "") {
     return {
       routeType,
       moduleName: "ESV",
-      stroom: FACTURATIESTROMEN.STROOM_1
-    };
-  }
-
-  if (routeType === "lck") {
-    return {
-      routeType,
-      moduleName: "LCK",
       stroom: FACTURATIESTROMEN.STROOM_1
     };
   }

@@ -5,6 +5,10 @@ const ZORGGROEP_INFO_URL = "zg-data/alle-zorggroepen-info.json";
 const PDOK_GEMEENTE_ITEMS_URL = "https://api.pdok.nl/kadaster/brk-bestuurlijke-gebieden/ogc/v1/collections/gemeentegebied/items?f=json&limit=100";
 const NL_DEFAULT_CENTER = [52.2, 5.3];
 const NL_DEFAULT_ZOOM = 8;
+// Kaart begrensd tot Nederland: NL_BOUNDS = heel Nederland (bepaalt hoe ver je kunt
+// uitzoomen), NL_MAX_BOUNDS = iets ruimer gebied waarbinnen je kunt schuiven.
+const NL_BOUNDS = [[50.75, 3.35], [53.56, 7.23]];
+const NL_MAX_BOUNDS = [[50.35, 2.75], [53.95, 7.85]];
 const NO_CONTRACT_NAMES = new Set([
   "zuid holland zuid overig",
   "geen zorggroep contract",
@@ -963,12 +967,36 @@ function initMapFilterButtons() {
 }
 
 function createMap() {
-  map = L.map("allZorggroepenMap", { closePopupOnClick: true }).setView(NL_DEFAULT_CENTER, NL_DEFAULT_ZOOM);
+  map = L.map("allZorggroepenMap", {
+    closePopupOnClick: true,
+    maxBounds: NL_MAX_BOUNDS,
+    maxBoundsViscosity: 1.0,
+    minZoom: 6
+  }).setView(NL_DEFAULT_CENTER, NL_DEFAULT_ZOOM);
   applyMapTheme();
+  updateNetherlandsMinZoom();
+  map.on("resize", updateNetherlandsMinZoom);
 
   map.on("popupclose", () => {
     activeInfoPopup = null;
   });
+}
+
+// Minimale zoom = het niveau waarop heel Nederland net in beeld past (afhankelijk van
+// de kaartgrootte), zodat je niet verder kunt uitzoomen naar Europa of de wereld.
+function updateNetherlandsMinZoom() {
+  if (!map) {
+    return;
+  }
+  const size = map.getSize();
+  if (!size.x || !size.y) {
+    return;
+  }
+  // getBoundsZoom rekent met de huidige minZoom; die eerst loslaten zodat de grens
+  // ook weer omlaag kan als de kaart kleiner wordt (bijv. telefoon of smal venster).
+  map.options.minZoom = 0;
+  const fitZoom = map.getBoundsZoom(NL_BOUNDS);
+  map.setMinZoom(Math.max(5, Math.min(fitZoom, NL_DEFAULT_ZOOM)));
 }
 
 function initGlobalPopupDismiss() {
