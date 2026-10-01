@@ -233,3 +233,13 @@ PLACE_ALIASES_SEED: list[tuple[str, str]] = [
     ("Hoekse Waard", "Hoeksche Waard"),
     ("Friesland", ""),
 ]
+
+# Gemeente bij meerdere zorggroepen: wie krijgt hem (spiegel van script/script.js).
+OVERLAP_GEMEENTE_OWNER_OVERRIDES: dict[str, str] = {
+    "Baarn": "RHOGO (Regionale Huisartsen Organisatie Gooi en Omstreken BV)",
+    "Soest": "Eemland",
+    "Utrechtse Heuvelrug": "UNICUM",
+    "Beekdaelen": "HOZL",
+}
+# Gemeenten die bewust bij meerdere zorggroepen tegelijk horen.
+ALLOWED_OVERLAP_GEMEENTEN: list[str] = ["Leidschendam-Voorburg", "Ede"]

@@ -222,6 +222,20 @@ class PlaceAlias(Base, TimestampMixin):
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 
 
+class Pc4Gemeente(Base):
+    """Referentiedata: in welke gemeente(n) een PC4 ligt (aantal PC6 per gemeente).
+
+    Gevuld uit zg-data/pc4_gemeenten.json; gebruikt voor het automatische PC4-overzicht.
+    """
+
+    __tablename__ = "pc4_gemeenten"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    pc4: Mapped[str] = mapped_column(String(4), index=True, nullable=False)
+    gemeente: Mapped[str] = mapped_column(String(200), nullable=False)
+    pc6_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+
+
 class AppMeta(Base):
     """Eenvoudige key/value tabel, o.a. voor data_version van de publieke kaart."""
 

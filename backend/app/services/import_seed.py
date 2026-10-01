@@ -14,6 +14,7 @@ from ..models import (
     AppMeta,
     Facturatiestroom,
     LocationPostcodeOverride,
+    Pc4Gemeente,
     PlaceAlias,
     PostcodeOverride,
     PostcodeRangeOverride,
@@ -521,6 +522,34 @@ def _ensure_woonplaatsen(db: Session) -> int:
     return added
 
 
+def _ensure_pc4_gemeenten(db: Session) -> int:
+    """Vult de referentietabel pc4_gemeenten uit zg-data/pc4_gemeenten.json.
+
+    Alleen opnieuw als de 'versie' in het bestand verandert (na fetch_pc4_gemeenten.py).
+    """
+    path = settings.zorggroepen_seed_path.with_name("pc4_gemeenten.json")
+    if not path.exists():
+        return 0
+    data = json.loads(path.read_text(encoding="utf-8"))
+    versie = str(data.get("versie") or "")
+    meta = db.get(AppMeta, "pc4_gemeenten_versie")
+    if meta is not None and meta.value == versie:
+        return 0
+    db.query(Pc4Gemeente).delete()
+    rows = [
+        {"pc4": pc4, "gemeente": gemeente, "pc6_count": int(count)}
+        for pc4, gemeenten in (data.get("pc4") or {}).items()
+        for gemeente, count in gemeenten.items()
+    ]
+    db.bulk_insert_mappings(Pc4Gemeente, rows)
+    if meta is None:
+        db.add(AppMeta(key="pc4_gemeenten_versie", value=versie))
+    else:
+        meta.value = versie
+    db.commit()
+    return len(rows)
+
+
 def ensure_seed_admin(db: Session) -> bool:
     """Maak bij de allereerste start een super_admin aan uit env-variabelen.
 
@@ -570,6 +599,7 @@ def import_seed(db: Session) -> dict[str, int]:
     result["postcode_ranges_toegevoegd"] = _ensure_postcode_ranges(db)
     result["plaatsnamen_toegevoegd"] = _ensure_place_aliases(db)
     result["woonplaatsen_toegevoegd"] = _ensure_woonplaatsen(db)
+    result["pc4_gemeenten_geladen"] = _ensure_pc4_gemeenten(db)
     if db.get(AppMeta, "data_version") is None:
         set_data_version(db, "1")
     return result

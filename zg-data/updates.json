@@ -2,6 +2,17 @@
   "updates": [
     {
       "date": "2026-10-01",
+      "title": "Overzicht van alle gecontracteerde postcodes (PC4) in de adminomgeving",
+      "scope": "website",
+      "description": "Onder Postcodes > Postcode-ranges (PC4) staat nu een overzicht van alle gecontracteerde PC4-gebieden per zorggroep.",
+      "summary": [
+        "Het overzicht wordt automatisch berekend uit de plaatsen van elke zorggroep en de uitzonderingen, en verandert vanzelf mee als je die aanpast.",
+        "Zoek op een postcode (bijv. 3012) om te zien bij welke zorggroep die hoort.",
+        "De bewerkbare uitzonderingen staan onder de knop 'Uitzonderingen (bewerkbaar)'."
+      ]
+    },
+    {
+      "date": "2026-10-01",
       "title": "Adminomgeving werkt ook met een adblocker",
       "scope": "website",
       "description": "Met een adblocker (zoals AdBlock) bleven de tabellen in de adminomgeving leeg. Dat is opgelost.",

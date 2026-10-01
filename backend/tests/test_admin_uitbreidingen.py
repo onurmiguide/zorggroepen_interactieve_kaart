@@ -85,6 +85,30 @@ def test_plaatsnaam_zonder_gemeente_mag(auth_client: TestClient) -> None:
     assert auth_client.delete(f"/api/admin/place-aliases/{created.json()['id']}").status_code == 200
 
 
+def test_pc4_overzicht_bevat_alle_gecontracteerde_ranges(auth_client: TestClient) -> None:
+    resp = auth_client.get("/api/admin/postcode-overrides/ranges/overzicht")
+    assert resp.status_code == 200, resp.text
+    rows = resp.json()["ranges"]
+
+    def zorggroepen_voor(pc4: str) -> set[str]:
+        return {r["zorggroep"] for r in rows if pc4 in r["pc4s"].split()}
+
+    assert zorggroepen_voor("3012") == {"Rijnmond dokters"}  # Rotterdam, via de plaatsen
+    assert "HOOG" not in {r["zorggroep"] for r in rows}  # geen contract -> niet in het overzicht
+    assert any(r["zorggroep"] == "Eemland" and "Uitzondering" in r["bron"] for r in rows)
+    assert any(r["zorggroep"] == "ZHZ CZ" and r["alleen_voor"] == "CZ" for r in rows)
+
+
+def test_pc4_overzicht_volgt_contractstatus(auth_client: TestClient) -> None:
+    zg = next(z for z in auth_client.get("/api/admin/zorggroepen").json() if z["name"] == "Rijnmond dokters")
+    try:
+        assert auth_client.put(f"/api/admin/zorggroepen/{zg['id']}", json={"has_contract": False}).status_code == 200
+        rows = auth_client.get("/api/admin/postcode-overrides/ranges/overzicht").json()["ranges"]
+        assert all(r["zorggroep"] != "Rijnmond dokters" for r in rows)
+    finally:
+        auth_client.put(f"/api/admin/zorggroepen/{zg['id']}", json={"has_contract": True})
+
+
 def test_nieuwe_verzekeraar_verschijnt_in_publieke_lijst(auth_client: TestClient) -> None:
     resp = auth_client.post("/api/admin/zorgverzekeraars", json={"name": "Testverzekeraar", "concern_key": "cz"})
     assert resp.status_code == 201, resp.text

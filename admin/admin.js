@@ -739,11 +739,50 @@
       });
       t._rowAction = (a, r) => { if (a === "edit") exactForm(loadSub, r); else if (a === "delete") deleteSimple(`${PC_BASE}/exact/${r.id}`, `postcode ${r.postcode6}`, loadSub); };
     }
+    // PC4-tab: automatisch overzicht van alle gecontracteerde ranges, of de bewerkbare uitzonderingen.
+    let rangesView = "overzicht";
     async function loadRanges() {
+      const toggle = document.createElement("div");
+      toggle.className = "mb-3 flex flex-wrap gap-2";
+      [["overzicht", "Alle gecontracteerde ranges"], ["uitzonderingen", "Uitzonderingen (bewerkbaar)"]].forEach(([id, label]) => {
+        toggle.appendChild(makeButton(label, rangesView === id ? "zga-btn-primary" : "zga-btn-ghost", () => { rangesView = id; loadSub(); }));
+      });
+      const body = document.createElement("div");
+      if (rangesView === "overzicht") await loadRangeOverview(body); else await loadRangeExceptions(body);
+      host.innerHTML = ""; host.appendChild(toggle); host.appendChild(body);
+    }
+    async function loadRangeOverview(target) {
+      const data = await api.get(`${PC_BASE}/ranges/overzicht`);
+      const rows = data.ranges || [];
+      const uitleg = document.createElement("p");
+      uitleg.className = "mb-2 text-sm text-slate-500 dark:text-slate-400";
+      uitleg.textContent = `Automatisch berekend uit de plaatsen van elke gecontracteerde zorggroep (plaats → gemeente → alle PC4's in die gemeente), plus de uitzonderingen. Pas je plaatsen of uitzonderingen aan, dan verandert dit overzicht vanzelf mee. Zoek op een PC4 (bijv. 3012) om te zien bij welke zorggroep die hoort. Losse PC6-uitzonderingen gaan hier nog vóór.`;
+      target.appendChild(uitleg);
+      const missing = Object.entries(data.niet_gekoppelde_plaatsen || {});
+      if (missing.length) {
+        const warn = document.createElement("p");
+        warn.className = "mb-2 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800 dark:bg-amber-950/40 dark:text-amber-200";
+        warn.textContent = "Plaatsen zonder gemeente (tellen niet mee): " + missing.map(([zg, plaatsen]) => `${zg}: ${plaatsen.join(", ")}`).join(" · ");
+        target.appendChild(warn);
+      }
+      const t = document.createElement("div"); target.appendChild(t);
+      DataTable(t, {
+        columns: [
+          { key: "zorggroep", label: "Zorggroep", sortable: true, render: (r) => escapeHtml(r.zorggroep) + (r.alleen_voor ? ` <span class="zga-badge zga-badge-blue">alleen ${escapeHtml(r.alleen_voor)}</span>` : "") },
+          { key: "start_pc4", label: "Van", sortable: true },
+          { key: "end_pc4", label: "Tot en met", sortable: true },
+          { key: "aantal_pc4", label: "Aantal PC4", sortable: true },
+          { key: "gemeenten", label: "Gemeente(n)", render: (r) => escapeHtml(r.gemeenten) },
+          { key: "bron", label: "Bron", sortable: true },
+          { key: "deels", label: "Deels in gebied", render: (r) => (r.deels ? `<span class="text-xs text-amber-700 dark:text-amber-300">${escapeHtml(r.deels)}</span>` : "") },
+        ], rows, searchKeys: ["zorggroep", "gemeenten", "pc4s", "alleen_voor"], searchPlaceholder: "Zoek PC4, zorggroep of gemeente...", limit: 300,
+      });
+    }
+    async function loadRangeExceptions(target) {
       const rows = await api.get(`${PC_BASE}/ranges`);
       const bar = topBar("", canEdit() ? () => rangeForm(loadSub, null) : null, "Nieuwe range");
-      host.innerHTML = ""; host.appendChild(bar);
-      const t = document.createElement("div"); host.appendChild(t);
+      target.appendChild(bar);
+      const t = document.createElement("div"); target.appendChild(t);
       DataTable(t, {
         columns: [
           { key: "start_pc4", label: "Van", sortable: true },

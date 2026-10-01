@@ -29,6 +29,7 @@ from ..schemas import (
 from ..security import require_editor
 from ..services import audit_service
 from ..services.import_seed import set_data_version
+from ..services.pc4_overview import build_pc4_overview
 
 router = APIRouter(prefix="/api/admin/postcode-overrides", tags=["admin:postcodes"])
 
@@ -200,6 +201,12 @@ def _range_out(o: PostcodeRangeOverride) -> dict:
 @router.get("/ranges", response_model=list[RangeOverrideOut])
 def list_ranges(db: Session = Depends(get_db), user: User = Depends(require_editor)) -> list[dict]:
     return [_range_out(o) for o in db.scalars(select(PostcodeRangeOverride).order_by(PostcodeRangeOverride.start_pc4)).all()]
+
+
+@router.get("/ranges/overzicht")
+def ranges_overview(db: Session = Depends(get_db), user: User = Depends(require_editor)) -> dict:
+    """Alle gecontracteerde PC4-ranges per zorggroep, berekend uit plaatsen + uitzonderingen."""
+    return build_pc4_overview(db)
 
 
 @router.post("/ranges", response_model=RangeOverrideOut, status_code=201)
