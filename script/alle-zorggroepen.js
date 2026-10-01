@@ -2,6 +2,47 @@
 const THEME_STORAGE_KEY = "miguide_theme";
 const ZORGGROEPEN_URL = "zg-data/zorggroepen.json";
 const ZORGGROEP_INFO_URL = "zg-data/alle-zorggroepen-info.json";
+
+// Actuele zorggroepen uit de admin-API (zelfde vorm als zorggroepen.json), zodat deze
+// kaart dezelfde data toont als de Zorgtool. Valt terug op het JSON-bestand als de API
+// niet (op tijd) reageert.
+const PUBLIC_API_BASE = (function resolvePublicApiBase() {
+  const loc = window.location;
+  const isLocalHost = loc.hostname === "127.0.0.1" || loc.hostname === "localhost";
+  if (loc.protocol === "file:") return "http://127.0.0.1:8000";
+  if (isLocalHost && loc.port !== "8000") return "http://127.0.0.1:8000";
+  return "";
+})();
+
+async function fetchZorggroepenData() {
+  try {
+    const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
+    const timer = controller ? setTimeout(() => controller.abort(), 4500) : null;
+    try {
+      const response = await fetch(`${PUBLIC_API_BASE}/api/public/zorggroepen`, {
+        headers: { Accept: "application/json" },
+        signal: controller ? controller.signal : undefined
+      });
+      if (response.ok) {
+        const data = await response.json();
+        if (data && Array.isArray(data.zorggroepen) && data.zorggroepen.length) {
+          return data;
+        }
+      }
+    } finally {
+      if (timer) {
+        clearTimeout(timer);
+      }
+    }
+  } catch (error) {
+    // API niet bereikbaar -> stil terugvallen op het JSON-bestand.
+  }
+  const fallback = await fetch(ZORGGROEPEN_URL);
+  if (!fallback.ok) {
+    throw new Error(`zorggroepen.json laden mislukt (${fallback.status})`);
+  }
+  return fallback.json();
+}
 const PDOK_GEMEENTE_ITEMS_URL = "https://api.pdok.nl/kadaster/brk-bestuurlijke-gebieden/ogc/v1/collections/gemeentegebied/items?f=json&limit=100";
 const NL_DEFAULT_CENTER = [52.2, 5.3];
 const NL_DEFAULT_ZOOM = 8;
@@ -1042,20 +1083,16 @@ async function init() {
   createMap();
 
   try {
-    const [zorggroepResponse, infoResponse, gemeenteFeatures] = await Promise.all([
-      fetch(ZORGGROEPEN_URL),
+    const [zorggroepData, infoResponse, gemeenteFeatures] = await Promise.all([
+      fetchZorggroepenData(),
       fetch(ZORGGROEP_INFO_URL),
       fetchAllGemeenteFeatures()
     ]);
 
-    if (!zorggroepResponse.ok) {
-      throw new Error(`zorggroepen.json laden mislukt (${zorggroepResponse.status})`);
-    }
     if (!infoResponse.ok) {
       throw new Error(`alle-zorggroepen-info.json laden mislukt (${infoResponse.status})`);
     }
 
-    const zorggroepData = await zorggroepResponse.json();
     const infoData = await infoResponse.json();
     const zorggroepen = Array.isArray(zorggroepData.zorggroepen) ? zorggroepData.zorggroepen : [];
     const infoEntries = Array.isArray(infoData.entries) ? infoData.entries : [];

@@ -1,6 +1,7 @@
 """Centrale configuratie, gelezen uit environment variables / optioneel .env."""
 from __future__ import annotations
 
+import hashlib
 import os
 from functools import lru_cache
 from pathlib import Path
@@ -43,17 +44,23 @@ DEFAULT_ALLOWED_ORIGINS = [
 ]
 
 
+def is_serverless() -> bool:
+    """True als de backend als Vercel-functie draait (Vercel zet VERCEL=1)."""
+    return bool(os.getenv("VERCEL"))
+
+
 class Settings:
     def __init__(self) -> None:
-        self.jwt_secret: str = os.getenv("ADMIN_JWT_SECRET", "dev-only-insecure-secret-change-me")
+        # Externe database (Neon PostgreSQL) via DATABASE_URL; anders lokaal SQLite.
+        self.database_url_env = os.getenv("DATABASE_URL", "").strip()
+
+        self.jwt_secret: str = self._resolve_jwt_secret()
         self.jwt_algorithm: str = "HS256"
         self.session_minutes: int = int(os.getenv("ADMIN_SESSION_MINUTES", "480"))
         self.cookie_name: str = "miguide_admin_session"
-        # Cookie alleen 'secure' in productie; lokaal over http moet dat uit.
-        self.cookie_secure: bool = os.getenv("ADMIN_COOKIE_SECURE", "false").lower() == "true"
-
-        # Externe database (bijv. Render PostgreSQL) via DATABASE_URL; anders lokaal SQLite.
-        self.database_url_env = os.getenv("DATABASE_URL", "").strip()
+        # Cookie alleen 'secure' (alleen via https) online; lokaal over http moet dat uit.
+        default_secure = "true" if is_serverless() else "false"
+        self.cookie_secure: bool = os.getenv("ADMIN_COOKIE_SECURE", default_secure).lower() == "true"
 
         db_path_env = os.getenv("ADMIN_DB_PATH", "").strip()
         if db_path_env:
@@ -65,6 +72,20 @@ class Settings:
 
         self.zorggroepen_seed_path = REPO_ROOT / "zg-data" / "zorggroepen.json"
         self.postcode_overrides_seed_path = REPO_ROOT / "zg-data" / "postcode_overrides.json"
+
+    def _resolve_jwt_secret(self) -> str:
+        """Sleutel waarmee sessie-tokens worden ondertekend.
+
+        Voorkeur: ADMIN_JWT_SECRET. Online zonder eigen sleutel leiden we er een af
+        van de (geheime) database-URL, zodat nooit de publiek bekende dev-sleutel
+        wordt gebruikt. Wie de database-URL kent, heeft sowieso al volledige toegang.
+        """
+        explicit = os.getenv("ADMIN_JWT_SECRET", "").strip()
+        if explicit:
+            return explicit
+        if self.database_url_env:
+            return hashlib.sha256(f"miguide-admin-jwt|{self.database_url_env}".encode("utf-8")).hexdigest()
+        return "dev-only-insecure-secret-change-me"
 
     @property
     def is_sqlite(self) -> bool:

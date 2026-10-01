@@ -4,12 +4,9 @@ const AUTH_PASSWORD_FALLBACK = "MiGuide#2026!@";
 const ZORGGROEPEN_URL = "zg-data/zorggroepen.json";
 const POSTCODE_OVERRIDES_URL = "zg-data/postcode_overrides.json?v=20261001-kop-van-noord-holland";
 
-// Online admin-backend (Render). De publieke kaart op Vercel leest hiervandaan de
-// live admin-data. Overschrijfbaar via window.MIGUIDE_ADMIN_API.
-const ADMIN_ONLINE_BASE = "https://miguide-admin.onrender.com";
-
 // Admin public API: de kaart probeert eerst de actuele data uit de admin-backend
-// te laden en valt terug op het statische JSON-bestand als de backend niet draait.
+// te laden en valt terug op het statische JSON-bestand als de backend niet reageert.
+// Online draait de API op dezelfde website (Vercel-functie + Neon-database).
 const PUBLIC_API_BASE = (function resolvePublicApiBase() {
   if (typeof window !== "undefined" && window.MIGUIDE_ADMIN_API !== undefined) {
     return String(window.MIGUIDE_ADMIN_API).replace(/\/$/, "");
@@ -17,14 +14,13 @@ const PUBLIC_API_BASE = (function resolvePublicApiBase() {
   const loc = window.location;
   const isLocalHost = loc.hostname === "127.0.0.1" || loc.hostname === "localhost";
   if (loc.protocol === "file:") return "http://127.0.0.1:8000";
-  if (loc.port === "8000") return ""; // same-origin: backend serveert de site zelf
-  if (isLocalHost) return "http://127.0.0.1:8000"; // bijv. Live Server op :5500
-  return ADMIN_ONLINE_BASE; // productie (Vercel): lees live van de online admin-backend
+  if (isLocalHost && loc.port !== "8000") return "http://127.0.0.1:8000"; // bijv. Live Server op :5500
+  return ""; // same-origin: lokaal op :8000 en online op Vercel
 })();
 
-// Korte timeout voor de online API: een gratis Render-service "slaapt" na inactiviteit
-// (koude start ~50s). We wachten niet zo lang, maar vallen snel terug op de statische
-// JSON. De afgebroken aanvraag wekt Render alsnog, dus een herlaad toont de live data.
+// Korte timeout voor de API: de Neon-database slaapt na 5 minuten en wordt meestal
+// binnen een seconde wakker. Reageert de API toch niet op tijd, dan valt de kaart
+// snel terug op de statische JSON in plaats van te blijven wachten.
 const PUBLIC_API_TIMEOUT_MS = 4500;
 
 function fetchWithTimeout(url, options = {}, timeoutMs = PUBLIC_API_TIMEOUT_MS) {

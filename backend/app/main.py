@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from contextlib import asynccontextmanager
+from urllib.parse import parse_qsl, urlencode
 
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -10,7 +11,7 @@ from fastapi.staticfiles import StaticFiles
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from .config import REPO_ROOT, get_settings
+from .config import REPO_ROOT, get_settings, is_serverless
 from .db import SessionLocal, get_db, init_db
 from .models import (
     AuditLog,
@@ -40,13 +41,17 @@ settings = get_settings()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    init_db()
-    db = SessionLocal()
-    try:
-        import_seed(db)
-        ensure_seed_admin(db)
-    finally:
-        db.close()
+    # Lokaal: database automatisch klaarzetten en synchroniseren met zg-data.
+    # Online (Vercel, serverless) niet bij elke koude start - dat zou elke eerste
+    # aanvraag vertragen; daarvoor draai je bewust backend/scripts/sync_database.py.
+    if not is_serverless():
+        init_db()
+        db = SessionLocal()
+        try:
+            import_seed(db)
+            ensure_seed_admin(db)
+        finally:
+            db.close()
     yield
 
 
@@ -60,6 +65,39 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+class RestoreVercelRewritePath:
+    """Vercel stuurt /api/auth|public|admin/* via een rewrite naar de functie
+    api/admin_api.py (zie vercel.json), met het originele pad in ?__zg_path=.
+    Komt alleen het functiepad binnen, dan zetten we het originele pad terug; de
+    hulpparameter verdwijnt altijd. Routes doen zelf hun autorisatie, dus dit geeft
+    geen extra toegang."""
+
+    _PREFIXES = ("/api/auth/", "/api/public/", "/api/admin/")
+
+    def __init__(self, app):
+        self.app = app
+
+    async def __call__(self, scope, receive, send):
+        if scope.get("type") == "http":
+            query = parse_qsl(scope.get("query_string", b"").decode("latin-1"), keep_blank_values=True)
+            original = next((value for key, value in query if key == "__zg_path"), None)
+            if original is not None:
+                scope = dict(scope)
+                rest = [(key, value) for key, value in query if key != "__zg_path"]
+                scope["query_string"] = urlencode(rest).encode("latin-1")
+                if (
+                    not scope.get("path", "").startswith(self._PREFIXES)
+                    and original.startswith(self._PREFIXES)
+                    and ".." not in original
+                ):
+                    scope["path"] = original
+                    scope["raw_path"] = original.encode("utf-8")
+        await self.app(scope, receive, send)
+
+
+app.add_middleware(RestoreVercelRewritePath)
 
 
 # ---- API routers ----

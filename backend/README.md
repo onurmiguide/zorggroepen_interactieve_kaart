@@ -122,39 +122,38 @@ Na de deploy van die branch werkt de live site bij.
 - Pushen vereist dat git op deze machine toegang heeft tot de repo (credential helper
   of token).
 
-## Online hosten (Render + PostgreSQL)
+## Online hosten (Vercel + Neon)
 
-De admin draait online als je een host met een continu proces + een blijvende
-database gebruikt. SQLite/local werkt niet op Vercel (geen blijvend bestandssysteem).
+Online draait alles op **Vercel**: de website, de admin (`/admin/`) én de API als
+Python-functie (`api/admin_api.py`). De database is een gratis **Neon PostgreSQL**
+(regio Frankfurt). `vercel.json` stuurt `/api/auth/*`, `/api/public/*` en
+`/api/admin/*` naar de functie en laat de functies in Frankfurt (`fra1`) draaien.
 
-**Stappen op [render.com](https://render.com):**
+**Instellingen in Vercel (Settings → Environment Variables):**
+- `DATABASE_URL` = het Neon-verbindingsadres (met connection pooling). Verplicht.
+- `ADMIN_JWT_SECRET` = optioneel; zonder eigen sleutel wordt er een geheime sleutel
+  afgeleid van `DATABASE_URL` (nooit de publieke dev-sleutel).
+- `ADMIN_COOKIE_SECURE` hoeft niet: online staat dit automatisch aan.
 
-1. **New → Blueprint**, kies deze repo. Render leest `render.yaml` en maakt:
-   - een **PostgreSQL**-database (`miguide-admin-db`), en
-   - een **Web Service** (`miguide-admin`) die `uvicorn backend.app.main:app` draait.
-   (Of handmatig: New → PostgreSQL, en New → Web Service met dezelfde build/start commands.)
-2. Zet in het Render-dashboard de variabele **`SEED_ADMIN_PASSWORD`** (een sterk
-   wachtwoord). De andere env-vars vult de blueprint in:
-   - `DATABASE_URL` (automatisch uit de database)
-   - `ADMIN_JWT_SECRET` (automatisch gegenereerd)
-   - `ADMIN_COOKIE_SECURE=true`, `ADMIN_ALLOWED_ORIGINS` (je Vercel-domein),
-     `SEED_ADMIN_EMAIL`, `SEED_ADMIN_NAME`.
-3. Deploy. Bij de eerste start worden de data geseed (zorggroepen, verzekeraars,
-   facturatie, postcodes) en wordt de **eerste super_admin** aangemaakt uit
-   `SEED_ADMIN_EMAIL` + `SEED_ADMIN_PASSWORD`.
-4. Open `https://<jouw-service>.onrender.com/admin/` en log in. De admin-UI én API
-   draaien same-origin, dus de veilige sessie-cookie werkt meteen.
+**Database vullen / bijwerken** (online gebeurt dit niet bij elke koude start):
+
+```powershell
+# backend/.env (staat in .gitignore): NEON_DATABASE_URL=... en NEON_SEED_ADMIN_PASSWORD=...
+python backend\scripts\sync_database.py --neon
+```
+
+Het script maakt de tabellen aan, synchroniseert met `zg-data` (idempotent) en maakt
+bij een lege gebruikerstabel de eerste super_admin aan (`admin@miguide.nl`, wachtwoord
+uit `NEON_SEED_ADMIN_PASSWORD`). Draai het opnieuw na wijzigingen in `zg-data` of in
+het datamodel.
 
 **Let op:**
-- De gratis Render-service "slaapt" na inactiviteit; de eerste aanvraag daarna duurt
-  even (koude start).
-- De **Publiceren-knop** (commit/push naar GitHub) is bedoeld voor lokaal gebruik;
-  op de hosted omgeving heeft die geen git-toegang. De online admin schrijft gewoon
-  naar de database.
-- Wil je dat de publieke kaart (Vercel) live de online data leest, zet dan op de
-  kaartpagina `window.MIGUIDE_ADMIN_API = "https://<jouw-service>.onrender.com"`.
-  Anders blijft de kaart de `zg-data` JSON gebruiken (en kun je die met de
-  Publiceren-knop lokaal bijwerken).
+- De **Publiceren-knop** (commit/push naar GitHub) werkt alleen lokaal; online is er
+  geen git. De online admin schrijft direct naar de database en de kaart leest die live.
+- Lokale ontwikkeling en tests gebruiken gewoon SQLite (`NEON_DATABASE_URL` wordt
+  bewust niet als `DATABASE_URL` gebruikt).
+- Gratis Neon slaapt na 5 minuten en is meestal binnen een seconde weer wakker; de
+  kaart valt na 4,5 s terug op de `zg-data` JSON als de API niet op tijd reageert.
 
 ## Rollen
 

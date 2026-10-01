@@ -10,13 +10,19 @@ from .config import get_settings
 
 settings = get_settings()
 
-engine = create_engine(
-    settings.database_url,
+if settings.is_sqlite:
     # check_same_thread is alleen voor SQLite; PostgreSQL accepteert dit niet.
-    connect_args={"check_same_thread": False} if settings.is_sqlite else {},
-    pool_pre_ping=not settings.is_sqlite,
-    future=True,
-)
+    _engine_kwargs = {"connect_args": {"check_same_thread": False}}
+else:
+    # PostgreSQL (Neon): verbindingen controleren/vernieuwen (Neon slaapt na 5 min) en
+    # geen server-side prepared statements, want die verstoren de connection pooler.
+    _engine_kwargs = {
+        "pool_pre_ping": True,
+        "pool_recycle": 300,
+        "connect_args": {"prepare_threshold": None},
+    }
+
+engine = create_engine(settings.database_url, future=True, **_engine_kwargs)
 
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False, future=True)
 

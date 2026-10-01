@@ -2,6 +2,13 @@
   "updates": [
     {
       "date": "2026-10-01",
+      "title": "Adminomgeving werkt weer",
+      "scope": "website",
+      "description": "De adminomgeving werkt weer.",
+      "summary": []
+    },
+    {
+      "date": "2026-10-01",
       "title": "West-Friesland heet nu Kop van Noord-Holland",
       "scope": "kaart",
       "description": "De zorggroep die als 'West-Friesland' werd getoond, heet nu 'Kop van Noord-Holland'.",

@@ -402,7 +402,7 @@ def _ensure_postcode_ranges(db: Session) -> int:
 def ensure_seed_admin(db: Session) -> bool:
     """Maak bij de allereerste start een super_admin aan uit env-variabelen.
 
-    Handig voor online hosting (Render): zet SEED_ADMIN_EMAIL en SEED_ADMIN_PASSWORD
+    Gebruikt door backend/scripts/sync_database.py (online: Neon): zet SEED_ADMIN_EMAIL en SEED_ADMIN_PASSWORD
     als environment variables; bij een lege gebruikerstabel wordt de admin aangemaakt.
     Lokaal gebruik je gewoon scripts/seed_admin.py.
     """

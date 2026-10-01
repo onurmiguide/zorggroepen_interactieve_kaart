@@ -61,7 +61,10 @@
   const ROLE_LABELS = { viewer: "Alleen lezen", editor: "Bewerker", admin: "Admin", super_admin: "Super admin" };
   const ROLE_LEVEL = { viewer: 1, editor: 2, admin: 3, super_admin: 4 };
   function canEdit() { return (ROLE_LEVEL[state.user?.role] || 0) >= 2; }
-  function canPublish() { return (ROLE_LEVEL[state.user?.role] || 0) >= 3; }
+  // Publiceren naar GitHub kan alleen lokaal (online is er geen git); online worden
+  // wijzigingen direct in de database opgeslagen en zijn ze meteen live.
+  function isLocalAdmin() { return ["localhost", "127.0.0.1"].includes(window.location.hostname); }
+  function canPublish() { return isLocalAdmin() && (ROLE_LEVEL[state.user?.role] || 0) >= 3; }
   function isSuperAdmin() { return state.user?.role === "super_admin"; }
 
   // ---------------- Modal ----------------

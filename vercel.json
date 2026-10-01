@@ -1,8 +1,14 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "regions": ["fra1"],
   "functions": {
     "api/**/*.py": {
-      "excludeFiles": "{.git/**,css/**,imageonline/**,script/**,scripts/**,zg-data/**,**/__pycache__/**,**/*.pyc,frontend-server*.log,losse-verwijzing-tool/backend-server*.log}"
+      "excludeFiles": "{.git/**,css/**,imageonline/**,script/**,scripts/**,zg-data/**,backend/tests/**,**/__pycache__/**,**/*.pyc,frontend-server*.log,losse-verwijzing-tool/backend-server*.log}"
     }
-  }
+  },
+  "rewrites": [
+    { "source": "/api/auth/:path*", "destination": "/api/admin_api?__zg_path=/api/auth/:path*" },
+    { "source": "/api/public/:path*", "destination": "/api/admin_api?__zg_path=/api/public/:path*" },
+    { "source": "/api/admin/:path*", "destination": "/api/admin_api?__zg_path=/api/admin/:path*" }
+  ]
 }

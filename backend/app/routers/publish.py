@@ -2,9 +2,10 @@
 (optioneel) commit + push naar GitHub. Vereist rol admin of hoger."""
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
+from ..config import is_serverless
 from ..db import get_db
 from ..models import User
 from ..security import require_admin
@@ -28,6 +29,14 @@ def do_publish(
     db: Session = Depends(get_db),
     user: User = Depends(require_admin),
 ) -> dict:
+    if is_serverless():
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                "Publiceren naar GitHub kan alleen vanuit de lokale admin. Online worden "
+                "wijzigingen direct in de database opgeslagen en zijn ze meteen zichtbaar."
+            ),
+        )
     result = publish_service.publish(db, actor=user, do_push=push)
     audit_service.record(
         db,
