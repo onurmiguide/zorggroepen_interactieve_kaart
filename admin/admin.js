@@ -52,7 +52,7 @@
   function toast(message, type) {
     const root = el("toastRoot");
     const node = document.createElement("div");
-    node.className = `ad-toast ad-toast-${type || "info"}`;
+    node.className = `zga-toast zga-toast-${type || "info"}`;
     node.textContent = message;
     root.appendChild(node);
     setTimeout(() => { node.style.opacity = "0"; node.style.transition = "opacity .3s"; }, 3200);
@@ -105,8 +105,8 @@
   function confirmDialog({ title, message, confirmLabel, danger, onConfirm }) {
     const wrap = document.createElement("div");
     wrap.innerHTML = `<p class="text-sm leading-6 text-slate-600 dark:text-slate-300">${escapeHtml(message)}</p>`;
-    const cancel = makeButton("Annuleren", "ad-btn-ghost", () => closeModal(true));
-    const ok = makeButton(confirmLabel || "Bevestigen", danger ? "ad-btn-danger" : "ad-btn-primary", async () => {
+    const cancel = makeButton("Annuleren", "zga-btn-ghost", () => closeModal(true));
+    const ok = makeButton(confirmLabel || "Bevestigen", danger ? "zga-btn-danger" : "zga-btn-primary", async () => {
       ok.disabled = true;
       try { await onConfirm(); closeModal(true); }
       catch (err) { toast(err.message || "Mislukt", "error"); ok.disabled = false; }
@@ -127,7 +127,7 @@
     controls.className = "mb-3 flex items-center gap-2";
     const input = document.createElement("input");
     input.type = "search";
-    input.className = "ad-input max-w-xs";
+    input.className = "zga-input max-w-xs";
     input.placeholder = searchPlaceholder || "Zoeken...";
     input.addEventListener("input", () => { search = input.value.toLowerCase().trim(); draw(); });
     controls.appendChild(input);
@@ -137,9 +137,9 @@
     wrap.appendChild(controls);
 
     const tableWrap = document.createElement("div");
-    tableWrap.className = "ad-table-wrap";
+    tableWrap.className = "zga-table-wrap";
     const table = document.createElement("table");
-    table.className = "ad-table";
+    table.className = "zga-table";
     tableWrap.appendChild(table);
     wrap.appendChild(tableWrap);
     // Lange lijsten (bijv. alle woonplaatsen): eerst een deel tonen, rest via zoeken of "Toon alles".
@@ -217,12 +217,12 @@
   function actionButtons(id, opts) {
     const o = opts || {};
     const buttons = [];
-    if (o.edit !== false && canEdit()) buttons.push(`<button class="ad-btn-soft-edit" data-action="edit" data-id="${id}">Bewerken</button>`);
+    if (o.edit !== false && canEdit()) buttons.push(`<button class="zga-btn-soft-edit" data-action="edit" data-id="${id}">Bewerken</button>`);
     if (o.toggle && canEdit()) {
       const activeren = String(o.toggleLabel || "").toLowerCase().startsWith("activeren");
-      buttons.push(`<button class="${activeren ? "ad-btn-soft-ok" : "ad-btn-soft-warn"}" data-action="toggle" data-id="${id}">${o.toggleLabel}</button>`);
+      buttons.push(`<button class="${activeren ? "zga-btn-soft-ok" : "zga-btn-soft-warn"}" data-action="toggle" data-id="${id}">${o.toggleLabel}</button>`);
     }
-    if (o.delete !== false && canEdit()) buttons.push(`<button class="ad-btn-soft-danger" data-action="delete" data-id="${id}">Verwijderen</button>`);
+    if (o.delete !== false && canEdit()) buttons.push(`<button class="zga-btn-soft-danger" data-action="delete" data-id="${id}">Verwijderen</button>`);
     return `<div class="flex flex-wrap gap-1">${buttons.join("")}</div>`;
   }
 
@@ -232,8 +232,8 @@
   }
   function statusBadge(active) {
     return active
-      ? '<span class="ad-badge ad-badge-green">Actief</span>'
-      : '<span class="ad-badge ad-badge-slate">Inactief</span>';
+      ? '<span class="zga-badge zga-badge-green">Actief</span>'
+      : '<span class="zga-badge zga-badge-slate">Inactief</span>';
   }
 
   // ---------------- Form helpers ----------------
@@ -266,7 +266,7 @@
     nav.innerHTML = "";
     TABS.filter((t) => !t.superAdminOnly || isSuperAdmin()).forEach((t) => {
       const b = document.createElement("button");
-      b.className = "ad-tab" + (t.id === state.activeTab ? " is-active" : "");
+      b.className = "zga-tab" + (t.id === state.activeTab ? " is-active" : "");
       b.textContent = t.label;
       b.addEventListener("click", () => selectTab(t.id));
       nav.appendChild(b);
@@ -279,7 +279,7 @@
     const content = el("tabContent");
     content.innerHTML = '<div class="py-10 text-center text-sm text-slate-400">Laden...</div>';
     Promise.resolve(tab.render(content)).catch((err) => {
-      content.innerHTML = `<div class="ad-card text-sm text-red-600">${escapeHtml(err.message || "Laden mislukt.")}</div>`;
+      content.innerHTML = `<div class="zga-card text-sm text-red-600">${escapeHtml(err.message || "Laden mislukt.")}</div>`;
     });
     refreshVersionBadge();
   }
@@ -306,14 +306,14 @@
     ];
     const recent = (stats.recent_changes || []).map((c) =>
       `<li class="flex items-center justify-between gap-3 border-b border-slate-100 py-1.5 text-sm dark:border-slate-800">
-        <span><span class="ad-badge ad-badge-blue">${escapeHtml(c.action)}</span> ${escapeHtml(c.entity_type)} <span class="text-slate-400">#${escapeHtml(c.entity_id)}</span></span>
+        <span><span class="zga-badge zga-badge-blue">${escapeHtml(c.action)}</span> ${escapeHtml(c.entity_type)} <span class="text-slate-400">#${escapeHtml(c.entity_id)}</span></span>
         <span class="text-xs text-slate-400">${escapeHtml(c.actor_name)} &middot; ${escapeHtml(fmtDate(c.created_at))}</span>
       </li>`).join("") || '<li class="py-2 text-sm text-slate-400">Nog geen wijzigingen.</li>';
     content.innerHTML = `
       <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-        ${kpis.map((k) => `<div class="ad-kpi"><div class="num">${k.num}</div><div class="lbl">${escapeHtml(k.lbl)}</div></div>`).join("")}
+        ${kpis.map((k) => `<div class="zga-kpi"><div class="num">${k.num}</div><div class="lbl">${escapeHtml(k.lbl)}</div></div>`).join("")}
       </div>
-      <div class="mt-4 ad-card">
+      <div class="mt-4 zga-card">
         <h2 class="mb-2 text-sm font-semibold text-slate-900 dark:text-slate-100">Laatste wijzigingen</h2>
         <ul>${recent}</ul>
       </div>
@@ -337,9 +337,9 @@
             ? `<span class="inline-flex items-center gap-1"><span style="display:inline-block;width:14px;height:14px;border-radius:4px;border:1px solid rgba(0,0,0,.2);background:${escapeHtml(r.color)}"></span><span class="text-xs text-slate-500">${escapeHtml(r.color)}</span></span>`
             : `<span class="text-xs text-slate-400">auto</span>` },
         { key: "has_contract", label: "Contract", render: (r) => r.has_contract
-            ? `<span class="ad-badge ad-badge-green">Ja</span>`
-            : `<span class="ad-badge ad-badge-slate">Nee (grijs)</span>`, sortable: true, sortValue: (r) => (r.has_contract ? 1 : 0) },
-        { key: "cities", label: "Plaatsen", render: (r) => `<span class="ad-badge ad-badge-slate">${r.locations.length}</span>`, sortable: true, sortValue: (r) => r.locations.length },
+            ? `<span class="zga-badge zga-badge-green">Ja</span>`
+            : `<span class="zga-badge zga-badge-slate">Nee (grijs)</span>`, sortable: true, sortValue: (r) => (r.has_contract ? 1 : 0) },
+        { key: "cities", label: "Plaatsen", render: (r) => `<span class="zga-badge zga-badge-slate">${r.locations.length}</span>`, sortable: true, sortValue: (r) => r.locations.length },
         { key: "website", label: "Website", render: (r) => r.website ? `<a class="text-sky-600 hover:underline" href="${escapeHtml(r.website)}" target="_blank" rel="noopener">link</a>` : "<span class='text-slate-400'>-</span>" },
         { key: "is_active", label: "Status", render: (r) => statusBadge(r.is_active), sortable: true, sortValue: (r) => (r.is_active ? 1 : 0) },
         { key: "_acties", label: "Acties", render: (r) => actionButtons(r.id, { toggle: true, toggleLabel: r.is_active ? "Deactiveren" : "Activeren" }) },
@@ -359,9 +359,9 @@
     const form = document.createElement("form");
     form.className = "grid gap-3";
     form.innerHTML = `
-      ${field("Naam *", `<input name="name" class="ad-input" required value="${escapeHtml(row?.name || "")}" />`)}
-      ${field("Regio", `<input name="regio" class="ad-input" value="${escapeHtml(row?.regio || "")}" />`)}
-      ${field("Website", `<input name="website" class="ad-input" placeholder="https://..." value="${escapeHtml(row?.website || "")}" />`, "Leeg of begint met http:// of https://")}
+      ${field("Naam *", `<input name="name" class="zga-input" required value="${escapeHtml(row?.name || "")}" />`)}
+      ${field("Regio", `<input name="regio" class="zga-input" value="${escapeHtml(row?.regio || "")}" />`)}
+      ${field("Website", `<input name="website" class="zga-input" placeholder="https://..." value="${escapeHtml(row?.website || "")}" />`, "Leeg of begint met http:// of https://")}
       <div>
         <span class="text-sm font-medium text-slate-700 dark:text-slate-200">Kleur op de kaart</span>
         <div class="mt-1 flex items-center gap-3">
@@ -372,12 +372,12 @@
         </div>
         <span class="text-xs text-slate-400">Vink uit en kies een kleur om die zorggroep een vaste kaartkleur te geven.</span>
       </div>
-      ${field("Contract met MiGuide", `<select name="has_contract" class="ad-select"><option value="true"${row && row.has_contract === false ? "" : " selected"}>Ja - gekleurd op de kaart, zorggroep-route</option><option value="false"${row && row.has_contract === false ? " selected" : ""}>Nee - grijs op de kaart, geen-contract-route</option></select>`, "Bepaalt de kleur op beide kaarten en de facturatieroute in de Zorgtool.")}
-      ${field("Actief", `<select name="is_active" class="ad-select"><option value="true"${row && !row.is_active ? "" : " selected"}>Actief</option><option value="false"${row && !row.is_active ? " selected" : ""}>Inactief</option></select>`)}
+      ${field("Contract met MiGuide", `<select name="has_contract" class="zga-select"><option value="true"${row && row.has_contract === false ? "" : " selected"}>Ja - gekleurd op de kaart, zorggroep-route</option><option value="false"${row && row.has_contract === false ? " selected" : ""}>Nee - grijs op de kaart, geen-contract-route</option></select>`, "Bepaalt de kleur op beide kaarten en de facturatieroute in de Zorgtool.")}
+      ${field("Actief", `<select name="is_active" class="zga-select"><option value="true"${row && !row.is_active ? "" : " selected"}>Actief</option><option value="false"${row && !row.is_active ? " selected" : ""}>Inactief</option></select>`)}
       <div>
         <div class="mb-1 flex items-center justify-between">
           <span class="text-sm font-medium text-slate-700 dark:text-slate-200">Plaatsen</span>
-          <button type="button" id="zgAddLoc" class="ad-btn-soft">+ Plaats</button>
+          <button type="button" id="zgAddLoc" class="zga-btn-soft">+ Plaats</button>
         </div>
         <div id="zgLocList" class="grid gap-2"></div>
       </div>`;
@@ -391,9 +391,9 @@
         const rowEl = document.createElement("div");
         rowEl.className = "flex items-center gap-2";
         rowEl.innerHTML = `
-          <input class="ad-input" data-loc-field="city_name" data-idx="${idx}" placeholder="Plaats" value="${escapeHtml(loc.city_name || "")}" />
-          <input class="ad-input" data-loc-field="gemeente_name" data-idx="${idx}" placeholder="Gemeente (optioneel)" value="${escapeHtml(loc.gemeente_name || "")}" />
-          <button type="button" class="ad-btn-soft" data-loc-remove="${idx}">&times;</button>`;
+          <input class="zga-input" data-loc-field="city_name" data-idx="${idx}" placeholder="Plaats" value="${escapeHtml(loc.city_name || "")}" />
+          <input class="zga-input" data-loc-field="gemeente_name" data-idx="${idx}" placeholder="Gemeente (optioneel)" value="${escapeHtml(loc.gemeente_name || "")}" />
+          <button type="button" class="zga-btn-soft" data-loc-remove="${idx}">&times;</button>`;
         locList.appendChild(rowEl);
       });
       locList.querySelectorAll("[data-loc-field]").forEach((inp) => {
@@ -410,7 +410,7 @@
     drawLocs();
     form.querySelector("#zgAddLoc").addEventListener("click", () => { locations.push({ city_name: "", gemeente_name: "", notes: "" }); drawLocs(); });
 
-    const save = makeButton(isEdit ? "Opslaan" : "Toevoegen", "ad-btn-primary", async () => {
+    const save = makeButton(isEdit ? "Opslaan" : "Toevoegen", "zga-btn-primary", async () => {
       if (!confirmEdit(isEdit)) return;
       const fd = new FormData(form);
       const name = String(fd.get("name") || "").trim();
@@ -436,7 +436,7 @@
         selectTab("zorggroepen");
       } catch (err) { toast(err.message, "error"); save.disabled = false; }
     });
-    openModal({ title: isEdit ? `Zorggroep bewerken` : "Nieuwe zorggroep", body: form, footer: [makeButton("Annuleren", "ad-btn-ghost", () => closeModal()), save] });
+    openModal({ title: isEdit ? `Zorggroep bewerken` : "Nieuwe zorggroep", body: form, footer: [makeButton("Annuleren", "zga-btn-ghost", () => closeModal()), save] });
   }
 
   // ---------------- Zorgverzekeraars ----------------
@@ -448,8 +448,8 @@
     DataTable(host, {
       columns: [
         { key: "name", label: "Naam", sortable: true },
-        { key: "concern_key", label: "Concern", sortable: true, render: (r) => `<span class="ad-badge ad-badge-blue">${escapeHtml(r.concern_key || "-")}</span>` },
-        { key: "aliases", label: "Aliassen", render: (r) => r.aliases.length ? r.aliases.map((a) => `<span class="ad-chip">${escapeHtml(a)}</span>`).join(" ") : "<span class='text-slate-400'>-</span>" },
+        { key: "concern_key", label: "Concern", sortable: true, render: (r) => `<span class="zga-badge zga-badge-blue">${escapeHtml(r.concern_key || "-")}</span>` },
+        { key: "aliases", label: "Aliassen", render: (r) => r.aliases.length ? r.aliases.map((a) => `<span class="zga-chip">${escapeHtml(a)}</span>`).join(" ") : "<span class='text-slate-400'>-</span>" },
         { key: "is_active", label: "Status", sortable: true, sortValue: (r) => (r.is_active ? 1 : 0), render: (r) => statusBadge(r.is_active) },
         { key: "_acties", label: "Acties", render: (r) => actionButtons(r.id, { toggle: true, toggleLabel: r.is_active ? "Deactiveren" : "Activeren" }) },
       ],
@@ -468,14 +468,14 @@
     const form = document.createElement("form");
     form.className = "grid gap-3";
     form.innerHTML = `
-      ${field("Naam *", `<input name="name" class="ad-input" required value="${escapeHtml(row?.name || "")}" />`)}
-      ${field("Concern-sleutel", `<input name="concern_key" class="ad-input" value="${escapeHtml(row?.concern_key || "")}" />`, "Bepaalt de facturatie-route in de Zorgtool. Gebruik het concern van een bestaande verzekeraar om diens route te volgen, bijv. 'cz', 'vgz', 'dsw' of 'menzis digitaal 2026'.")}
-      ${field("Actief", `<select name="is_active" class="ad-select"><option value="true"${row && !row.is_active ? "" : " selected"}>Actief</option><option value="false"${row && !row.is_active ? " selected" : ""}>Inactief</option></select>`)}
+      ${field("Naam *", `<input name="name" class="zga-input" required value="${escapeHtml(row?.name || "")}" />`)}
+      ${field("Concern-sleutel", `<input name="concern_key" class="zga-input" value="${escapeHtml(row?.concern_key || "")}" />`, "Bepaalt de facturatie-route in de Zorgtool. Gebruik het concern van een bestaande verzekeraar om diens route te volgen, bijv. 'cz', 'vgz', 'dsw' of 'menzis digitaal 2026'.")}
+      ${field("Actief", `<select name="is_active" class="zga-select"><option value="true"${row && !row.is_active ? "" : " selected"}>Actief</option><option value="false"${row && !row.is_active ? " selected" : ""}>Inactief</option></select>`)}
       <div>
         <span class="text-sm font-medium text-slate-700 dark:text-slate-200">Aliassen</span>
         <div class="mt-1 flex gap-2">
-          <input id="aliasInput" class="ad-input" placeholder="Alias toevoegen en Enter" />
-          <button type="button" id="aliasAdd" class="ad-btn-soft">+</button>
+          <input id="aliasInput" class="zga-input" placeholder="Alias toevoegen en Enter" />
+          <button type="button" id="aliasAdd" class="zga-btn-soft">+</button>
         </div>
         <div id="aliasChips" class="mt-2 flex flex-wrap gap-1"></div>
       </div>`;
@@ -485,7 +485,7 @@
       chips.innerHTML = aliases.length ? "" : '<span class="text-xs text-slate-400">Geen aliassen.</span>';
       aliases.forEach((a, idx) => {
         const c = document.createElement("span");
-        c.className = "ad-chip";
+        c.className = "zga-chip";
         c.innerHTML = `${escapeHtml(a)} <button type="button" data-rm="${idx}">&times;</button>`;
         chips.appendChild(c);
       });
@@ -501,7 +501,7 @@
     form.querySelector("#aliasAdd").addEventListener("click", addAlias);
     aliasInput.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); addAlias(); } });
 
-    const save = makeButton(isEdit ? "Opslaan" : "Toevoegen", "ad-btn-primary", async () => {
+    const save = makeButton(isEdit ? "Opslaan" : "Toevoegen", "zga-btn-primary", async () => {
       if (!confirmEdit(isEdit)) return;
       const fd = new FormData(form);
       const name = String(fd.get("name") || "").trim();
@@ -514,7 +514,7 @@
         state.formDirty = false; toast("Opgeslagen.", "success"); closeModal(true); selectTab("zorgverzekeraars");
       } catch (err) { toast(err.message, "error"); save.disabled = false; }
     });
-    openModal({ title: isEdit ? "Verzekeraar bewerken" : "Nieuwe verzekeraar", body: form, footer: [makeButton("Annuleren", "ad-btn-ghost", () => closeModal()), save] });
+    openModal({ title: isEdit ? "Verzekeraar bewerken" : "Nieuwe verzekeraar", body: form, footer: [makeButton("Annuleren", "zga-btn-ghost", () => closeModal()), save] });
   }
 
   // ---------------- Facturatiestromen ----------------
@@ -525,10 +525,10 @@
     const host = document.createElement("div"); content.appendChild(host);
     DataTable(host, {
       columns: [
-        { key: "kind", label: "Type", sortable: true, render: (r) => r.kind === "module" ? '<span class="ad-badge ad-badge-amber">Module</span>' : '<span class="ad-badge ad-badge-blue">Stroom</span>' },
+        { key: "kind", label: "Type", sortable: true, render: (r) => r.kind === "module" ? '<span class="zga-badge zga-badge-amber">Module</span>' : '<span class="zga-badge zga-badge-blue">Stroom</span>' },
         { key: "label", label: "Label", sortable: true },
         { key: "module_name", label: "Module", render: (r) => escapeHtml(r.module_name || "-") },
-        { key: "prestatiecode", label: "Prestatiecode", render: (r) => r.prestatiecode ? `<span class="ad-badge ad-badge-slate">${escapeHtml(r.prestatiecode)}</span>` : "-" },
+        { key: "prestatiecode", label: "Prestatiecode", render: (r) => r.prestatiecode ? `<span class="zga-badge zga-badge-slate">${escapeHtml(r.prestatiecode)}</span>` : "-" },
         { key: "is_active", label: "Status", sortable: true, sortValue: (r) => (r.is_active ? 1 : 0), render: (r) => statusBadge(r.is_active) },
         { key: "_acties", label: "Acties", render: (r) => actionButtons(r.id, { toggle: true, toggleLabel: r.is_active ? "Deactiveren" : "Activeren" }) },
       ],
@@ -546,15 +546,15 @@
     const form = document.createElement("form");
     form.className = "grid gap-3";
     form.innerHTML = `
-      ${field("Code *", `<input name="code" class="ad-input" required value="${escapeHtml(row?.code || "")}" />`, "Unieke sleutel, bijv. STROOM_1 of module-esv.")}
-      ${field("Label *", `<input name="label" class="ad-input" required value="${escapeHtml(row?.label || "")}" />`)}
-      ${field("Type", `<select name="kind" class="ad-select"><option value="stroom"${row?.kind === "module" ? "" : " selected"}>Facturatiestroom</option><option value="module"${row?.kind === "module" ? " selected" : ""}>Facturatiemodule</option></select>`)}
-      ${field("Modulenaam", `<input name="module_name" class="ad-input" value="${escapeHtml(row?.module_name || "")}" />`)}
-      ${field("Prestatiecode", `<input name="prestatiecode" class="ad-input" value="${escapeHtml(row?.prestatiecode || "")}" />`)}
-      ${field("Omschrijving", `<textarea name="description" class="ad-textarea">${escapeHtml(row?.description || "")}</textarea>`)}
-      ${field("Actief", `<select name="is_active" class="ad-select"><option value="true"${row && !row.is_active ? "" : " selected"}>Actief</option><option value="false"${row && !row.is_active ? " selected" : ""}>Inactief</option></select>`)}`;
+      ${field("Code *", `<input name="code" class="zga-input" required value="${escapeHtml(row?.code || "")}" />`, "Unieke sleutel, bijv. STROOM_1 of module-esv.")}
+      ${field("Label *", `<input name="label" class="zga-input" required value="${escapeHtml(row?.label || "")}" />`)}
+      ${field("Type", `<select name="kind" class="zga-select"><option value="stroom"${row?.kind === "module" ? "" : " selected"}>Facturatiestroom</option><option value="module"${row?.kind === "module" ? " selected" : ""}>Facturatiemodule</option></select>`)}
+      ${field("Modulenaam", `<input name="module_name" class="zga-input" value="${escapeHtml(row?.module_name || "")}" />`)}
+      ${field("Prestatiecode", `<input name="prestatiecode" class="zga-input" value="${escapeHtml(row?.prestatiecode || "")}" />`)}
+      ${field("Omschrijving", `<textarea name="description" class="zga-textarea">${escapeHtml(row?.description || "")}</textarea>`)}
+      ${field("Actief", `<select name="is_active" class="zga-select"><option value="true"${row && !row.is_active ? "" : " selected"}>Actief</option><option value="false"${row && !row.is_active ? " selected" : ""}>Inactief</option></select>`)}`;
     markDirtyOn(form);
-    const save = makeButton(isEdit ? "Opslaan" : "Toevoegen", "ad-btn-primary", async () => {
+    const save = makeButton(isEdit ? "Opslaan" : "Toevoegen", "zga-btn-primary", async () => {
       if (!confirmEdit(isEdit)) return;
       const fd = new FormData(form);
       const code = String(fd.get("code") || "").trim();
@@ -574,7 +574,7 @@
         state.formDirty = false; toast("Opgeslagen.", "success"); closeModal(true); selectTab("facturatiestromen");
       } catch (err) { toast(err.message, "error"); save.disabled = false; }
     });
-    openModal({ title: isEdit ? "Facturatie-item bewerken" : "Nieuw facturatie-item", body: form, footer: [makeButton("Annuleren", "ad-btn-ghost", () => closeModal()), save] });
+    openModal({ title: isEdit ? "Facturatie-item bewerken" : "Nieuw facturatie-item", body: form, footer: [makeButton("Annuleren", "zga-btn-ghost", () => closeModal()), save] });
   }
 
   // ---------------- Contracten / Matrix ----------------
@@ -590,8 +590,8 @@
     content.innerHTML = ""; content.appendChild(header);
     const host = document.createElement("div"); content.appendChild(host);
     const statusBadgeFor = (s) => {
-      const map = { gecontracteerd: "ad-badge-green", "niet gecontracteerd": "ad-badge-red", concept: "ad-badge-amber" };
-      return `<span class="ad-badge ${map[(s || "").toLowerCase()] || "ad-badge-slate"}">${escapeHtml(s || "-")}</span>`;
+      const map = { gecontracteerd: "zga-badge-green", "niet gecontracteerd": "zga-badge-red", concept: "zga-badge-amber" };
+      return `<span class="zga-badge ${map[(s || "").toLowerCase()] || "zga-badge-slate"}">${escapeHtml(s || "-")}</span>`;
     };
     DataTable(host, {
       columns: [
@@ -624,18 +624,18 @@
     const form = document.createElement("form");
     form.className = "grid gap-3";
     form.innerHTML = `
-      ${field("Zorggroep *", `<select name="zorggroep_id" class="ad-select" required>${opt(zorggroepen, row?.zorggroep_id, true, "Kies zorggroep")}</select>`)}
-      ${field("Zorgverzekeraar", `<select name="zorgverzekeraar_id" class="ad-select">${opt(verzekeraars, row?.zorgverzekeraar_id, true, "(alle verzekeraars)")}</select>`)}
-      ${field("Facturatiestroom", `<select name="facturatiestroom_id" class="ad-select">${opt(stromen, row?.facturatiestroom_id, true, "(geen)")}</select>`)}
-      ${field("Contractstatus", `<select name="contract_status" class="ad-select">${statusOptions.map((s) => `<option value="${s}"${(row?.contract_status || "gecontracteerd") === s ? " selected" : ""}>${s}</option>`).join("")}</select>`)}
+      ${field("Zorggroep *", `<select name="zorggroep_id" class="zga-select" required>${opt(zorggroepen, row?.zorggroep_id, true, "Kies zorggroep")}</select>`)}
+      ${field("Zorgverzekeraar", `<select name="zorgverzekeraar_id" class="zga-select">${opt(verzekeraars, row?.zorgverzekeraar_id, true, "(alle verzekeraars)")}</select>`)}
+      ${field("Facturatiestroom", `<select name="facturatiestroom_id" class="zga-select">${opt(stromen, row?.facturatiestroom_id, true, "(geen)")}</select>`)}
+      ${field("Contractstatus", `<select name="contract_status" class="zga-select">${statusOptions.map((s) => `<option value="${s}"${(row?.contract_status || "gecontracteerd") === s ? " selected" : ""}>${s}</option>`).join("")}</select>`)}
       <div class="grid grid-cols-2 gap-3">
-        ${field("Geldig vanaf", `<input name="valid_from" class="ad-input" placeholder="2026-01-01" value="${escapeHtml(row?.valid_from || "")}" />`)}
-        ${field("Geldig tot", `<input name="valid_to" class="ad-input" placeholder="leeg = doorlopend" value="${escapeHtml(row?.valid_to || "")}" />`)}
+        ${field("Geldig vanaf", `<input name="valid_from" class="zga-input" placeholder="2026-01-01" value="${escapeHtml(row?.valid_from || "")}" />`)}
+        ${field("Geldig tot", `<input name="valid_to" class="zga-input" placeholder="leeg = doorlopend" value="${escapeHtml(row?.valid_to || "")}" />`)}
       </div>
-      ${field("Opmerking", `<textarea name="notes" class="ad-textarea">${escapeHtml(row?.notes || "")}</textarea>`)}
-      ${field("Actief", `<select name="is_active" class="ad-select"><option value="true"${row && !row.is_active ? "" : " selected"}>Actief</option><option value="false"${row && !row.is_active ? " selected" : ""}>Inactief</option></select>`)}`;
+      ${field("Opmerking", `<textarea name="notes" class="zga-textarea">${escapeHtml(row?.notes || "")}</textarea>`)}
+      ${field("Actief", `<select name="is_active" class="zga-select"><option value="true"${row && !row.is_active ? "" : " selected"}>Actief</option><option value="false"${row && !row.is_active ? " selected" : ""}>Inactief</option></select>`)}`;
     markDirtyOn(form);
-    const save = makeButton(isEdit ? "Opslaan" : "Toevoegen", "ad-btn-primary", async () => {
+    const save = makeButton(isEdit ? "Opslaan" : "Toevoegen", "zga-btn-primary", async () => {
       if (!confirmEdit(isEdit)) return;
       const fd = new FormData(form);
       const zg = fd.get("zorggroep_id");
@@ -657,7 +657,7 @@
         state.formDirty = false; toast("Opgeslagen.", "success"); closeModal(true); selectTab("contracten");
       } catch (err) { toast(err.message, "error"); save.disabled = false; }
     });
-    openModal({ title: isEdit ? "Contractregel bewerken" : "Nieuwe contractregel", body: form, footer: [makeButton("Annuleren", "ad-btn-ghost", () => closeModal()), save] });
+    openModal({ title: isEdit ? "Contractregel bewerken" : "Nieuwe contractregel", body: form, footer: [makeButton("Annuleren", "zga-btn-ghost", () => closeModal()), save] });
   }
 
   // ---------------- Postcodes ----------------
@@ -690,7 +690,7 @@
       nav.innerHTML = "";
       subs.forEach((s) => {
         const b = document.createElement("button");
-        b.className = "ad-tab" + (s.id === active ? " is-active" : "");
+        b.className = "zga-tab" + (s.id === active ? " is-active" : "");
         b.textContent = s.label;
         b.addEventListener("click", () => { active = s.id; drawNav(); loadSub(); });
         nav.appendChild(b);
@@ -789,15 +789,15 @@
     const form = document.createElement("form");
     form.className = "grid gap-3";
     form.innerHTML = `
-      ${field("Postcode (1234AB) *", `<input name="postcode6" class="ad-input" required value="${escapeHtml(row?.postcode6 || "")}" />`)}
-      ${field("Zorggroep *", `<input name="zorggroep" class="ad-input" list="zgNames" required value="${escapeHtml(row?.zorggroep || "")}" />`, "Gebruik 'Geen zorggroep contract' om een postcode uit een brede regio te halen.")}
+      ${field("Postcode (1234AB) *", `<input name="postcode6" class="zga-input" required value="${escapeHtml(row?.postcode6 || "")}" />`)}
+      ${field("Zorggroep *", `<input name="zorggroep" class="zga-input" list="zgNames" required value="${escapeHtml(row?.zorggroep || "")}" />`, "Gebruik 'Geen zorggroep contract' om een postcode uit een brede regio te halen.")}
       ${zorggroepDatalist()}
-      ${field("Bron", `<input name="source_sheet" class="ad-input" value="${escapeHtml(row?.source_sheet || "Handmatige uitzondering")}" />`)}
-      ${field("Notitie", `<textarea name="note" class="ad-textarea">${escapeHtml(row?.note || "")}</textarea>`)}
-      ${field("Verzekeraar-concerns (optioneel, komma-gescheiden)", `<input name="concerns" class="ad-input" value="${escapeHtml(concernsToText(row?.insurer_concerns))}" />`, "Leeg = geldt voor alle verzekeraars.")}
-      ${field("Actief", `<select name="is_active" class="ad-select"><option value="true"${row && !row.is_active ? "" : " selected"}>Actief</option><option value="false"${row && !row.is_active ? " selected" : ""}>Inactief</option></select>`)}`;
+      ${field("Bron", `<input name="source_sheet" class="zga-input" value="${escapeHtml(row?.source_sheet || "Handmatige uitzondering")}" />`)}
+      ${field("Notitie", `<textarea name="note" class="zga-textarea">${escapeHtml(row?.note || "")}</textarea>`)}
+      ${field("Verzekeraar-concerns (optioneel, komma-gescheiden)", `<input name="concerns" class="zga-input" value="${escapeHtml(concernsToText(row?.insurer_concerns))}" />`, "Leeg = geldt voor alle verzekeraars.")}
+      ${field("Actief", `<select name="is_active" class="zga-select"><option value="true"${row && !row.is_active ? "" : " selected"}>Actief</option><option value="false"${row && !row.is_active ? " selected" : ""}>Inactief</option></select>`)}`;
     markDirtyOn(form);
-    const save = makeButton(isEdit ? "Opslaan" : "Toevoegen", "ad-btn-primary", async () => {
+    const save = makeButton(isEdit ? "Opslaan" : "Toevoegen", "zga-btn-primary", async () => {
       if (!confirmEdit(isEdit)) return;
       const fd = new FormData(form);
       const payload = {
@@ -815,7 +815,7 @@
         state.formDirty = false; toast("Opgeslagen.", "success"); closeModal(true); after();
       } catch (err) { toast(err.message, "error"); save.disabled = false; }
     });
-    openModal({ title: isEdit ? "Exacte postcode bewerken" : "Nieuwe exacte postcode", body: form, footer: [makeButton("Annuleren", "ad-btn-ghost", () => closeModal()), save] });
+    openModal({ title: isEdit ? "Exacte postcode bewerken" : "Nieuwe exacte postcode", body: form, footer: [makeButton("Annuleren", "zga-btn-ghost", () => closeModal()), save] });
   }
 
   function rangeForm(after, row) {
@@ -824,16 +824,16 @@
     form.className = "grid gap-3";
     form.innerHTML = `
       <div class="grid grid-cols-2 gap-3">
-        ${field("Van (PC4) *", `<input name="start_pc4" class="ad-input" required value="${escapeHtml(row?.start_pc4 || "")}" placeholder="1234" />`)}
-        ${field("Tot en met (PC4) *", `<input name="end_pc4" class="ad-input" required value="${escapeHtml(row?.end_pc4 || "")}" placeholder="1299" />`)}
+        ${field("Van (PC4) *", `<input name="start_pc4" class="zga-input" required value="${escapeHtml(row?.start_pc4 || "")}" placeholder="1234" />`)}
+        ${field("Tot en met (PC4) *", `<input name="end_pc4" class="zga-input" required value="${escapeHtml(row?.end_pc4 || "")}" placeholder="1299" />`)}
       </div>
-      ${field("Zorggroep *", `<input name="zorggroep" class="ad-input" list="zgNames" required value="${escapeHtml(row?.zorggroep || "")}" />`)}
+      ${field("Zorggroep *", `<input name="zorggroep" class="zga-input" list="zgNames" required value="${escapeHtml(row?.zorggroep || "")}" />`)}
       ${zorggroepDatalist()}
-      ${field("Bron", `<input name="source_sheet" class="ad-input" value="${escapeHtml(row?.source_sheet || "Handmatige uitzondering")}" />`)}
-      ${field("Verzekeraar-concerns (optioneel, komma-gescheiden)", `<input name="concerns" class="ad-input" value="${escapeHtml(concernsToText(row?.insurer_concerns))}" />`)}
-      ${field("Actief", `<select name="is_active" class="ad-select"><option value="true"${row && !row.is_active ? "" : " selected"}>Actief</option><option value="false"${row && !row.is_active ? " selected" : ""}>Inactief</option></select>`)}`;
+      ${field("Bron", `<input name="source_sheet" class="zga-input" value="${escapeHtml(row?.source_sheet || "Handmatige uitzondering")}" />`)}
+      ${field("Verzekeraar-concerns (optioneel, komma-gescheiden)", `<input name="concerns" class="zga-input" value="${escapeHtml(concernsToText(row?.insurer_concerns))}" />`)}
+      ${field("Actief", `<select name="is_active" class="zga-select"><option value="true"${row && !row.is_active ? "" : " selected"}>Actief</option><option value="false"${row && !row.is_active ? " selected" : ""}>Inactief</option></select>`)}`;
     markDirtyOn(form);
-    const save = makeButton(isEdit ? "Opslaan" : "Toevoegen", "ad-btn-primary", async () => {
+    const save = makeButton(isEdit ? "Opslaan" : "Toevoegen", "zga-btn-primary", async () => {
       if (!confirmEdit(isEdit)) return;
       const fd = new FormData(form);
       const payload = {
@@ -851,7 +851,7 @@
         state.formDirty = false; toast("Opgeslagen.", "success"); closeModal(true); after();
       } catch (err) { toast(err.message, "error"); save.disabled = false; }
     });
-    openModal({ title: isEdit ? "Range bewerken" : "Nieuwe range", body: form, footer: [makeButton("Annuleren", "ad-btn-ghost", () => closeModal()), save] });
+    openModal({ title: isEdit ? "Range bewerken" : "Nieuwe range", body: form, footer: [makeButton("Annuleren", "zga-btn-ghost", () => closeModal()), save] });
   }
 
   function locationForm(after, row) {
@@ -859,15 +859,15 @@
     const form = document.createElement("form");
     form.className = "grid gap-3";
     form.innerHTML = `
-      ${field("Postcode (1234AB) *", `<input name="postcode6" class="ad-input" required value="${escapeHtml(row?.postcode6 || "")}" />`)}
-      ${field("Woonplaats", `<input name="woonplaats" class="ad-input" value="${escapeHtml(row?.woonplaats || "")}" />`)}
-      ${field("Gemeente", `<input name="gemeente" class="ad-input" value="${escapeHtml(row?.gemeente || "")}" />`)}
-      ${field("Zorggroep *", `<input name="zorggroep" class="ad-input" list="zgNames" required value="${escapeHtml(row?.zorggroep || "")}" />`)}
+      ${field("Postcode (1234AB) *", `<input name="postcode6" class="zga-input" required value="${escapeHtml(row?.postcode6 || "")}" />`)}
+      ${field("Woonplaats", `<input name="woonplaats" class="zga-input" value="${escapeHtml(row?.woonplaats || "")}" />`)}
+      ${field("Gemeente", `<input name="gemeente" class="zga-input" value="${escapeHtml(row?.gemeente || "")}" />`)}
+      ${field("Zorggroep *", `<input name="zorggroep" class="zga-input" list="zgNames" required value="${escapeHtml(row?.zorggroep || "")}" />`)}
       ${zorggroepDatalist()}
-      ${field("Bron", `<input name="source" class="ad-input" value="${escapeHtml(row?.source || "")}" />`)}
-      ${field("Actief", `<select name="is_active" class="ad-select"><option value="true"${row && !row.is_active ? "" : " selected"}>Actief</option><option value="false"${row && !row.is_active ? " selected" : ""}>Inactief</option></select>`)}`;
+      ${field("Bron", `<input name="source" class="zga-input" value="${escapeHtml(row?.source || "")}" />`)}
+      ${field("Actief", `<select name="is_active" class="zga-select"><option value="true"${row && !row.is_active ? "" : " selected"}>Actief</option><option value="false"${row && !row.is_active ? " selected" : ""}>Inactief</option></select>`)}`;
     markDirtyOn(form);
-    const save = makeButton(isEdit ? "Opslaan" : "Toevoegen", "ad-btn-primary", async () => {
+    const save = makeButton(isEdit ? "Opslaan" : "Toevoegen", "zga-btn-primary", async () => {
       if (!confirmEdit(isEdit)) return;
       const fd = new FormData(form);
       const payload = {
@@ -885,7 +885,7 @@
         state.formDirty = false; toast("Opgeslagen.", "success"); closeModal(true); after();
       } catch (err) { toast(err.message, "error"); save.disabled = false; }
     });
-    openModal({ title: isEdit ? "Locatie-postcode bewerken" : "Nieuwe locatie-postcode", body: form, footer: [makeButton("Annuleren", "ad-btn-ghost", () => closeModal()), save] });
+    openModal({ title: isEdit ? "Locatie-postcode bewerken" : "Nieuwe locatie-postcode", body: form, footer: [makeButton("Annuleren", "zga-btn-ghost", () => closeModal()), save] });
   }
 
   const PLACES_BASE = "/api/admin/place-aliases";
@@ -895,11 +895,11 @@
     const form = document.createElement("form");
     form.className = "grid gap-3";
     form.innerHTML = `
-      ${field("Plaatsnaam *", `<input name="plaatsnaam" class="ad-input" required placeholder="bijv. Epse" value="${escapeHtml(row?.plaatsnaam || "")}" />`)}
-      ${field("Gemeente", `<input name="gemeente" class="ad-input" placeholder="bijv. Lochem" value="${escapeHtml(row?.gemeente || "")}" />`, "De officiële gemeentenaam waarin de plaats ligt (zoals op de kaart). Leeg laten = deze plaats niet inkleuren.")}
-      ${field("Actief", `<select name="is_active" class="ad-select"><option value="true"${row && !row.is_active ? "" : " selected"}>Actief</option><option value="false"${row && !row.is_active ? " selected" : ""}>Inactief</option></select>`)}`;
+      ${field("Plaatsnaam *", `<input name="plaatsnaam" class="zga-input" required placeholder="bijv. Epse" value="${escapeHtml(row?.plaatsnaam || "")}" />`)}
+      ${field("Gemeente", `<input name="gemeente" class="zga-input" placeholder="bijv. Lochem" value="${escapeHtml(row?.gemeente || "")}" />`, "De officiële gemeentenaam waarin de plaats ligt (zoals op de kaart). Leeg laten = deze plaats niet inkleuren.")}
+      ${field("Actief", `<select name="is_active" class="zga-select"><option value="true"${row && !row.is_active ? "" : " selected"}>Actief</option><option value="false"${row && !row.is_active ? " selected" : ""}>Inactief</option></select>`)}`;
     markDirtyOn(form);
-    const save = makeButton(isEdit ? "Opslaan" : "Toevoegen", "ad-btn-primary", async () => {
+    const save = makeButton(isEdit ? "Opslaan" : "Toevoegen", "zga-btn-primary", async () => {
       if (!confirmEdit(isEdit)) return;
       const fd = new FormData(form);
       const payload = {
@@ -914,7 +914,7 @@
         state.formDirty = false; toast("Opgeslagen.", "success"); closeModal(true); after();
       } catch (err) { toast(err.message, "error"); save.disabled = false; }
     });
-    openModal({ title: isEdit ? "Plaatsnaam bewerken" : "Nieuwe plaatsnaam", body: form, footer: [makeButton("Annuleren", "ad-btn-ghost", () => closeModal()), save] });
+    openModal({ title: isEdit ? "Plaatsnaam bewerken" : "Nieuwe plaatsnaam", body: form, footer: [makeButton("Annuleren", "zga-btn-ghost", () => closeModal()), save] });
   }
 
   function deleteSimple(url, label, after) {
@@ -928,7 +928,7 @@
 
   // ---------------- Gebruikers ----------------
   async function renderGebruikers(content) {
-    if (!isSuperAdmin()) { content.innerHTML = '<div class="ad-card text-sm text-slate-500">Alleen een super_admin mag gebruikers beheren.</div>'; return; }
+    if (!isSuperAdmin()) { content.innerHTML = '<div class="zga-card text-sm text-slate-500">Alleen een super_admin mag gebruikers beheren.</div>'; return; }
     const rows = await api.get("/api/admin/users");
     const header = topBar("Gebruikers", () => userForm(null), "Nieuwe gebruiker");
     content.innerHTML = ""; content.appendChild(header);
@@ -937,7 +937,7 @@
       columns: [
         { key: "name", label: "Naam", sortable: true },
         { key: "email", label: "E-mail", sortable: true },
-        { key: "role", label: "Rol", sortable: true, render: (r) => `<span class="ad-badge ad-badge-blue">${escapeHtml(ROLE_LABELS[r.role] || r.role)}</span>` },
+        { key: "role", label: "Rol", sortable: true, render: (r) => `<span class="zga-badge zga-badge-blue">${escapeHtml(ROLE_LABELS[r.role] || r.role)}</span>` },
         { key: "is_active", label: "Status", sortable: true, sortValue: (r) => (r.is_active ? 1 : 0), render: (r) => statusBadge(r.is_active) },
         { key: "_acties", label: "Acties", render: (r) => actionButtons(r.id, { toggle: r.id !== state.user.id, toggleLabel: r.is_active ? "Deactiveren" : "Activeren", delete: r.id !== state.user.id }) },
       ],
@@ -956,13 +956,13 @@
     const form = document.createElement("form");
     form.className = "grid gap-3";
     form.innerHTML = `
-      ${field("Naam *", `<input name="name" class="ad-input" required value="${escapeHtml(row?.name || "")}" />`)}
-      ${field("E-mail *", `<input name="email" type="email" class="ad-input" required value="${escapeHtml(row?.email || "")}" />`)}
-      ${field(isEdit ? "Nieuw wachtwoord" : "Wachtwoord *", `<input name="password" type="password" class="ad-input" ${isEdit ? "" : "required"} autocomplete="new-password" />`, isEdit ? "Laat leeg om ongewijzigd te laten. Min. 8 tekens." : "Minimaal 8 tekens.")}
-      ${field("Rol", `<select name="role" class="ad-select">${roles.map((r) => `<option value="${r}"${(row?.role || "editor") === r ? " selected" : ""}>${escapeHtml(ROLE_LABELS[r])}</option>`).join("")}</select>`)}
-      ${field("Actief", `<select name="is_active" class="ad-select"><option value="true"${row && !row.is_active ? "" : " selected"}>Actief</option><option value="false"${row && !row.is_active ? " selected" : ""}>Inactief</option></select>`)}`;
+      ${field("Naam *", `<input name="name" class="zga-input" required value="${escapeHtml(row?.name || "")}" />`)}
+      ${field("E-mail *", `<input name="email" type="email" class="zga-input" required value="${escapeHtml(row?.email || "")}" />`)}
+      ${field(isEdit ? "Nieuw wachtwoord" : "Wachtwoord *", `<input name="password" type="password" class="zga-input" ${isEdit ? "" : "required"} autocomplete="new-password" />`, isEdit ? "Laat leeg om ongewijzigd te laten. Min. 8 tekens." : "Minimaal 8 tekens.")}
+      ${field("Rol", `<select name="role" class="zga-select">${roles.map((r) => `<option value="${r}"${(row?.role || "editor") === r ? " selected" : ""}>${escapeHtml(ROLE_LABELS[r])}</option>`).join("")}</select>`)}
+      ${field("Actief", `<select name="is_active" class="zga-select"><option value="true"${row && !row.is_active ? "" : " selected"}>Actief</option><option value="false"${row && !row.is_active ? " selected" : ""}>Inactief</option></select>`)}`;
     markDirtyOn(form);
-    const save = makeButton(isEdit ? "Opslaan" : "Toevoegen", "ad-btn-primary", async () => {
+    const save = makeButton(isEdit ? "Opslaan" : "Toevoegen", "zga-btn-primary", async () => {
       if (!confirmEdit(isEdit)) return;
       const fd = new FormData(form);
       const name = String(fd.get("name") || "").trim();
@@ -982,16 +982,16 @@
         state.formDirty = false; toast("Opgeslagen.", "success"); closeModal(true); selectTab("gebruikers");
       } catch (err) { toast(err.message, "error"); save.disabled = false; }
     });
-    openModal({ title: isEdit ? "Gebruiker bewerken" : "Nieuwe gebruiker", body: form, footer: [makeButton("Annuleren", "ad-btn-ghost", () => closeModal()), save] });
+    openModal({ title: isEdit ? "Gebruiker bewerken" : "Nieuwe gebruiker", body: form, footer: [makeButton("Annuleren", "zga-btn-ghost", () => closeModal()), save] });
   }
 
   // ---------------- History ----------------
   async function renderHistory(content) {
     content.innerHTML = `
-      <div class="ad-card mb-3">
+      <div class="zga-card mb-3">
         <div class="flex flex-wrap items-end gap-2">
           <label class="grid gap-1 text-sm"><span class="font-medium">Entiteit</span>
-            <select id="hEntity" class="ad-select">
+            <select id="hEntity" class="zga-select">
               <option value="">Alle</option>
               <option value="zorggroep">Zorggroep</option>
               <option value="zorgverzekeraar">Zorgverzekeraar</option>
@@ -1001,13 +1001,13 @@
               <option value="auth">Login/Logout</option>
             </select></label>
           <label class="grid gap-1 text-sm"><span class="font-medium">Actie</span>
-            <select id="hAction" class="ad-select">
+            <select id="hAction" class="zga-select">
               <option value="">Alle</option><option value="create">create</option><option value="update">update</option>
               <option value="delete">delete</option><option value="login">login</option><option value="logout">logout</option>
             </select></label>
           <label class="grid gap-1 text-sm"><span class="font-medium">Gebruiker (e-mail)</span>
-            <input id="hActor" class="ad-input" placeholder="bevat..." /></label>
-          <button id="hApply" class="ad-btn-primary">Filteren</button>
+            <input id="hActor" class="zga-input" placeholder="bevat..." /></label>
+          <button id="hApply" class="zga-btn-primary">Filteren</button>
         </div>
       </div>
       <div id="historyHost"></div>`;
@@ -1023,11 +1023,11 @@
         columns: [
           { key: "created_at", label: "Tijdstip", sortable: true, render: (r) => escapeHtml(fmtDate(r.created_at)) },
           { key: "actor_name", label: "Gebruiker", sortable: true, render: (r) => `${escapeHtml(r.actor_name || "-")}<div class="text-xs text-slate-400">${escapeHtml(r.actor_email || "")}</div>` },
-          { key: "action", label: "Actie", sortable: true, render: (r) => `<span class="ad-badge ad-badge-blue">${escapeHtml(r.action)}</span>` },
+          { key: "action", label: "Actie", sortable: true, render: (r) => `<span class="zga-badge zga-badge-blue">${escapeHtml(r.action)}</span>` },
           { key: "entity_type", label: "Entiteit", sortable: true, render: (r) => `${escapeHtml(r.entity_type)} <span class="text-slate-400">#${escapeHtml(r.entity_id)}</span>` },
           { key: "_diff", label: "Wijziging", render: (r) => diffCell(r) },
           { key: "_herstel", label: "Herstel", render: (r) => (canEdit() && isRollbackable(r))
-              ? `<button class="ad-btn-soft-warn" data-action="rollback" data-id="${r.id}">&#8634; Herstel</button>`
+              ? `<button class="zga-btn-soft-warn" data-action="rollback" data-id="${r.id}">&#8634; Herstel</button>`
               : "" },
         ],
         rows: logs, searchKeys: ["actor_name", "actor_email", "entity_type", "action"],
@@ -1077,7 +1077,7 @@
     }
     const shortKeys = changed.slice(0, 3).join(", ") + (changed.length > 3 ? "…" : "");
     const detail = changed.map((k) =>
-      `<div><strong>${escapeHtml(k)}</strong>: <span class="ad-diff ad-diff-old">${escapeHtml(JSON.stringify(oldObj[k] ?? ""))}</span> &rarr; <span class="ad-diff ad-diff-new">${escapeHtml(JSON.stringify(newObj[k] ?? ""))}</span></div>`
+      `<div><strong>${escapeHtml(k)}</strong>: <span class="zga-diff zga-diff-old">${escapeHtml(JSON.stringify(oldObj[k] ?? ""))}</span> &rarr; <span class="zga-diff zga-diff-new">${escapeHtml(JSON.stringify(newObj[k] ?? ""))}</span></div>`
     ).join("");
     return `<details><summary class="cursor-pointer text-xs text-slate-500">${escapeHtml(changed.length)} veld(en): ${escapeHtml(shortKeys)}</summary><div class="mt-1 grid gap-1">${detail}</div></details>`;
   }
@@ -1088,7 +1088,7 @@
     bar.className = "mb-3 flex items-center justify-between gap-3";
     bar.innerHTML = `<h1 class="text-lg font-semibold text-slate-900 dark:text-slate-100">${escapeHtml(title)}</h1>`;
     if (onAdd) {
-      const b = makeButton("+ " + (addLabel || "Toevoegen"), "ad-btn-primary", onAdd);
+      const b = makeButton("+ " + (addLabel || "Toevoegen"), "zga-btn-primary", onAdd);
       bar.appendChild(b);
     }
     return bar;
@@ -1142,8 +1142,8 @@
         <strong>git commit + push naar GitHub</strong>. Na de deploy wordt de live site bijgewerkt.
       </p>
       <p class="mt-2 text-xs text-slate-400">Alleen deze twee databestanden worden gecommit; de admin-code blijft buiten de commit.</p>`;
-    const cancel = makeButton("Annuleren", "ad-btn-ghost", () => closeModal(true));
-    const ok = makeButton("Publiceren & pushen", "ad-btn-primary", async () => {
+    const cancel = makeButton("Annuleren", "zga-btn-ghost", () => closeModal(true));
+    const ok = makeButton("Publiceren & pushen", "zga-btn-primary", async () => {
       ok.disabled = true; ok.textContent = "Bezig...";
       try {
         const res = await api.post("/api/admin/publish?push=true");
@@ -1161,14 +1161,14 @@
   function showPublishResult(res) {
     const lines = (res.log || []).map((l) => `<li>${escapeHtml(l)}</li>`).join("");
     const status = res.ok
-      ? (res.pushed ? '<span class="ad-badge ad-badge-green">Gepusht naar GitHub</span>'
-        : (res.committed ? '<span class="ad-badge ad-badge-amber">Lokaal gecommit, niet gepusht</span>'
-          : '<span class="ad-badge ad-badge-blue">JSON bijgewerkt</span>'))
-      : '<span class="ad-badge ad-badge-red">Aandacht nodig</span>';
+      ? (res.pushed ? '<span class="zga-badge zga-badge-green">Gepusht naar GitHub</span>'
+        : (res.committed ? '<span class="zga-badge zga-badge-amber">Lokaal gecommit, niet gepusht</span>'
+          : '<span class="zga-badge zga-badge-blue">JSON bijgewerkt</span>'))
+      : '<span class="zga-badge zga-badge-red">Aandacht nodig</span>';
     const wrap = document.createElement("div");
     wrap.innerHTML = `<div class="mb-2">${status}${res.branch ? ` <span class="text-xs text-slate-400">branch: ${escapeHtml(res.branch)}</span>` : ""}</div>
-      <ul class="ad-diff list-disc pl-5">${lines}</ul>`;
-    openModal({ title: "Resultaat publiceren", body: wrap, footer: [makeButton("Sluiten", "ad-btn-primary", () => closeModal(true))] });
+      <ul class="zga-diff list-disc pl-5">${lines}</ul>`;
+    openModal({ title: "Resultaat publiceren", body: wrap, footer: [makeButton("Sluiten", "zga-btn-primary", () => closeModal(true))] });
     if (res.ok && res.pushed) toast("Gepubliceerd en gepusht naar GitHub.", "success");
     else if (res.ok) toast("Data bijgewerkt.", "success");
     else toast("Publiceren vereist aandacht, zie details.", "error");

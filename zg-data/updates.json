@@ -2,6 +2,13 @@
   "updates": [
     {
       "date": "2026-10-01",
+      "title": "Adminomgeving werkt ook met een adblocker",
+      "scope": "website",
+      "description": "Met een adblocker (zoals AdBlock) bleven de tabellen in de adminomgeving leeg. Dat is opgelost.",
+      "summary": []
+    },
+    {
+      "date": "2026-10-01",
       "title": "Meer beheren in de adminomgeving",
       "scope": "website",
       "description": "In de adminomgeving kun je nu meer aanpassen; wijzigingen werken direct door in de Zorgtool en op de zorggroepkaart.",
