@@ -24,6 +24,7 @@ from .models import (
 from .routers import (
     admin_contracten,
     admin_facturatiestromen,
+    admin_places,
     admin_postcodes,
     admin_users,
     admin_zorggroepen,
@@ -108,6 +109,7 @@ app.include_router(admin_zorgverzekeraars.router)
 app.include_router(admin_facturatiestromen.router)
 app.include_router(admin_contracten.router)
 app.include_router(admin_postcodes.router)
+app.include_router(admin_places.router)
 app.include_router(admin_users.router)
 app.include_router(audit.router)
 app.include_router(publish.router)

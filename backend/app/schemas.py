@@ -62,6 +62,7 @@ class ZorggroepBase(BaseModel):
     regio: str = ""
     website: str = ""
     color: str = ""
+    has_contract: bool = True
     is_active: bool = True
 
 
@@ -74,6 +75,7 @@ class ZorggroepUpdate(BaseModel):
     regio: str | None = None
     website: str | None = None
     color: str | None = None
+    has_contract: bool | None = None
     is_active: bool | None = None
     locations: list[LocationIn] | None = None
 
@@ -250,6 +252,31 @@ class LocationOverrideUpdate(BaseModel):
 
 
 class LocationOverrideOut(LocationOverrideBase):
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+
+
+# ---------- Plaatsnamen (plaats -> gemeente) ----------
+class PlaceAliasBase(BaseModel):
+    plaatsnaam: str = Field(min_length=1, max_length=200)
+    # Leeg = plaats bewust niet inkleuren (bijv. een provincienaam in de plaatsenlijst).
+    gemeente: str = Field(default="", max_length=200)
+    is_active: bool = True
+
+
+class PlaceAliasCreate(PlaceAliasBase):
+    pass
+
+
+class PlaceAliasUpdate(BaseModel):
+    plaatsnaam: str | None = Field(default=None, max_length=200)
+    gemeente: str | None = Field(default=None, max_length=200)
+    is_active: bool | None = None
+
+
+class PlaceAliasOut(PlaceAliasBase):
     model_config = ConfigDict(from_attributes=True)
     id: int
     created_at: datetime | None = None

@@ -14,6 +14,30 @@ const PUBLIC_API_BASE = (function resolvePublicApiBase() {
   return "";
 })();
 
+// Plaatsnamen uit de admin (genormaliseerde plaatsnaam -> gemeente); gaan voor de vaste lijst.
+const runtimePlaceAliases = new Map();
+
+function applyPlaceAliases(aliases) {
+  runtimePlaceAliases.clear();
+  for (const row of Array.isArray(aliases) ? aliases : []) {
+    const plaats = normalizeText(row && row.plaatsnaam);
+    const gemeente = String((row && row.gemeente) || "").trim();
+    // Lege gemeente = plaats bewust niet inkleuren.
+    if (plaats) {
+      runtimePlaceAliases.set(plaats, gemeente);
+    }
+  }
+}
+
+// Contractstatus: de admin ('contract': true/false) is leidend; zonder die info geldt
+// de vaste lijst met geen-contract-zorggroepen.
+function isNoContractItem(item, zorggroepName) {
+  if (item && typeof item.contract === "boolean") {
+    return !item.contract;
+  }
+  return NO_CONTRACT_NAMES.has(normalizeText(zorggroepName));
+}
+
 async function fetchZorggroepenData() {
   try {
     const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
@@ -63,7 +87,7 @@ const CITY_TO_GEMEENTE = {
   "berkel en rodenrijs": "Lansingerland",
   "rhoon": "Albrandswaard",
   "rotterdam pernis": "Rotterdam",
-  "hardinxveld giesendam": "Hardinxveld-Giesendam",
+  "hardinxveld giesendam": "Hardinxveld-Giessendam",
   "hendrik ido ambacht": "Hendrik-Ido-Ambacht",
   "bovenkarspel": "Stede Broec",
   "andijk": "Medemblik",
@@ -315,9 +339,21 @@ function cityToGemeenteName(city, gemeenteByNormName) {
     return null;
   }
 
-  const alias = CITY_TO_GEMEENTE[cleanCity];
-  if (typeof alias === "string") {
-    return alias || null;
+  // Plaatsnamen uit de admin zijn leidend; de vaste lijst is alleen reserve als de API niet bereikbaar is.
+  if (runtimePlaceAliases.size > 0) {
+    if (runtimePlaceAliases.has(cleanCity)) {
+      const gemeente = runtimePlaceAliases.get(cleanCity);
+      if (!gemeente) {
+        return null;
+      }
+      const match = gemeenteByNormName.get(normalizeText(gemeente));
+      return match ? match.properties.naam : gemeente;
+    }
+  } else {
+    const alias = CITY_TO_GEMEENTE[cleanCity];
+    if (typeof alias === "string") {
+      return alias || null;
+    }
   }
 
   if (gemeenteByNormName.has(cleanCity)) {
@@ -372,7 +408,7 @@ function buildContractFeatures(zorggroepen, gemeenteFeatures) {
   const featureDrafts = [];
   for (const item of expandedZorggroepen) {
     const zorggroepName = String(item?.zorggroep || "").trim();
-    if (!zorggroepName || NO_CONTRACT_NAMES.has(normalizeText(zorggroepName))) {
+    if (!zorggroepName || isNoContractItem(item, zorggroepName)) {
       continue;
     }
 
@@ -1095,6 +1131,7 @@ async function init() {
 
     const infoData = await infoResponse.json();
     const zorggroepen = Array.isArray(zorggroepData.zorggroepen) ? zorggroepData.zorggroepen : [];
+    applyPlaceAliases(zorggroepData.place_aliases);
     const infoEntries = Array.isArray(infoData.entries) ? infoData.entries : [];
     const { infoByGroup } = buildInfoLookup(infoEntries);
     const contractFeatures = buildContractFeatures(zorggroepen, gemeenteFeatures);

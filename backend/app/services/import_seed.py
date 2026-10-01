@@ -14,6 +14,7 @@ from ..models import (
     AppMeta,
     Facturatiestroom,
     LocationPostcodeOverride,
+    PlaceAlias,
     PostcodeOverride,
     PostcodeRangeOverride,
     RoutingRule,
@@ -22,7 +23,7 @@ from ..models import (
     Zorgverzekeraar,
 )
 from . import seed_constants as sc
-from .validation_service import normalize_text
+from .validation_service import normalize_text, route_key
 
 settings = get_settings()
 
@@ -52,6 +53,26 @@ def set_data_version(db: Session, value: str | None = None) -> str:
     return value
 
 
+_NO_CONTRACT_ROUTE_KEYS = {key for key, route in sc.BESLISBOOM_ROUTE_BY_ZORGGROEP_2026 if route == "no_contract"}
+
+# Zuid-Holland-Zuid als twee aparte zorggroepen (voorheen gesplitst in de kaartcode).
+ZHZ_CZ_PLAATSEN = ["Hoekse Waard"]
+ZHZ_VGZ_PLAATSEN = [
+    "Alblasserdam", "Altena", "Dordrecht", "Gorinchem", "Hardinxveld-Giessendam",
+    "Hendrik Ido Ambacht", "Molenlanden", "Papendrecht", "Sliedrecht", "Zwijndrecht",
+]
+_ZHZ_SHEET_TO_NAME = {"ZHZ leefstijl coalitie CZ": "ZHZ CZ", "ZHZ leefstijl coalitie VGZ": "ZHZ VGZ"}
+
+
+def _initial_contract_status(item: dict, name: str) -> bool:
+    """Contractstatus bij het seeden: expliciet uit de JSON ('contract'), anders afgeleid
+    uit de beslisboom (route 'no_contract' = geen contract)."""
+    explicit = item.get("contract")
+    if isinstance(explicit, bool):
+        return explicit
+    return route_key(name) not in _NO_CONTRACT_ROUTE_KEYS
+
+
 def _seed_zorggroepen(db: Session) -> int:
     if _count(db, Zorggroep) > 0:
         return 0
@@ -67,6 +88,7 @@ def _seed_zorggroepen(db: Session) -> int:
             name=name,
             regio=str(item.get("regio") or "").strip(),
             website=str(item.get("website") or "").strip(),
+            has_contract=_initial_contract_status(item, name),
             is_active=True,
         )
         for city in item.get("cities") or []:
@@ -306,6 +328,30 @@ def _apply_zorggroep_corrections(db: Session) -> int:
             esv.locations.append(ZorggroepLocation(city_name="Veenendaal"))
             changed += 1
 
+    # Zuid-Holland-Zuid wordt twee aparte zorggroepen: de oude rij wordt ZHZ VGZ (id en
+    # koppelingen blijven), ZHZ CZ komt erbij. Postcode-uitzonderingen volgen hun bronblad.
+    zhz = db.scalar(select(Zorggroep).where(Zorggroep.name == "Zuid-Holland-Zuid"))
+    has_vgz = db.scalar(select(Zorggroep).where(Zorggroep.name == "ZHZ VGZ")) is not None
+    if zhz is not None and not has_vgz:
+        zhz.name = "ZHZ VGZ"
+        zhz.regio = "Zuid-Holland-Zuid"
+        zhz.has_contract = True
+        zhz.locations.clear()
+        for plaats in ZHZ_VGZ_PLAATSEN:
+            zhz.locations.append(ZorggroepLocation(city_name=plaats))
+        if db.scalar(select(Zorggroep).where(Zorggroep.name == "ZHZ CZ")) is None:
+            cz = Zorggroep(name="ZHZ CZ", regio="Zuid-Holland-Zuid", website=zhz.website, has_contract=True, is_active=True)
+            for plaats in ZHZ_CZ_PLAATSEN:
+                cz.locations.append(ZorggroepLocation(city_name=plaats))
+            db.add(cz)
+        changed += 1
+    for model in (PostcodeRangeOverride, PostcodeOverride):
+        for row in db.scalars(select(model).where(model.zorggroep == "Zuid-Holland-Zuid")).all():
+            new_name = _ZHZ_SHEET_TO_NAME.get(row.source_sheet or "")
+            if new_name:
+                row.zorggroep = new_name
+                changed += 1
+
     # HCDO (Deventer e.o.) als nieuwe zorggroep toevoegen als die nog niet bestaat.
     if db.scalar(select(Zorggroep).where(Zorggroep.name == "HCDO")) is None:
         hcdo = Zorggroep(name="HCDO", regio="Deventer en omgeving", website="", is_active=True)
@@ -399,6 +445,82 @@ def _ensure_postcode_ranges(db: Session) -> int:
     return added
 
 
+def _ensure_place_aliases(db: Session) -> int:
+    """Zet de vaste plaatslijst (PLACE_ALIASES_SEED) eenmalig in place_aliases.
+
+    Daarna is de admin leidend: verwijderde of aangepaste rijen komen niet terug.
+    """
+    if db.get(AppMeta, "place_aliases_seeded") is not None:
+        return 0
+    existing = {normalize_text(r.plaatsnaam) for r in db.scalars(select(PlaceAlias)).all()}
+    added = 0
+    for plaatsnaam, gemeente in sc.PLACE_ALIASES_SEED:
+        key = normalize_text(plaatsnaam)
+        if key in existing:
+            continue
+        db.add(PlaceAlias(plaatsnaam=plaatsnaam, gemeente=gemeente, is_active=True))
+        existing.add(key)
+        added += 1
+    db.add(AppMeta(key="place_aliases_seeded", value="1"))
+    db.commit()
+    return added
+
+
+def _woonplaats_alias_rows(rows: list[dict]) -> list[tuple[str, str]]:
+    """Maakt (plaatsnaam, gemeente)-paren van de BAG-woonplaatsen.
+
+    Een naam die meerdere keren voorkomt (bijv. Hengelo) of gelijk is aan een andere
+    gemeente (bijv. Beuningen in Losser) krijgt de gemeente erachter, zodat de
+    kale naam nooit naar de verkeerde gemeente wijst.
+    """
+    groups: dict[str, list[dict]] = {}
+    for row in rows:
+        groups.setdefault(normalize_text(row["woonplaats"]), []).append(row)
+    gemeente_keys = {normalize_text(r["gemeente"]) for r in rows}
+
+    def suffixed(row: dict) -> tuple[str, str]:
+        gemeente_kort = re.sub(r"\s*\(.*?\)\s*", "", row["gemeente"]).strip()
+        extra = row["gemeente"]
+        if normalize_text(gemeente_kort) == normalize_text(row["woonplaats"]):
+            extra = row.get("provincie") or row["gemeente"]
+        return f"{row['woonplaats']} ({extra})", row["gemeente"]
+
+    result: list[tuple[str, str]] = []
+    for key, group in groups.items():
+        owners = [r for r in group if normalize_text(r["gemeente"]) == key]
+        if len(group) == 1 and (key not in gemeente_keys or owners):
+            result.append((group[0]["woonplaats"], group[0]["gemeente"]))
+            continue
+        plain_owner = owners[0] if len(owners) == 1 else None
+        if plain_owner is not None:
+            result.append((plain_owner["woonplaats"], plain_owner["gemeente"]))
+        result.extend(suffixed(r) for r in group if r is not plain_owner)
+    return result
+
+
+def _ensure_woonplaatsen(db: Session) -> int:
+    """Zet alle BAG-woonplaatsen (zg-data/woonplaatsen.json) eenmalig in place_aliases.
+
+    Bestaande plaatsnamen (zoals de vaste lijst) gaan voor; daarna is de admin leidend.
+    """
+    path = settings.zorggroepen_seed_path.with_name("woonplaatsen.json")
+    if db.get(AppMeta, "woonplaatsen_seeded") is not None or not path.exists():
+        return 0
+    rows = json.loads(path.read_text(encoding="utf-8")).get("woonplaatsen") or []
+    existing = {normalize_text(r.plaatsnaam) for r in db.scalars(select(PlaceAlias)).all()}
+    added = 0
+    for plaatsnaam, gemeente in _woonplaats_alias_rows(rows):
+        key = normalize_text(plaatsnaam)
+        if key in existing:
+            continue
+        db.add(PlaceAlias(plaatsnaam=plaatsnaam, gemeente=gemeente, is_active=True))
+        existing.add(key)
+        added += 1
+    db.add(AppMeta(key="woonplaatsen_seeded", value="1"))
+    db.commit()
+    return added
+
+
 def ensure_seed_admin(db: Session) -> bool:
     """Maak bij de allereerste start een super_admin aan uit env-variabelen.
 
@@ -446,6 +568,8 @@ def import_seed(db: Session) -> dict[str, int]:
     # Additief: houd de postcode-uitzonderingen in sync ook als de tabel al geseed was.
     result["postcode_exact_toegevoegd"] = _ensure_exact_postcode_overrides(db)
     result["postcode_ranges_toegevoegd"] = _ensure_postcode_ranges(db)
+    result["plaatsnamen_toegevoegd"] = _ensure_place_aliases(db)
+    result["woonplaatsen_toegevoegd"] = _ensure_woonplaatsen(db)
     if db.get(AppMeta, "data_version") is None:
         set_data_version(db, "1")
     return result

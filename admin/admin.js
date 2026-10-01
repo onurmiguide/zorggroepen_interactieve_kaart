@@ -116,10 +116,11 @@
 
   // ---------------- DataTable ----------------
   /* columns: [{key,label,render?(row),sortable?,sortValue?(row)}] */
-  function DataTable(container, { columns, rows, searchKeys, searchPlaceholder, emptyText }) {
+  function DataTable(container, { columns, rows, searchKeys, searchPlaceholder, emptyText, limit }) {
     let search = "";
     let sortKey = null;
     let sortDir = 1;
+    let showAll = false;
 
     const wrap = document.createElement("div");
     const controls = document.createElement("div");
@@ -141,6 +142,10 @@
     table.className = "ad-table";
     tableWrap.appendChild(table);
     wrap.appendChild(tableWrap);
+    // Lange lijsten (bijv. alle woonplaatsen): eerst een deel tonen, rest via zoeken of "Toon alles".
+    const more = document.createElement("div");
+    more.className = "mt-2 flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400";
+    wrap.appendChild(more);
 
     function filtered() {
       let list = rows.slice();
@@ -161,8 +166,19 @@
     }
 
     function draw() {
-      const list = filtered();
-      count.textContent = `${list.length} van ${rows.length}`;
+      const all = filtered();
+      const list = limit && !showAll ? all.slice(0, limit) : all;
+      count.textContent = `${all.length} van ${rows.length}`;
+      more.innerHTML = "";
+      if (list.length < all.length) {
+        more.appendChild(document.createTextNode(`Eerste ${list.length} van ${all.length} getoond. Zoek om te filteren, of `));
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "font-semibold text-sky-700 underline dark:text-sky-300";
+        btn.textContent = "toon alles";
+        btn.addEventListener("click", () => { showAll = true; draw(); });
+        more.appendChild(btn);
+      }
       const thead = `<thead><tr>${columns.map((c) => {
         const arrow = sortKey === c.key ? (sortDir === 1 ? " &#9650;" : " &#9660;") : "";
         const cursor = c.sortable ? ' style="cursor:pointer"' : "";
@@ -320,6 +336,9 @@
         { key: "color", label: "Kleur", render: (r) => r.color
             ? `<span class="inline-flex items-center gap-1"><span style="display:inline-block;width:14px;height:14px;border-radius:4px;border:1px solid rgba(0,0,0,.2);background:${escapeHtml(r.color)}"></span><span class="text-xs text-slate-500">${escapeHtml(r.color)}</span></span>`
             : `<span class="text-xs text-slate-400">auto</span>` },
+        { key: "has_contract", label: "Contract", render: (r) => r.has_contract
+            ? `<span class="ad-badge ad-badge-green">Ja</span>`
+            : `<span class="ad-badge ad-badge-slate">Nee (grijs)</span>`, sortable: true, sortValue: (r) => (r.has_contract ? 1 : 0) },
         { key: "cities", label: "Plaatsen", render: (r) => `<span class="ad-badge ad-badge-slate">${r.locations.length}</span>`, sortable: true, sortValue: (r) => r.locations.length },
         { key: "website", label: "Website", render: (r) => r.website ? `<a class="text-sky-600 hover:underline" href="${escapeHtml(r.website)}" target="_blank" rel="noopener">link</a>` : "<span class='text-slate-400'>-</span>" },
         { key: "is_active", label: "Status", render: (r) => statusBadge(r.is_active), sortable: true, sortValue: (r) => (r.is_active ? 1 : 0) },
@@ -353,6 +372,7 @@
         </div>
         <span class="text-xs text-slate-400">Vink uit en kies een kleur om die zorggroep een vaste kaartkleur te geven.</span>
       </div>
+      ${field("Contract met MiGuide", `<select name="has_contract" class="ad-select"><option value="true"${row && row.has_contract === false ? "" : " selected"}>Ja - gekleurd op de kaart, zorggroep-route</option><option value="false"${row && row.has_contract === false ? " selected" : ""}>Nee - grijs op de kaart, geen-contract-route</option></select>`, "Bepaalt de kleur op beide kaarten en de facturatieroute in de Zorgtool.")}
       ${field("Actief", `<select name="is_active" class="ad-select"><option value="true"${row && !row.is_active ? "" : " selected"}>Actief</option><option value="false"${row && !row.is_active ? " selected" : ""}>Inactief</option></select>`)}
       <div>
         <div class="mb-1 flex items-center justify-between">
@@ -402,6 +422,7 @@
         regio: String(fd.get("regio") || "").trim(),
         website: String(fd.get("website") || "").trim(),
         color: colorValue,
+        has_contract: fd.get("has_contract") === "true",
         is_active: fd.get("is_active") === "true",
         locations: locations.filter((l) => (l.city_name || "").trim()).map((l) => ({ city_name: l.city_name.trim(), gemeente_name: (l.gemeente_name || "").trim(), notes: (l.notes || "").trim() })),
       };
@@ -448,7 +469,7 @@
     form.className = "grid gap-3";
     form.innerHTML = `
       ${field("Naam *", `<input name="name" class="ad-input" required value="${escapeHtml(row?.name || "")}" />`)}
-      ${field("Concern-sleutel", `<input name="concern_key" class="ad-input" value="${escapeHtml(row?.concern_key || "")}" />`, "Groepeert labels van hetzelfde concern, bijv. 'menzis digitaal 2026'.")}
+      ${field("Concern-sleutel", `<input name="concern_key" class="ad-input" value="${escapeHtml(row?.concern_key || "")}" />`, "Bepaalt de facturatie-route in de Zorgtool. Gebruik het concern van een bestaande verzekeraar om diens route te volgen, bijv. 'cz', 'vgz', 'dsw' of 'menzis digitaal 2026'.")}
       ${field("Actief", `<select name="is_active" class="ad-select"><option value="true"${row && !row.is_active ? "" : " selected"}>Actief</option><option value="false"${row && !row.is_active ? " selected" : ""}>Inactief</option></select>`)}
       <div>
         <span class="text-sm font-medium text-slate-700 dark:text-slate-200">Aliassen</span>
@@ -660,6 +681,7 @@
       { id: "exact", label: "Exacte postcodes (PC6)" },
       { id: "ranges", label: "Postcode-ranges (PC4)" },
       { id: "location", label: "Locatie-postcodes" },
+      { id: "places", label: "Plaatsnamen (plaats → gemeente)" },
     ];
     let active = "exact";
     const nav = content.querySelector("#pcSubNav");
@@ -678,7 +700,27 @@
       host.innerHTML = '<div class="py-6 text-center text-sm text-slate-400">Laden...</div>';
       if (active === "exact") await loadExact();
       else if (active === "ranges") await loadRanges();
+      else if (active === "places") await loadPlaces();
       else await loadLocation();
+    }
+    async function loadPlaces() {
+      const rows = await api.get(PLACES_BASE);
+      const bar = topBar("", canEdit() ? () => placeForm(loadSub, null) : null, "Nieuwe plaatsnaam");
+      host.innerHTML = "";
+      const uitleg = document.createElement("p");
+      uitleg.className = "mb-2 text-sm text-slate-500 dark:text-slate-400";
+      uitleg.textContent = "Koppel een plaats (dorp of woonplaats) aan de gemeente waarin die ligt. Daarna kun je die plaats bij een zorggroep invullen en kleurt de kaart de juiste gemeente. Deze lijst is leidend voor beide kaarten; aanpassen, deactiveren of verwijderen werkt direct door. Alle Nederlandse woonplaatsen (BAG) staan erin; een plaatsnaam die vaker voorkomt staat er met de gemeente achter, bijv. \"Beek (Berg en Dal)\".";
+      host.appendChild(uitleg); host.appendChild(bar);
+      const t = document.createElement("div"); host.appendChild(t);
+      DataTable(t, {
+        columns: [
+          { key: "plaatsnaam", label: "Plaatsnaam", sortable: true },
+          { key: "gemeente", label: "Gemeente", sortable: true, render: (r) => (r.gemeente ? escapeHtml(r.gemeente) : '<span class="text-slate-400">— (niet inkleuren)</span>') },
+          { key: "is_active", label: "Status", sortable: true, sortValue: (r) => (r.is_active ? 1 : 0), render: (r) => statusBadge(r.is_active) },
+          { key: "_acties", label: "Acties", render: (r) => actionButtons(r.id) },
+        ], rows, searchKeys: ["plaatsnaam", "gemeente"], searchPlaceholder: "Zoek plaats of gemeente...", limit: 200,
+      });
+      t._rowAction = (a, r) => { if (a === "edit") placeForm(loadSub, r); else if (a === "delete") deleteSimple(`${PLACES_BASE}/${r.id}`, `plaatsnaam ${r.plaatsnaam}`, loadSub); };
     }
     async function loadExact() {
       const rows = await api.get(`${PC_BASE}/exact`);
@@ -844,6 +886,35 @@
       } catch (err) { toast(err.message, "error"); save.disabled = false; }
     });
     openModal({ title: isEdit ? "Locatie-postcode bewerken" : "Nieuwe locatie-postcode", body: form, footer: [makeButton("Annuleren", "ad-btn-ghost", () => closeModal()), save] });
+  }
+
+  const PLACES_BASE = "/api/admin/place-aliases";
+
+  function placeForm(after, row) {
+    const isEdit = !!row;
+    const form = document.createElement("form");
+    form.className = "grid gap-3";
+    form.innerHTML = `
+      ${field("Plaatsnaam *", `<input name="plaatsnaam" class="ad-input" required placeholder="bijv. Epse" value="${escapeHtml(row?.plaatsnaam || "")}" />`)}
+      ${field("Gemeente", `<input name="gemeente" class="ad-input" placeholder="bijv. Lochem" value="${escapeHtml(row?.gemeente || "")}" />`, "De officiële gemeentenaam waarin de plaats ligt (zoals op de kaart). Leeg laten = deze plaats niet inkleuren.")}
+      ${field("Actief", `<select name="is_active" class="ad-select"><option value="true"${row && !row.is_active ? "" : " selected"}>Actief</option><option value="false"${row && !row.is_active ? " selected" : ""}>Inactief</option></select>`)}`;
+    markDirtyOn(form);
+    const save = makeButton(isEdit ? "Opslaan" : "Toevoegen", "ad-btn-primary", async () => {
+      if (!confirmEdit(isEdit)) return;
+      const fd = new FormData(form);
+      const payload = {
+        plaatsnaam: String(fd.get("plaatsnaam") || "").trim(),
+        gemeente: String(fd.get("gemeente") || "").trim(),
+        is_active: fd.get("is_active") === "true",
+      };
+      if (!payload.plaatsnaam) { toast("Plaatsnaam is verplicht.", "error"); return; }
+      save.disabled = true;
+      try {
+        if (isEdit) await api.put(`${PLACES_BASE}/${row.id}`, payload); else await api.post(PLACES_BASE, payload);
+        state.formDirty = false; toast("Opgeslagen.", "success"); closeModal(true); after();
+      } catch (err) { toast(err.message, "error"); save.disabled = false; }
+    });
+    openModal({ title: isEdit ? "Plaatsnaam bewerken" : "Nieuwe plaatsnaam", body: form, footer: [makeButton("Annuleren", "ad-btn-ghost", () => closeModal()), save] });
   }
 
   function deleteSimple(url, label, after) {

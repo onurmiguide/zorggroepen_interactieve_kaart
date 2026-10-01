@@ -14,7 +14,7 @@
   ],
   "exact_postcode6_overrides": {
     "4142AZ": {
-      "zorggroep": "Zuid-Holland-Zuid",
+      "zorggroep": "ZHZ VGZ",
       "source_sheet": "ZHZ leefstijl coalitie VGZ",
       "note": "Huisartsen Poort van West (Leerdam) valt onder ZHZ VGZ, niet UNICUM."
     },
@@ -2386,7 +2386,7 @@
     {
       "start": "3260",
       "end": "3265",
-      "zorggroep": "Zuid-Holland-Zuid",
+      "zorggroep": "ZHZ CZ",
       "source_sheet": "ZHZ leefstijl coalitie CZ",
       "insurer_concerns": [
         "cz"
@@ -2395,7 +2395,7 @@
     {
       "start": "3270",
       "end": "3271",
-      "zorggroep": "Zuid-Holland-Zuid",
+      "zorggroep": "ZHZ CZ",
       "source_sheet": "ZHZ leefstijl coalitie CZ",
       "insurer_concerns": [
         "cz"
@@ -2404,7 +2404,7 @@
     {
       "start": "3273",
       "end": "3274",
-      "zorggroep": "Zuid-Holland-Zuid",
+      "zorggroep": "ZHZ CZ",
       "source_sheet": "ZHZ leefstijl coalitie CZ",
       "insurer_concerns": [
         "cz"
@@ -2413,7 +2413,7 @@
     {
       "start": "3280",
       "end": "3281",
-      "zorggroep": "Zuid-Holland-Zuid",
+      "zorggroep": "ZHZ CZ",
       "source_sheet": "ZHZ leefstijl coalitie CZ",
       "insurer_concerns": [
         "cz"
@@ -2422,7 +2422,7 @@
     {
       "start": "3290",
       "end": "3293",
-      "zorggroep": "Zuid-Holland-Zuid",
+      "zorggroep": "ZHZ CZ",
       "source_sheet": "ZHZ leefstijl coalitie CZ",
       "insurer_concerns": [
         "cz"
@@ -2431,7 +2431,7 @@
     {
       "start": "3267",
       "end": "3267",
-      "zorggroep": "Zuid-Holland-Zuid",
+      "zorggroep": "ZHZ CZ",
       "source_sheet": "ZHZ leefstijl coalitie CZ",
       "insurer_concerns": [
         "cz"
@@ -2440,7 +2440,7 @@
     {
       "start": "3284",
       "end": "3284",
-      "zorggroep": "Zuid-Holland-Zuid",
+      "zorggroep": "ZHZ CZ",
       "source_sheet": "ZHZ leefstijl coalitie CZ",
       "insurer_concerns": [
         "cz"
@@ -2449,7 +2449,7 @@
     {
       "start": "3286",
       "end": "3286",
-      "zorggroep": "Zuid-Holland-Zuid",
+      "zorggroep": "ZHZ CZ",
       "source_sheet": "ZHZ leefstijl coalitie CZ",
       "insurer_concerns": [
         "cz"
@@ -2458,7 +2458,7 @@
     {
       "start": "3295",
       "end": "3295",
-      "zorggroep": "Zuid-Holland-Zuid",
+      "zorggroep": "ZHZ CZ",
       "source_sheet": "ZHZ leefstijl coalitie CZ",
       "insurer_concerns": [
         "cz"
@@ -2467,7 +2467,7 @@
     {
       "start": "3297",
       "end": "3297",
-      "zorggroep": "Zuid-Holland-Zuid",
+      "zorggroep": "ZHZ CZ",
       "source_sheet": "ZHZ leefstijl coalitie CZ",
       "insurer_concerns": [
         "cz"
@@ -2476,7 +2476,7 @@
     {
       "start": "3299",
       "end": "3299",
-      "zorggroep": "Zuid-Holland-Zuid",
+      "zorggroep": "ZHZ CZ",
       "source_sheet": "ZHZ leefstijl coalitie CZ",
       "insurer_concerns": [
         "cz"
@@ -2485,7 +2485,7 @@
     {
       "start": "2950",
       "end": "2979",
-      "zorggroep": "Zuid-Holland-Zuid",
+      "zorggroep": "ZHZ VGZ",
       "source_sheet": "ZHZ leefstijl coalitie VGZ",
       "insurer_concerns": [
         "vgz"
@@ -2494,7 +2494,7 @@
     {
       "start": "3300",
       "end": "3329",
-      "zorggroep": "Zuid-Holland-Zuid",
+      "zorggroep": "ZHZ VGZ",
       "source_sheet": "ZHZ leefstijl coalitie VGZ",
       "insurer_concerns": [
         "vgz"
@@ -2503,7 +2503,7 @@
     {
       "start": "3330",
       "end": "3349",
-      "zorggroep": "Zuid-Holland-Zuid",
+      "zorggroep": "ZHZ VGZ",
       "source_sheet": "ZHZ leefstijl coalitie VGZ",
       "insurer_concerns": [
         "vgz"
@@ -2512,7 +2512,7 @@
     {
       "start": "3350",
       "end": "3399",
-      "zorggroep": "Zuid-Holland-Zuid",
+      "zorggroep": "ZHZ VGZ",
       "source_sheet": "ZHZ leefstijl coalitie VGZ",
       "insurer_concerns": [
         "vgz"
@@ -2521,7 +2521,7 @@
     {
       "start": "4160",
       "end": "4171",
-      "zorggroep": "Zuid-Holland-Zuid",
+      "zorggroep": "ZHZ VGZ",
       "source_sheet": "ZHZ leefstijl coalitie VGZ",
       "insurer_concerns": [
         "vgz"
@@ -2530,7 +2530,7 @@
     {
       "start": "4231",
       "end": "4231",
-      "zorggroep": "Zuid-Holland-Zuid",
+      "zorggroep": "ZHZ VGZ",
       "source_sheet": "ZHZ leefstijl coalitie VGZ",
       "insurer_concerns": [
         "vgz"
@@ -2539,7 +2539,7 @@
     {
       "start": "4200",
       "end": "4299",
-      "zorggroep": "Zuid-Holland-Zuid",
+      "zorggroep": "ZHZ VGZ",
       "source_sheet": "ZHZ leefstijl coalitie VGZ",
       "insurer_concerns": [
         "vgz"
@@ -2548,7 +2548,7 @@
     {
       "start": "4131",
       "end": "4131",
-      "zorggroep": "Zuid-Holland-Zuid",
+      "zorggroep": "ZHZ VGZ",
       "source_sheet": "ZHZ leefstijl coalitie VGZ",
       "insurer_concerns": [
         "vgz"

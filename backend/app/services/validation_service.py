@@ -16,6 +16,11 @@ def normalize_text(value: str) -> str:
     return text.strip()
 
 
+def route_key(value: str) -> str:
+    """Sleutel zoals in BESLISBOOM_ROUTE_BY_ZORGGROEP_2026 ('&' valt weg, dus 'HHT & HZGB' -> 'hht hzgb')."""
+    return normalize_text((value or "").replace("&", " "))
+
+
 _URL_RE = re.compile(r"^https?://[^\s]+$", re.IGNORECASE)
 
 

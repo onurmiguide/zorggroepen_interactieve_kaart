@@ -55,6 +55,19 @@ def _run_light_migrations() -> None:
     if "color" not in columns:
         with engine.begin() as conn:
             conn.execute(text("ALTER TABLE zorggroepen ADD COLUMN color VARCHAR(20) NOT NULL DEFAULT ''"))
+    if "has_contract" not in columns:
+        from .services.seed_constants import BESLISBOOM_ROUTE_BY_ZORGGROEP_2026
+        from .services.validation_service import route_key
+
+        default = "1" if settings.is_sqlite else "TRUE"
+        no_contract = {key for key, route in BESLISBOOM_ROUTE_BY_ZORGGROEP_2026 if route == "no_contract"}
+        with engine.begin() as conn:
+            conn.execute(text(f"ALTER TABLE zorggroepen ADD COLUMN has_contract BOOLEAN NOT NULL DEFAULT {default}"))
+            # Eenmalig (alleen bij het aanmaken van de kolom): zorggroepen die in de
+            # beslisboom als 'geen contract' staan op nee zetten. Latere admin-keuzes blijven.
+            for row_id, name in conn.execute(text("SELECT id, name FROM zorggroepen")).all():
+                if route_key(name) in no_contract:
+                    conn.execute(text("UPDATE zorggroepen SET has_contract = :v WHERE id = :id"), {"v": False, "id": row_id})
 
 
 def init_db() -> None:

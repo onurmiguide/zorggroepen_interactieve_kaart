@@ -53,6 +53,8 @@ class Zorggroep(Base, TimestampMixin):
     website: Mapped[str] = mapped_column(String(400), default="", nullable=False)
     # Optionele handmatige kleur (#rrggbb). Leeg = automatische kleur uit de naam.
     color: Mapped[str] = mapped_column(String(20), default="", nullable=False)
+    # Contract met MiGuide: ja = gekleurd op de kaart + zorggroep-route; nee = grijs + geen-contract-route.
+    has_contract: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 
     locations: Mapped[list["ZorggroepLocation"]] = relationship(
@@ -205,6 +207,19 @@ class AuditLog(Base):
     old_value_json: Mapped[str] = mapped_column(Text, default="", nullable=False)
     new_value_json: Mapped[str] = mapped_column(Text, default="", nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, index=True)
+
+
+class PlaceAlias(Base, TimestampMixin):
+    """Plaatsnaam (dorp/woonplaats) -> gemeente, zodat een zorggroep ook plaatsen kan
+    bevatten die zelf geen gemeente zijn (bijv. Bennekom -> Ede). Aanvulling op de
+    vaste lijst in de kaartcode; een plaatsnaam hier gaat daar vóór."""
+
+    __tablename__ = "place_aliases"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    plaatsnaam: Mapped[str] = mapped_column(String(200), unique=True, index=True, nullable=False)
+    gemeente: Mapped[str] = mapped_column(String(200), nullable=False)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 
 
 class AppMeta(Base):

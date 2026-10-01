@@ -66,6 +66,7 @@ def create_zorggroep(payload: ZorggroepCreate, db: Session = Depends(get_db), us
         regio=payload.regio.strip(),
         website=payload.website.strip(),
         color=payload.color.strip(),
+        has_contract=payload.has_contract,
         is_active=payload.is_active,
     )
     for loc in payload.locations:
@@ -97,6 +98,8 @@ def update_zorggroep(zorggroep_id: int, payload: ZorggroepUpdate, db: Session = 
     if payload.color is not None:
         _validate_color(payload.color)
         zg.color = payload.color.strip()
+    if payload.has_contract is not None:
+        zg.has_contract = payload.has_contract
     if payload.is_active is not None:
         zg.is_active = payload.is_active
     if payload.locations is not None:

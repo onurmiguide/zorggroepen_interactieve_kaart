@@ -35,6 +35,23 @@ function fetchWithTimeout(url, options = {}, timeoutMs = PUBLIC_API_TIMEOUT_MS) 
 }
 const PUBLIC_ZORGGROEPEN_URL = `${PUBLIC_API_BASE}/api/public/zorggroepen`;
 const PUBLIC_POSTCODE_OVERRIDES_URL = `${PUBLIC_API_BASE}/api/public/postcode-overrides`;
+const PUBLIC_ZORGVERZEKERAARS_URL = `${PUBLIC_API_BASE}/api/public/zorgverzekeraars`;
+
+// Zorgverzekeraars uit de admin (dropdown + concern); null = vaste lijst gebruiken.
+async function loadZorgverzekeraarsData() {
+  try {
+    const response = await fetchWithTimeout(PUBLIC_ZORGVERZEKERAARS_URL, { headers: { Accept: "application/json" } });
+    if (response.ok) {
+      const data = await response.json();
+      if (data && Array.isArray(data.zorgverzekeraars) && data.zorgverzekeraars.length) {
+        return data;
+      }
+    }
+  } catch (error) {
+    // API niet bereikbaar -> vaste lijst in de code gebruiken.
+  }
+  return null;
+}
 
 // Laatst geladen data-versie uit de admin-API (voor optionele refresh).
 let currentZorggroepDataVersion = null;
@@ -44,13 +61,66 @@ const zorggroepColorOverrides = new Map();
 
 function applyZorggroepColorOverrides(zorggroepen) {
   zorggroepColorOverrides.clear();
+  zorggroepContractStatus.clear();
   for (const item of zorggroepen || []) {
     const name = item && item.zorggroep;
     const color = item && item.color;
     if (name && color) {
       zorggroepColorOverrides.set(normalizeText(name), String(color).trim());
     }
+    if (name && typeof item.contract === "boolean") {
+      zorggroepContractStatus.set(normalizeText(name), item.contract);
+    }
   }
+}
+
+// Contractstatus per zorggroep uit de admin (genormaliseerde naam -> true/false).
+// Ja = gekleurd + zorggroep-route; nee = grijs + geen-contract-route.
+const zorggroepContractStatus = new Map();
+// Plaatsnamen uit de admin (genormaliseerde plaatsnaam -> gemeente).
+const runtimePlaceAliases = new Map();
+// Zorgverzekeraars uit de admin: namen voor de dropdown en label/alias -> concern.
+let runtimeInsurerNames = [];
+const runtimeInsurerConcerns = new Map();
+
+function applyPlaceAliases(aliases) {
+  runtimePlaceAliases.clear();
+  for (const row of Array.isArray(aliases) ? aliases : []) {
+    const plaats = normalizeText(row && row.plaatsnaam);
+    const gemeente = String((row && row.gemeente) || "").trim();
+    // Lege gemeente = plaats bewust niet inkleuren.
+    if (plaats) {
+      runtimePlaceAliases.set(plaats, gemeente);
+    }
+  }
+}
+
+function applyInsurerData(data) {
+  const rows = data && Array.isArray(data.zorgverzekeraars) ? data.zorgverzekeraars : [];
+  runtimeInsurerNames = rows.map((row) => String(row.name || "").trim()).filter(Boolean);
+  runtimeInsurerConcerns.clear();
+  for (const row of rows) {
+    const concern = normalizeText(row.concern_key) || normalizeText(row.name);
+    for (const label of [row.name, ...(Array.isArray(row.aliases) ? row.aliases : [])]) {
+      const key = normalizeText(label);
+      if (key && concern && !runtimeInsurerConcerns.has(key)) {
+        runtimeInsurerConcerns.set(key, concern);
+      }
+    }
+  }
+}
+
+// Route volgens de beslisboom, aangepast aan de contractstatus uit de admin:
+// geen contract -> 'no_contract'; wel contract -> eigen route, of 'zorggroep' als die
+// er niet is (bijv. een nieuwe zorggroep) of als die 'no_contract' was.
+function applyContractStatusToRoute(zorggroepNorm, baseRouteType) {
+  if (!zorggroepContractStatus.has(zorggroepNorm)) {
+    return baseRouteType;
+  }
+  if (!zorggroepContractStatus.get(zorggroepNorm)) {
+    return "no_contract";
+  }
+  return baseRouteType && baseRouteType !== "no_contract" ? baseRouteType : "zorggroep";
 }
 
 async function loadZorggroepData() {
@@ -821,7 +891,7 @@ function featureMatchesCurrentGemeente(feature) {
 
 function normalizeInsurerKey(value) {
   const normalized = normalizeText(value);
-  return INSURER_LABEL_TO_CONCERN.get(normalized) || normalized;
+  return runtimeInsurerConcerns.get(normalized) || INSURER_LABEL_TO_CONCERN.get(normalized) || normalized;
 }
 
 function defaultStroomForInsurer(insurerName = "") {
@@ -1186,7 +1256,7 @@ function resolveWorkbookSpecialRouting(feature, insurerName = "") {
 function resolveDecisionTreeRouting2026(feature, insurerName = "") {
   const zorggroepNorm = normalizeText(getZorggroepName(feature));
   const insurerNorm = normalizeInsurerKey(insurerName);
-  const routeType = BESLISBOOM_ROUTE_BY_ZORGGROEP_2026.get(zorggroepNorm) || null;
+  const routeType = applyContractStatusToRoute(zorggroepNorm, BESLISBOOM_ROUTE_BY_ZORGGROEP_2026.get(zorggroepNorm) || null);
   const workbookSpecialRoute = resolveWorkbookSpecialRouting(feature, insurerName);
 
   if (!routeType) {
@@ -1588,7 +1658,8 @@ function featureMatchesDeclaratiestroom(feature, insurerName, declaratiestroom) 
 }
 
 function getRouteTypeForZorggroepName(zorggroepName) {
-  return BESLISBOOM_ROUTE_BY_ZORGGROEP_2026.get(normalizeText(zorggroepName)) || null;
+  const norm = normalizeText(zorggroepName);
+  return applyContractStatusToRoute(norm, BESLISBOOM_ROUTE_BY_ZORGGROEP_2026.get(norm) || null);
 }
 
 function isNoContractZorggroepName(zorggroepName) {
@@ -2752,7 +2823,8 @@ function setupFilterControls() {
   const verzekeraarSelect = document.getElementById("zorgverzekeraarFilter");
   const declaratieSelect = document.getElementById("declaratiestroomFilter");
 
-  const insurers = new Set(DEFAULT_ZORGVERZEKERAARS);
+  // Verzekeraars uit de admin; valt terug op de vaste lijst als de API niet reageert.
+  const insurers = new Set(runtimeInsurerNames.length ? runtimeInsurerNames : DEFAULT_ZORGVERZEKERAARS);
   for (const feature of allFeatures) {
     const contracts = Array.isArray(feature?.properties?.contracts) ? feature.properties.contracts : [];
     for (const row of contracts) {
@@ -3501,9 +3573,21 @@ function cityToGemeenteName(city, gemeenteByNormName) {
     return null;
   }
 
-  const alias = CITY_TO_GEMEENTE[cleanCity];
-  if (typeof alias === "string") {
-    return alias || null;
+  // Plaatsnamen uit de admin zijn leidend; de vaste lijst is alleen reserve als de API niet bereikbaar is.
+  if (runtimePlaceAliases.size > 0) {
+    if (runtimePlaceAliases.has(cleanCity)) {
+      const gemeente = runtimePlaceAliases.get(cleanCity);
+      if (!gemeente) {
+        return null;
+      }
+      const match = gemeenteByNormName.get(normalizeText(gemeente));
+      return match ? match.properties.naam : gemeente;
+    }
+  } else {
+    const alias = CITY_TO_GEMEENTE[cleanCity];
+    if (typeof alias === "string") {
+      return alias || null;
+    }
   }
 
   if (gemeenteByNormName.has(cleanCity)) {
@@ -3762,15 +3846,18 @@ async function init() {
   try {
     createMap();
 
-    const [zorggroepData, gemeenteFeatures, postcodeOverrides] = await Promise.all([
+    const [zorggroepData, gemeenteFeatures, postcodeOverrides, insurerData] = await Promise.all([
       loadZorggroepData(),
       fetchAllGemeenteFeatures(),
-      loadPostcodeOverrides()
+      loadPostcodeOverrides(),
+      loadZorgverzekeraarsData()
     ]);
 
     const zorggroepen = Array.isArray(zorggroepData.zorggroepen) ? zorggroepData.zorggroepen : [];
     const contractsByZorggroep = extractContractsByZorggroep(zorggroepData);
 
+    applyInsurerData(insurerData);
+    applyPlaceAliases(zorggroepData.place_aliases);
     applyZorggroepColorOverrides(zorggroepen);
     allFeatures = buildZorggroepFeatures(zorggroepen, gemeenteFeatures, contractsByZorggroep);
     gemeenteFeaturesStore = gemeenteFeatures;

@@ -57,6 +57,8 @@ def build_zorggroepen_json(db: Session) -> dict:
         }
         if zg.color:
             item["color"] = zg.color
+        if not zg.has_contract:
+            item["contract"] = False
         zorggroepen.append(item)
     return {"source": existing_source, "zorggroepen": zorggroepen}
 

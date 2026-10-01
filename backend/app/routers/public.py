@@ -12,6 +12,7 @@ from ..models import (
     AppMeta,
     Facturatiestroom,
     LocationPostcodeOverride,
+    PlaceAlias,
     PostcodeOverride,
     PostcodeRangeOverride,
     Zorggroep,
@@ -46,14 +47,21 @@ def public_zorggroepen(db: Session = Depends(get_db)) -> dict:
             "regio": zg.regio,
             "website": zg.website,
             "cities": [loc.city_name for loc in zg.locations],
+            "contract": zg.has_contract,
         }
         if zg.color:
             item["color"] = zg.color
         zorggroepen.append(item)
+    # Plaatsnamen (plaats -> gemeente) uit de admin, zodat de kaarten ook dorpen kunnen
+    # koppelen die zelf geen gemeente zijn. Meegestuurd om een extra aanvraag te sparen.
+    aliases = db.scalars(
+        select(PlaceAlias).where(PlaceAlias.is_active == True).order_by(PlaceAlias.plaatsnaam)  # noqa: E712
+    ).all()
     return {
         "source": "miguide-admin-api",
         "data_version": _data_version(db),
         "zorggroepen": zorggroepen,
+        "place_aliases": [{"plaatsnaam": a.plaatsnaam, "gemeente": a.gemeente} for a in aliases],
     }
 
 

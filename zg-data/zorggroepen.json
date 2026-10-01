@@ -2,17 +2,24 @@
   "source": "Zorggroep plaatsen 1 1.docx",
   "zorggroepen": [
     {
-      "zorggroep": "Zuid-Holland-Zuid",
+      "zorggroep": "ZHZ CZ",
+      "regio": "Zuid-Holland-Zuid",
+      "website": "",
+      "cities": [
+        "Hoekse Waard"
+      ]
+    },
+    {
+      "zorggroep": "ZHZ VGZ",
       "regio": "Zuid-Holland-Zuid",
       "website": "",
       "cities": [
         "Alblasserdam",
+        "Altena",
         "Dordrecht",
-        "Goeree-Overflakkee",
         "Gorinchem",
-        "Hardinxveld-Giesendam",
+        "Hardinxveld-Giessendam",
         "Hendrik Ido Ambacht",
-        "Hoekse Waard",
         "Molenlanden",
         "Papendrecht",
         "Sliedrecht",

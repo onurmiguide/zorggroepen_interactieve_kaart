@@ -10,6 +10,7 @@ from ..models import (
     ContractRule,
     Facturatiestroom,
     LocationPostcodeOverride,
+    PlaceAlias,
     PostcodeOverride,
     PostcodeRangeOverride,
     User,
@@ -28,6 +29,7 @@ ENTITY_MODELS = {
     "postcode_override": PostcodeOverride,
     "location_override": LocationPostcodeOverride,
     "range_override": PostcodeRangeOverride,
+    "place_alias": PlaceAlias,
     "user": User,
 }
 

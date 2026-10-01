@@ -2,6 +2,18 @@
   "updates": [
     {
       "date": "2026-10-01",
+      "title": "Meer beheren in de adminomgeving",
+      "scope": "website",
+      "description": "In de adminomgeving kun je nu meer aanpassen; wijzigingen werken direct door in de Zorgtool en op de zorggroepkaart.",
+      "summary": [
+        "Per zorggroep kun je de contractstatus aanpassen: bij 'Ja' krijgt het gebied een kleur, bij 'Nee' wordt het grijs (geen contract).",
+        "Nieuwe zorgverzekeraars uit de adminomgeving verschijnen direct in de keuzelijst van de Zorgtool.",
+        "Zuid-Holland-Zuid staat nu als twee aparte zorggroepen in de adminomgeving: ZHZ CZ en ZHZ VGZ.",
+        "Nieuw tabblad Plaatsnamen (onder Postcodes) met alle Nederlandse woonplaatsen en hun gemeente; plaatsen zijn aan te passen en toe te voegen."
+      ]
+    },
+    {
+      "date": "2026-10-01",
       "title": "Adminomgeving werkt weer",
       "scope": "website",
       "description": "De adminomgeving werkt weer.",
