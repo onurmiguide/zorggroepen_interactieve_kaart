@@ -99,6 +99,14 @@ def test_pc4_overzicht_bevat_alle_gecontracteerde_ranges(auth_client: TestClient
     assert any(r["zorggroep"] == "ZHZ CZ" and r["alleen_voor"] == "CZ" for r in rows)
 
 
+def test_esv_dekt_wageningen_renkum_en_rhenen(auth_client: TestClient) -> None:
+    esv = next(z for z in _public_zorggroepen(auth_client)["zorggroepen"] if z["zorggroep"] == "ESV")
+    assert {"Wageningen", "Renkum", "Heelsum", "Rhenen"} <= set(esv["cities"])
+    rows = auth_client.get("/api/admin/postcode-overrides/ranges/overzicht").json()["ranges"]
+    for pc4 in ("6709", "6871", "3911"):  # Wageningen, Renkum, Rhenen
+        assert "ESV" in {r["zorggroep"] for r in rows if pc4 in r["pc4s"].split()}, pc4
+
+
 def test_pc4_overzicht_volgt_contractstatus(auth_client: TestClient) -> None:
     zg = next(z for z in auth_client.get("/api/admin/zorggroepen").json() if z["name"] == "Rijnmond dokters")
     try:

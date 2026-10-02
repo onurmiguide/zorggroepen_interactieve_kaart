@@ -1,6 +1,16 @@
 {
   "updates": [
     {
+      "date": "2026-10-02",
+      "title": "ESV dekt nu ook Wageningen, Renkum en Rhenen",
+      "scope": "kaart",
+      "description": "Postcodes in Wageningen, Renkum (met Heelsum) en Rhenen (met Elst) gaven ten onrechte 'Geen zorggroep contract'. Deze plaatsen vallen nu onder zorggroep ESV.",
+      "summary": [
+        "Volgens het contractoverzicht hoort de regio Wageningen, Renkum en Rhenen bij ESV (Gelderse Vallei / Eerstelijn Samenwerkingsverband Veenendaal).",
+        "Voorbeeld: 6709PD (Wageningen) met Menzis geeft nu zorggroep ESV, facturatiemodule ESV en prestatiecode CoOL-MiGuide."
+      ]
+    },
+    {
       "date": "2026-10-01",
       "title": "Overzicht van alle gecontracteerde postcodes (PC4) in de adminomgeving",
       "scope": "website",

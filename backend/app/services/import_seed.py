@@ -56,6 +56,9 @@ def set_data_version(db: Session, value: str | None = None) -> str:
 
 _NO_CONTRACT_ROUTE_KEYS = {key for key, route in sc.BESLISBOOM_ROUTE_BY_ZORGGROEP_2026 if route == "no_contract"}
 
+# ESV-plaatsen die er sinds oktober 2026 bij horen (contractoverzicht augustus 2026).
+ESV_EXTRA_PLAATSEN = ["Wageningen", "Renkum", "Heelsum", "Rhenen"]
+
 # Zuid-Holland-Zuid als twee aparte zorggroepen (voorheen gesplitst in de kaartcode).
 ZHZ_CZ_PLAATSEN = ["Hoekse Waard"]
 ZHZ_VGZ_PLAATSEN = [
@@ -328,6 +331,16 @@ def _apply_zorggroep_corrections(db: Session) -> int:
         if "veenendaal" not in have:
             esv.locations.append(ZorggroepLocation(city_name="Veenendaal"))
             changed += 1
+
+    # ESV-regio volgens het contractoverzicht (Gelderse Vallei / ESV): Wageningen, Renkum
+    # (met Heelsum) en Rhenen (met Elst Ut). Eenmalig, zodat latere admin-keuzes blijven staan.
+    if esv is not None and db.get(AppMeta, "esv_regio_2026_10") is None:
+        have = {normalize_text(loc.city_name) for loc in esv.locations}
+        for plaats in ESV_EXTRA_PLAATSEN:
+            if normalize_text(plaats) not in have:
+                esv.locations.append(ZorggroepLocation(city_name=plaats))
+        db.add(AppMeta(key="esv_regio_2026_10", value="1"))
+        changed += 1
 
     # Zuid-Holland-Zuid wordt twee aparte zorggroepen: de oude rij wordt ZHZ VGZ (id en
     # koppelingen blijven), ZHZ CZ komt erbij. Postcode-uitzonderingen volgen hun bronblad.
