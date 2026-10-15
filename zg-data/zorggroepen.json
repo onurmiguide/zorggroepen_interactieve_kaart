@@ -142,7 +142,7 @@
       "website": "",
       "verzekeraar_uitzondering": {
         "modus": "behalve",
-        "verzekeraars": ["cz", "dsw"],
+        "verzekeraars": ["dsw"],
         "module": "ZoHealthy"
       },
       "cities": [

@@ -58,10 +58,10 @@ _NO_CONTRACT_ROUTE_KEYS = {key for key, route in sc.BESLISBOOM_ROUTE_BY_ZORGGROE
 
 # Afwijkende facturatiemodule per verzekeraar (zorggroep -> (modus, concerns, module)).
 #  - HUMO: alleen CZ via de zorggroep; alle andere verzekeraars -> MiGuide (bericht 15-10-2026).
-#  - Kennemerland: geen contract met CZ en DSW -> ZoHealthy (voorheen vast in script.js).
+#  - Kennemerland (ook wel LCK): DSW -> ZoHealthy; alle andere verzekeraars (ook CZ) -> Zorggroep.
 VERZEKERAAR_UITZONDERINGEN = {
     "HUMO": ("alleen", ["cz"], "MiGuide"),
-    "Kennemerland": ("behalve", ["cz", "dsw"], "ZoHealthy"),
+    "Kennemerland": ("behalve", ["dsw"], "ZoHealthy"),
 }
 
 # ESV-plaatsen die er sinds oktober 2026 bij horen (contractoverzicht augustus 2026).
@@ -364,6 +364,16 @@ def _apply_zorggroep_corrections(db: Session) -> int:
                 zg.insurer_rule_concerns = json.dumps(concerns, ensure_ascii=False)
                 zg.insurer_rule_module = module
         db.add(AppMeta(key="verzekeraar_uitzonderingen_2026_10", value="1"))
+        changed += 1
+
+    # Kennemerland: alleen DSW via ZoHealthy, CZ weer via de zorggroep (eenmalig).
+    if db.get(AppMeta, "kennemerland_alleen_dsw_2026_10") is None:
+        kennemerland = db.scalar(select(Zorggroep).where(Zorggroep.name == "Kennemerland"))
+        if kennemerland is not None:
+            kennemerland.insurer_rule_mode = "behalve"
+            kennemerland.insurer_rule_concerns = json.dumps(["dsw"])
+            kennemerland.insurer_rule_module = "ZoHealthy"
+        db.add(AppMeta(key="kennemerland_alleen_dsw_2026_10", value="1"))
         changed += 1
 
     # Zuid-Holland-Zuid wordt twee aparte zorggroepen: de oude rij wordt ZHZ VGZ (id en

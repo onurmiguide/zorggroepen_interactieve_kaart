@@ -85,7 +85,7 @@ function applyZorggroepColorOverrides(zorggroepen) {
 
 // Afwijkende facturatiemodule per verzekeraar uit de admin (genormaliseerde zorggroep -> regel).
 // "alleen": contract alleen met deze verzekeraars, de rest krijgt `module` (bijv. HUMO: alleen CZ, rest MiGuide).
-// "behalve": deze verzekeraars krijgen `module` (bijv. Kennemerland: CZ en DSW via ZoHealthy).
+// "behalve": deze verzekeraars krijgen `module` (bijv. Kennemerland: DSW via ZoHealthy).
 const zorggroepInsurerRules = new Map();
 
 // Contractstatus per zorggroep uit de admin (genormaliseerde naam -> true/false).
@@ -1282,7 +1282,7 @@ function resolveDecisionTreeRouting2026(feature, insurerName = "") {
   }
 
   // Verzekeraar-uitzondering uit de admin (bijv. HUMO: alleen CZ via de zorggroep, andere
-  // verzekeraars via MiGuide; Kennemerland: CZ en DSW via ZoHealthy).
+  // verzekeraars via MiGuide; Kennemerland: DSW via ZoHealthy).
   const insurerRule = zorggroepInsurerRules.get(zorggroepNorm);
   if (insurerRule && insurerNorm && insurerNorm !== "all") {
     const listed = insurerRule.verzekeraars.has(insurerNorm);

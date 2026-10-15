@@ -110,7 +110,7 @@ def test_esv_dekt_wageningen_renkum_en_rhenen(auth_client: TestClient) -> None:
 def test_verzekeraar_uitzonderingen_humo_en_kennemerland(auth_client: TestClient) -> None:
     items = {z["zorggroep"]: z for z in _public_zorggroepen(auth_client)["zorggroepen"]}
     assert items["HUMO"]["verzekeraar_uitzondering"] == {"modus": "alleen", "verzekeraars": ["cz"], "module": "MiGuide"}
-    assert items["Kennemerland"]["verzekeraar_uitzondering"] == {"modus": "behalve", "verzekeraars": ["cz", "dsw"], "module": "ZoHealthy"}
+    assert items["Kennemerland"]["verzekeraar_uitzondering"] == {"modus": "behalve", "verzekeraars": ["dsw"], "module": "ZoHealthy"}
     assert "verzekeraar_uitzondering" not in items["ESV"]
 
 

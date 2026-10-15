@@ -2,6 +2,16 @@
   "updates": [
     {
       "date": "2026-10-15",
+      "title": "Kennemerland (LCK): alleen DSW via ZoHealthy",
+      "scope": "kaart",
+      "description": "Bij zorggroep Kennemerland (ook wel LCK) gaat alleen DSW nog via ZoHealthy. CZ en alle andere verzekeraars krijgen weer facturatiemodule Zorggroep.",
+      "summary": [
+        "Kennemerland + DSW (en Stad Holland): facturatiemodule ZoHealthy (Stroom 3).",
+        "Kennemerland + elke andere verzekeraar, ook CZ: facturatiemodule Zorggroep (Stroom 1)."
+      ]
+    },
+    {
+      "date": "2026-10-15",
       "title": "HUMO: alleen CZ via de zorggroep, andere verzekeraars via MiGuide",
       "scope": "kaart",
       "description": "Verwijzingen uit het HUMO-gebied die niet bij CZ verzekerd zijn, krijgen nu facturatiemodule MiGuide in plaats van Zorggroep.",
