@@ -1,6 +1,17 @@
 {
   "updates": [
     {
+      "date": "2026-10-15",
+      "title": "HUMO: alleen CZ via de zorggroep, andere verzekeraars via MiGuide",
+      "scope": "kaart",
+      "description": "Verwijzingen uit het HUMO-gebied die niet bij CZ verzekerd zijn, krijgen nu facturatiemodule MiGuide in plaats van Zorggroep.",
+      "summary": [
+        "HUMO + CZ (ook CZ direct, OHRA, Nationale-Nederlanden en Just) blijft facturatiemodule Zorggroep (Stroom 1).",
+        "HUMO + elke andere verzekeraar geeft facturatiemodule MiGuide (Stroom 2), prestatiecode CoOL-MiGuide.",
+        "In de adminomgeving kun je dit soort uitzonderingen per zorggroep zelf instellen onder 'Afwijkende facturatie per verzekeraar'."
+      ]
+    },
+    {
       "date": "2026-10-02",
       "title": "ESV dekt nu ook Wageningen, Renkum en Rhenen",
       "scope": "kaart",

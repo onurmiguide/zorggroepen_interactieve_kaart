@@ -51,6 +51,12 @@ def public_zorggroepen(db: Session = Depends(get_db)) -> dict:
         }
         if zg.color:
             item["color"] = zg.color
+        if zg.insurer_rule_mode:
+            item["verzekeraar_uitzondering"] = {
+                "modus": zg.insurer_rule_mode,
+                "verzekeraars": json.loads(zg.insurer_rule_concerns or "[]"),
+                "module": zg.insurer_rule_module,
+            }
         zorggroepen.append(item)
     # Plaatsnamen (plaats -> gemeente) uit de admin, zodat de kaarten ook dorpen kunnen
     # koppelen die zelf geen gemeente zijn. Meegestuurd om een extra aanvraag te sparen.

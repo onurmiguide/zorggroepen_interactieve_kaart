@@ -1,6 +1,8 @@
 """Admin CRUD voor zorggroepen (incl. plaatsen/locations)."""
 from __future__ import annotations
 
+import json
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
@@ -55,6 +57,19 @@ def get_zorggroep(zorggroep_id: int, db: Session = Depends(get_db), user: User =
     return _get_or_404(db, zorggroep_id)
 
 
+def _apply_insurer_rule(zg: Zorggroep, mode: str, concerns: list[str], module: str) -> None:
+    """Afwijkende facturatiemodule per verzekeraar (bijv. HUMO: alleen CZ via de zorggroep)."""
+    clean = sorted({c.strip().lower() for c in concerns if c and c.strip()})
+    if not mode:
+        zg.insurer_rule_mode, zg.insurer_rule_concerns, zg.insurer_rule_module = "", "[]", ""
+        return
+    if not clean or not module:
+        raise HTTPException(status_code=422, detail="Kies bij een verzekeraar-uitzondering minstens één verzekeraar en een facturatiemodule.")
+    zg.insurer_rule_mode = mode
+    zg.insurer_rule_concerns = json.dumps(clean, ensure_ascii=False)
+    zg.insurer_rule_module = module
+
+
 @router.post("", response_model=ZorggroepOut, status_code=status.HTTP_201_CREATED)
 def create_zorggroep(payload: ZorggroepCreate, db: Session = Depends(get_db), user: User = Depends(require_editor)) -> Zorggroep:
     if not is_valid_url(payload.website):
@@ -69,6 +84,7 @@ def create_zorggroep(payload: ZorggroepCreate, db: Session = Depends(get_db), us
         has_contract=payload.has_contract,
         is_active=payload.is_active,
     )
+    _apply_insurer_rule(zg, payload.insurer_rule_mode, payload.insurer_rule_concerns, payload.insurer_rule_module)
     for loc in payload.locations:
         zg.locations.append(
             ZorggroepLocation(city_name=loc.city_name.strip(), gemeente_name=loc.gemeente_name.strip(), notes=loc.notes.strip())
@@ -100,6 +116,13 @@ def update_zorggroep(zorggroep_id: int, payload: ZorggroepUpdate, db: Session = 
         zg.color = payload.color.strip()
     if payload.has_contract is not None:
         zg.has_contract = payload.has_contract
+    if payload.insurer_rule_mode is not None or payload.insurer_rule_concerns is not None or payload.insurer_rule_module is not None:
+        _apply_insurer_rule(
+            zg,
+            payload.insurer_rule_mode if payload.insurer_rule_mode is not None else zg.insurer_rule_mode,
+            payload.insurer_rule_concerns if payload.insurer_rule_concerns is not None else json.loads(zg.insurer_rule_concerns or "[]"),
+            payload.insurer_rule_module if payload.insurer_rule_module is not None else zg.insurer_rule_module,
+        )
     if payload.is_active is not None:
         zg.is_active = payload.is_active
     if payload.locations is not None:

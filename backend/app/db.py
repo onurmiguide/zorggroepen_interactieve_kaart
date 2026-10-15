@@ -68,6 +68,14 @@ def _run_light_migrations() -> None:
             for row_id, name in conn.execute(text("SELECT id, name FROM zorggroepen")).all():
                 if route_key(name) in no_contract:
                     conn.execute(text("UPDATE zorggroepen SET has_contract = :v WHERE id = :id"), {"v": False, "id": row_id})
+    for column, ddl in (
+        ("insurer_rule_mode", "VARCHAR(20) NOT NULL DEFAULT ''"),
+        ("insurer_rule_concerns", "TEXT NOT NULL DEFAULT '[]'"),
+        ("insurer_rule_module", "VARCHAR(60) NOT NULL DEFAULT ''"),
+    ):
+        if column not in columns:
+            with engine.begin() as conn:
+                conn.execute(text(f"ALTER TABLE zorggroepen ADD COLUMN {column} {ddl}"))
 
 
 def init_db() -> None:

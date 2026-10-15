@@ -1,9 +1,11 @@
 """Pydantic schemas voor request/response validatie."""
 from __future__ import annotations
 
+import json
 from datetime import datetime
+from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 
 from .models import VALID_ROLES
 
@@ -63,6 +65,9 @@ class ZorggroepBase(BaseModel):
     website: str = ""
     color: str = ""
     has_contract: bool = True
+    insurer_rule_mode: Literal["", "alleen", "behalve"] = ""
+    insurer_rule_concerns: list[str] = []
+    insurer_rule_module: Literal["", "MiGuide", "MiGuide - VGZ", "ZoHealthy"] = ""
     is_active: bool = True
 
 
@@ -76,6 +81,9 @@ class ZorggroepUpdate(BaseModel):
     website: str | None = None
     color: str | None = None
     has_contract: bool | None = None
+    insurer_rule_mode: Literal["", "alleen", "behalve"] | None = None
+    insurer_rule_concerns: list[str] | None = None
+    insurer_rule_module: Literal["", "MiGuide", "MiGuide - VGZ", "ZoHealthy"] | None = None
     is_active: bool | None = None
     locations: list[LocationIn] | None = None
 
@@ -86,6 +94,17 @@ class ZorggroepOut(ZorggroepBase):
     locations: list[LocationOut] = []
     created_at: datetime | None = None
     updated_at: datetime | None = None
+
+    @field_validator("insurer_rule_concerns", mode="before")
+    @classmethod
+    def _concerns_uit_json(cls, value):
+        # In de database als JSON-tekst opgeslagen.
+        if isinstance(value, str):
+            try:
+                value = json.loads(value or "[]")
+            except ValueError:
+                value = []
+        return value or []
 
 
 # ---------- Zorgverzekeraar ----------

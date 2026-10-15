@@ -116,6 +116,11 @@
       "zorggroep": "HUMO",
       "regio": "HUMO",
       "website": "",
+      "verzekeraar_uitzondering": {
+        "modus": "alleen",
+        "verzekeraars": ["cz"],
+        "module": "MiGuide"
+      },
       "cities": [
         "Oss",
         "Uden",
@@ -135,6 +140,11 @@
       "zorggroep": "Kennemerland",
       "regio": "Kennemerland",
       "website": "",
+      "verzekeraar_uitzondering": {
+        "modus": "behalve",
+        "verzekeraars": ["cz", "dsw"],
+        "module": "ZoHealthy"
+      },
       "cities": [
         "Beverwijk",
         "Haarlem",

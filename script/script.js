@@ -62,6 +62,7 @@ const zorggroepColorOverrides = new Map();
 function applyZorggroepColorOverrides(zorggroepen) {
   zorggroepColorOverrides.clear();
   zorggroepContractStatus.clear();
+  zorggroepInsurerRules.clear();
   for (const item of zorggroepen || []) {
     const name = item && item.zorggroep;
     const color = item && item.color;
@@ -71,8 +72,21 @@ function applyZorggroepColorOverrides(zorggroepen) {
     if (name && typeof item.contract === "boolean") {
       zorggroepContractStatus.set(normalizeText(name), item.contract);
     }
+    const rule = item && item.verzekeraar_uitzondering;
+    if (name && rule && (rule.modus === "alleen" || rule.modus === "behalve") && rule.module && Array.isArray(rule.verzekeraars)) {
+      zorggroepInsurerRules.set(normalizeText(name), {
+        modus: rule.modus,
+        verzekeraars: new Set(rule.verzekeraars.map((key) => normalizeText(key))),
+        module: String(rule.module)
+      });
+    }
   }
 }
+
+// Afwijkende facturatiemodule per verzekeraar uit de admin (genormaliseerde zorggroep -> regel).
+// "alleen": contract alleen met deze verzekeraars, de rest krijgt `module` (bijv. HUMO: alleen CZ, rest MiGuide).
+// "behalve": deze verzekeraars krijgen `module` (bijv. Kennemerland: CZ en DSW via ZoHealthy).
+const zorggroepInsurerRules = new Map();
 
 // Contractstatus per zorggroep uit de admin (genormaliseerde naam -> true/false).
 // Ja = gekleurd + zorggroep-route; nee = grijs + geen-contract-route.
@@ -1267,14 +1281,18 @@ function resolveDecisionTreeRouting2026(feature, insurerName = "") {
     return workbookSpecialRoute;
   }
 
-  // Kennemerland (voorheen LCK) heeft geen contract met CZ en DSW; deelnemers bij
-  // die verzekeraars lopen daarom via ZoHealthy (niet-gecontracteerde zorg).
-  if (zorggroepNorm === "kennemerland" && (insurerNorm === "cz" || insurerNorm === "dsw")) {
-    return {
-      routeType,
-      moduleName: "ZoHealthy",
-      stroom: FACTURATIESTROMEN.STROOM_3
-    };
+  // Verzekeraar-uitzondering uit de admin (bijv. HUMO: alleen CZ via de zorggroep, andere
+  // verzekeraars via MiGuide; Kennemerland: CZ en DSW via ZoHealthy).
+  const insurerRule = zorggroepInsurerRules.get(zorggroepNorm);
+  if (insurerRule && insurerNorm && insurerNorm !== "all") {
+    const listed = insurerRule.verzekeraars.has(insurerNorm);
+    if (insurerRule.modus === "alleen" ? !listed : listed) {
+      return {
+        routeType,
+        moduleName: insurerRule.module,
+        stroom: insurerRule.module === "ZoHealthy" ? FACTURATIESTROMEN.STROOM_3 : FACTURATIESTROMEN.STROOM_2
+      };
+    }
   }
 
   if (routeType === "ga") {

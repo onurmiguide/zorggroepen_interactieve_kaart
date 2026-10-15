@@ -107,6 +107,32 @@ def test_esv_dekt_wageningen_renkum_en_rhenen(auth_client: TestClient) -> None:
         assert "ESV" in {r["zorggroep"] for r in rows if pc4 in r["pc4s"].split()}, pc4
 
 
+def test_verzekeraar_uitzonderingen_humo_en_kennemerland(auth_client: TestClient) -> None:
+    items = {z["zorggroep"]: z for z in _public_zorggroepen(auth_client)["zorggroepen"]}
+    assert items["HUMO"]["verzekeraar_uitzondering"] == {"modus": "alleen", "verzekeraars": ["cz"], "module": "MiGuide"}
+    assert items["Kennemerland"]["verzekeraar_uitzondering"] == {"modus": "behalve", "verzekeraars": ["cz", "dsw"], "module": "ZoHealthy"}
+    assert "verzekeraar_uitzondering" not in items["ESV"]
+
+
+def test_verzekeraar_uitzondering_beheren_in_admin(auth_client: TestClient) -> None:
+    zg = next(z for z in auth_client.get("/api/admin/zorggroepen").json() if z["name"] == "HUMO")
+    assert zg["insurer_rule_mode"] == "alleen" and zg["insurer_rule_concerns"] == ["cz"]
+    try:
+        # Zonder verzekeraar mag niet.
+        bad = auth_client.put(f"/api/admin/zorggroepen/{zg['id']}", json={"insurer_rule_concerns": []})
+        assert bad.status_code == 422
+        # Uitzetten werkt door in de publieke API.
+        off = auth_client.put(f"/api/admin/zorggroepen/{zg['id']}", json={"insurer_rule_mode": ""})
+        assert off.status_code == 200 and off.json()["insurer_rule_concerns"] == []
+        humo = next(z for z in _public_zorggroepen(auth_client)["zorggroepen"] if z["zorggroep"] == "HUMO")
+        assert "verzekeraar_uitzondering" not in humo
+    finally:
+        auth_client.put(
+            f"/api/admin/zorggroepen/{zg['id']}",
+            json={"insurer_rule_mode": "alleen", "insurer_rule_concerns": ["cz"], "insurer_rule_module": "MiGuide"},
+        )
+
+
 def test_pc4_overzicht_volgt_contractstatus(auth_client: TestClient) -> None:
     zg = next(z for z in auth_client.get("/api/admin/zorggroepen").json() if z["name"] == "Rijnmond dokters")
     try:

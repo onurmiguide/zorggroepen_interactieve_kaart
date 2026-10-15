@@ -55,6 +55,13 @@ class Zorggroep(Base, TimestampMixin):
     color: Mapped[str] = mapped_column(String(20), default="", nullable=False)
     # Contract met MiGuide: ja = gekleurd op de kaart + zorggroep-route; nee = grijs + geen-contract-route.
     has_contract: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    # Afwijkende facturatiemodule per verzekeraar(sconcern):
+    #   "alleen"  = contract alleen met deze verzekeraars; alle andere krijgen insurer_rule_module
+    #   "behalve" = deze verzekeraars krijgen insurer_rule_module; de rest volgt de zorggroep-route
+    #   ""        = geen afwijking
+    insurer_rule_mode: Mapped[str] = mapped_column(String(20), default="", nullable=False)
+    insurer_rule_concerns: Mapped[str] = mapped_column(Text, default="[]", nullable=False)
+    insurer_rule_module: Mapped[str] = mapped_column(String(60), default="", nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 
     locations: Mapped[list["ZorggroepLocation"]] = relationship(

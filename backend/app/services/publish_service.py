@@ -59,6 +59,12 @@ def build_zorggroepen_json(db: Session) -> dict:
             item["color"] = zg.color
         if not zg.has_contract:
             item["contract"] = False
+        if zg.insurer_rule_mode:
+            item["verzekeraar_uitzondering"] = {
+                "modus": zg.insurer_rule_mode,
+                "verzekeraars": json.loads(zg.insurer_rule_concerns or "[]"),
+                "module": zg.insurer_rule_module,
+            }
         zorggroepen.append(item)
     return {"source": existing_source, "zorggroepen": zorggroepen}
 

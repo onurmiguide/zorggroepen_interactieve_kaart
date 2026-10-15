@@ -56,6 +56,14 @@ def set_data_version(db: Session, value: str | None = None) -> str:
 
 _NO_CONTRACT_ROUTE_KEYS = {key for key, route in sc.BESLISBOOM_ROUTE_BY_ZORGGROEP_2026 if route == "no_contract"}
 
+# Afwijkende facturatiemodule per verzekeraar (zorggroep -> (modus, concerns, module)).
+#  - HUMO: alleen CZ via de zorggroep; alle andere verzekeraars -> MiGuide (bericht 15-10-2026).
+#  - Kennemerland: geen contract met CZ en DSW -> ZoHealthy (voorheen vast in script.js).
+VERZEKERAAR_UITZONDERINGEN = {
+    "HUMO": ("alleen", ["cz"], "MiGuide"),
+    "Kennemerland": ("behalve", ["cz", "dsw"], "ZoHealthy"),
+}
+
 # ESV-plaatsen die er sinds oktober 2026 bij horen (contractoverzicht augustus 2026).
 ESV_EXTRA_PLAATSEN = ["Wageningen", "Renkum", "Heelsum", "Rhenen"]
 
@@ -95,6 +103,11 @@ def _seed_zorggroepen(db: Session) -> int:
             has_contract=_initial_contract_status(item, name),
             is_active=True,
         )
+        rule = item.get("verzekeraar_uitzondering") or {}
+        if rule.get("modus") in ("alleen", "behalve") and rule.get("verzekeraars") and rule.get("module"):
+            zg.insurer_rule_mode = rule["modus"]
+            zg.insurer_rule_concerns = json.dumps(sorted(rule["verzekeraars"]), ensure_ascii=False)
+            zg.insurer_rule_module = rule["module"]
         for city in item.get("cities") or []:
             city_name = str(city or "").strip()
             if city_name:
@@ -340,6 +353,17 @@ def _apply_zorggroep_corrections(db: Session) -> int:
             if normalize_text(plaats) not in have:
                 esv.locations.append(ZorggroepLocation(city_name=plaats))
         db.add(AppMeta(key="esv_regio_2026_10", value="1"))
+        changed += 1
+
+    # Verzekeraar-uitzonderingen eenmalig zetten; daarna beheert de admin ze.
+    if db.get(AppMeta, "verzekeraar_uitzonderingen_2026_10") is None:
+        for name, (mode, concerns, module) in VERZEKERAAR_UITZONDERINGEN.items():
+            zg = db.scalar(select(Zorggroep).where(Zorggroep.name == name))
+            if zg is not None and not zg.insurer_rule_mode:
+                zg.insurer_rule_mode = mode
+                zg.insurer_rule_concerns = json.dumps(concerns, ensure_ascii=False)
+                zg.insurer_rule_module = module
+        db.add(AppMeta(key="verzekeraar_uitzonderingen_2026_10", value="1"))
         changed += 1
 
     # Zuid-Holland-Zuid wordt twee aparte zorggroepen: de oude rij wordt ZHZ VGZ (id en

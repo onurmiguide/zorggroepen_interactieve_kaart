@@ -339,6 +339,7 @@
         { key: "has_contract", label: "Contract", render: (r) => r.has_contract
             ? `<span class="zga-badge zga-badge-green">Ja</span>`
             : `<span class="zga-badge zga-badge-slate">Nee (grijs)</span>`, sortable: true, sortValue: (r) => (r.has_contract ? 1 : 0) },
+        { key: "insurer_rule_mode", label: "Verzekeraar-uitzondering", render: (r) => insurerRuleSummary(r), sortable: true, sortValue: (r) => insurerRuleSummary(r, true) },
         { key: "cities", label: "Plaatsen", render: (r) => `<span class="zga-badge zga-badge-slate">${r.locations.length}</span>`, sortable: true, sortValue: (r) => r.locations.length },
         { key: "website", label: "Website", render: (r) => r.website ? `<a class="text-sky-600 hover:underline" href="${escapeHtml(r.website)}" target="_blank" rel="noopener">link</a>` : "<span class='text-slate-400'>-</span>" },
         { key: "is_active", label: "Status", render: (r) => statusBadge(r.is_active), sortable: true, sortValue: (r) => (r.is_active ? 1 : 0) },
@@ -351,6 +352,20 @@
       else if (action === "toggle") toggleActive("/api/admin/zorggroepen", row, () => selectTab("zorggroepen"));
       else if (action === "delete") deleteEntity("/api/admin/zorggroepen", row.id, `zorggroep "${row.name}"`, () => selectTab("zorggroepen"));
     };
+  }
+
+  // Concern-sleutel leesbaar maken: "cz" -> "CZ", "zorg zekerheid" -> "Zorg Zekerheid".
+  function concernLabel(key) {
+    const k = String(key || "");
+    return k.length <= 4 ? k.toUpperCase() : k.replace(/\b\w/g, (c) => c.toUpperCase());
+  }
+  function insurerRuleSummary(r, plain) {
+    if (!r.insurer_rule_mode) return plain ? "" : '<span class="text-xs text-slate-400">-</span>';
+    const names = (r.insurer_rule_concerns || []).map(concernLabel).join(", ");
+    const text = r.insurer_rule_mode === "alleen"
+      ? `Alleen ${names} via zorggroep; overige → ${r.insurer_rule_module}`
+      : `${names} → ${r.insurer_rule_module}`;
+    return plain ? text : `<span class="zga-badge zga-badge-amber">${escapeHtml(text)}</span>`;
   }
 
   function zorggroepForm(row) {
@@ -373,6 +388,19 @@
         <span class="text-xs text-slate-400">Vink uit en kies een kleur om die zorggroep een vaste kaartkleur te geven.</span>
       </div>
       ${field("Contract met MiGuide", `<select name="has_contract" class="zga-select"><option value="true"${row && row.has_contract === false ? "" : " selected"}>Ja - gekleurd op de kaart, zorggroep-route</option><option value="false"${row && row.has_contract === false ? " selected" : ""}>Nee - grijs op de kaart, geen-contract-route</option></select>`, "Bepaalt de kleur op beide kaarten en de facturatieroute in de Zorgtool.")}
+      <div class="rounded-lg border border-slate-200 p-3 dark:border-slate-700">
+        <span class="text-sm font-medium text-slate-700 dark:text-slate-200">Afwijkende facturatie per verzekeraar</span>
+        <select name="insurer_rule_mode" class="zga-select mt-1">
+          <option value=""${row?.insurer_rule_mode ? "" : " selected"}>Geen - alle verzekeraars volgen de route van de zorggroep</option>
+          <option value="alleen"${row?.insurer_rule_mode === "alleen" ? " selected" : ""}>Contract alleen met de aangevinkte verzekeraars - alle andere krijgen de module hieronder</option>
+          <option value="behalve"${row?.insurer_rule_mode === "behalve" ? " selected" : ""}>De aangevinkte verzekeraars krijgen de module hieronder</option>
+        </select>
+        <div id="zgRuleBody" class="mt-2 grid gap-2">
+          <div id="zgRuleConcerns" class="grid gap-1 text-sm sm:grid-cols-2"><span class="text-xs text-slate-400">Verzekeraars laden...</span></div>
+          ${field("Facturatiemodule", `<select name="insurer_rule_module" class="zga-select">${["MiGuide", "MiGuide - VGZ", "ZoHealthy"].map((m) => `<option value="${m}"${(row?.insurer_rule_module || "MiGuide") === m ? " selected" : ""}>${m}</option>`).join("")}</select>`)}
+        </div>
+        <span class="text-xs text-slate-400">Bijv. HUMO: contract alleen met CZ; alle andere verzekeraars krijgen MiGuide. Verzekeraars per concern (CZ = ook OHRA, Nationale-Nederlanden, Just, CZ direct).</span>
+      </div>
       ${field("Actief", `<select name="is_active" class="zga-select"><option value="true"${row && !row.is_active ? "" : " selected"}>Actief</option><option value="false"${row && !row.is_active ? " selected" : ""}>Inactief</option></select>`)}
       <div>
         <div class="mb-1 flex items-center justify-between">
@@ -410,11 +438,33 @@
     drawLocs();
     form.querySelector("#zgAddLoc").addEventListener("click", () => { locations.push({ city_name: "", gemeente_name: "", notes: "" }); drawLocs(); });
 
+    const ruleMode = form.querySelector('[name="insurer_rule_mode"]');
+    const ruleBody = form.querySelector("#zgRuleBody");
+    const syncRuleBody = () => { ruleBody.hidden = !ruleMode.value; };
+    ruleMode.addEventListener("change", syncRuleBody);
+    syncRuleBody();
+    const chosenConcerns = new Set(row?.insurer_rule_concerns || []);
+    api.get("/api/admin/zorgverzekeraars").then((insurers) => {
+      const groups = new Map();
+      for (const v of insurers || []) {
+        if (!v.concern_key) continue;
+        if (!groups.has(v.concern_key)) groups.set(v.concern_key, []);
+        groups.get(v.concern_key).push(v.name);
+      }
+      const host = form.querySelector("#zgRuleConcerns");
+      host.innerHTML = [...groups.entries()].sort((a, b) => a[0].localeCompare(b[0], "nl")).map(([key, names]) => `
+        <label class="flex items-start gap-1.5 text-slate-700 dark:text-slate-200">
+          <input type="checkbox" name="insurer_rule_concerns" value="${escapeHtml(key)}"${chosenConcerns.has(key) ? " checked" : ""} class="mt-1" />
+          <span><b>${escapeHtml(concernLabel(key))}</b> <span class="text-xs text-slate-400">(${escapeHtml(names.join(", "))})</span></span>
+        </label>`).join("");
+    }).catch(() => { form.querySelector("#zgRuleConcerns").innerHTML = '<span class="text-xs text-red-500">Verzekeraars konden niet geladen worden.</span>'; });
+
     const save = makeButton(isEdit ? "Opslaan" : "Toevoegen", "zga-btn-primary", async () => {
       if (!confirmEdit(isEdit)) return;
       const fd = new FormData(form);
       const name = String(fd.get("name") || "").trim();
       if (!name) { toast("Naam is verplicht.", "error"); return; }
+      if (fd.get("insurer_rule_mode") && !fd.getAll("insurer_rule_concerns").length) { toast("Vink bij de verzekeraar-uitzondering minstens één verzekeraar aan.", "error"); return; }
       const autoColor = form.querySelector("#zgAutoColor").checked;
       const colorValue = autoColor ? "" : form.querySelector("#zgColor").value;
       const payload = {
@@ -423,6 +473,9 @@
         website: String(fd.get("website") || "").trim(),
         color: colorValue,
         has_contract: fd.get("has_contract") === "true",
+        insurer_rule_mode: String(fd.get("insurer_rule_mode") || ""),
+        insurer_rule_concerns: fd.get("insurer_rule_mode") ? fd.getAll("insurer_rule_concerns").map(String) : [],
+        insurer_rule_module: fd.get("insurer_rule_mode") ? String(fd.get("insurer_rule_module") || "") : "",
         is_active: fd.get("is_active") === "true",
         locations: locations.filter((l) => (l.city_name || "").trim()).map((l) => ({ city_name: l.city_name.trim(), gemeente_name: (l.gemeente_name || "").trim(), notes: (l.notes || "").trim() })),
       };
