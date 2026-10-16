@@ -63,43 +63,52 @@
 
   <div class="mx-auto flex min-h-0 w-full max-w-[1400px] flex-1 flex-col gap-3 p-3">
 
-    <!-- ZOEKBALK (invoer) -->
-    <form id="inputForm" class="shrink-0 rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800" autocomplete="off">
-      <div class="grid items-end gap-3 md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)_auto_auto]">
-        <div>
-          <label for="locInput" class="text-xs font-medium text-slate-600 dark:text-slate-300">Postcode of gemeente</label>
-          <div class="relative mt-1">
-            <svg class="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11ZM2 9a7 7 0 1 1 12.45 4.39l3.08 3.08a.75.75 0 1 1-1.06 1.06l-3.08-3.08A7 7 0 0 1 2 9Z" clip-rule="evenodd"/></svg>
-            <input id="locInput" list="locSuggestions" class="w-full rounded-xl border border-slate-300 bg-white py-2.5 pl-9 pr-3 text-[15px] text-slate-900 outline-none placeholder:text-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-500/15 dark:border-slate-600 dark:bg-slate-950 dark:text-white" placeholder="Bijv. 5341AA of Oss" />
-            <datalist id="locSuggestions"></datalist>
+
+    <!-- Links: invoer + kaart | rechts: resultaat + plaatsen/postcodes. Niets verspringt. -->
+    <main class="flex min-h-0 flex-1 flex-col gap-3 xl:grid xl:grid-cols-[360px_minmax(0,1fr)]">
+      <div class="contents xl:flex xl:min-h-0 xl:flex-col xl:gap-3">
+      <!-- 1. INVOER (compact, velden onder elkaar) -->
+      <form id="inputForm" class="order-1 shrink-0 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200 xl:order-none dark:bg-slate-900 dark:ring-slate-800" autocomplete="off">
+        <label for="locInput" class="text-xs font-medium text-slate-600 dark:text-slate-300">Postcode of gemeente</label>
+        <div class="relative mt-1">
+          <svg class="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11ZM2 9a7 7 0 1 1 12.45 4.39l3.08 3.08a.75.75 0 1 1-1.06 1.06l-3.08-3.08A7 7 0 0 1 2 9Z" clip-rule="evenodd"/></svg>
+          <input id="locInput" list="locSuggestions" class="w-full rounded-xl border border-slate-300 bg-white py-2.5 pl-9 pr-3 text-[15px] text-slate-900 outline-none placeholder:text-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-500/15 dark:border-slate-600 dark:bg-slate-950 dark:text-white" placeholder="Bijv. 5341AA of Oss" />
+          <datalist id="locSuggestions"></datalist>
+        </div>
+        <label for="insurerInput" class="mt-3 block text-xs font-medium text-slate-600 dark:text-slate-300">Zorgverzekeraar <span class="font-normal text-slate-400">(per concern)</span></label>
+        <select id="insurerInput" class="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-[15px] text-slate-900 outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/15 dark:border-slate-600 dark:bg-slate-950 dark:text-white"></select>
+        <div class="mt-3 grid grid-cols-[1fr_auto] gap-2">
+          <button type="submit" class="rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700 focus:outline-none focus:ring-4 focus:ring-brand-500/30 active:translate-y-px">Bepaal facturatie</button>
+          <button type="button" id="clearBtn" class="rounded-xl px-3 py-2.5 text-sm font-medium text-slate-500 transition hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-800">Wissen</button>
+        </div>
+        <!-- Vaste hoogte, zodat er niets verspringt -->
+        <div class="mt-3 flex h-6 items-center gap-2 overflow-hidden text-xs">
+          <span class="shrink-0 font-medium text-slate-400">Recent:</span>
+          <span id="recentChips" class="flex min-w-0 gap-1.5 overflow-hidden"><span class="text-slate-400">nog niets gezocht</span></span>
+        </div>
+      </form>
+        <div class="order-3 flex h-[320px] min-h-[200px] flex-col xl:order-none xl:h-auto xl:flex-1 overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800">
+          <div class="flex shrink-0 gap-1 border-b border-slate-100 p-2 dark:border-slate-800" role="tablist">
+            <button type="button" data-tab="kaart" class="tab rounded-lg px-3 py-1.5 text-sm font-medium">Kaart</button>
+            <button type="button" data-tab="plaatsen" class="tab rounded-lg px-3 py-1.5 text-sm font-medium">Plaatsen</button>
+            <button type="button" data-tab="postcodes" class="tab rounded-lg px-3 py-1.5 text-sm font-medium">Postcodes (PC4)</button>
+            <div class="relative ml-auto">
+              <button type="button" id="filterToggle" class="rounded-lg px-2.5 py-1.5 text-xs font-medium text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800" title="Filters voor de kaart">Filter ▾</button>
+              <div id="filterMenu" class="absolute right-0 top-[calc(100%+4px)] z-[1100] grid w-64 gap-2 rounded-xl bg-white p-3 shadow-xl ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700" hidden>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Filters voor de kaart; verandert het resultaat niet.</p>
+                <select class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-950"><option>Alle zorggroepen</option></select>
+                <select class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-950"><option>Alle facturatiestromen</option></select>
+              </div>
+            </div>
+          </div>
+          <div class="relative min-h-0 flex-1">
+            <div id="map" class="absolute inset-0"></div>
+            <div id="tabBody" class="absolute inset-0 overflow-y-auto bg-white p-3 text-sm dark:bg-slate-900" hidden></div>
           </div>
         </div>
-        <div>
-          <label for="insurerInput" class="text-xs font-medium text-slate-600 dark:text-slate-300">Zorgverzekeraar <span class="font-normal text-slate-400">(per concern)</span></label>
-          <select id="insurerInput" class="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-[15px] text-slate-900 outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/15 dark:border-slate-600 dark:bg-slate-950 dark:text-white"></select>
-        </div>
-        <button type="submit" class="rounded-xl bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700 focus:outline-none focus:ring-4 focus:ring-brand-500/30 active:translate-y-px">Bepaal facturatie</button>
-        <button type="button" id="clearBtn" class="rounded-xl px-3 py-2.5 text-sm font-medium text-slate-500 transition hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-800">Wissen</button>
       </div>
-      <!-- Vaste hoogte, zodat er niets verspringt -->
-      <div class="mt-2 flex h-6 items-center gap-2 overflow-hidden text-xs">
-        <span class="shrink-0 font-medium text-slate-400">Recent:</span>
-        <span id="recentChips" class="flex min-w-0 gap-1.5 overflow-hidden"><span class="text-slate-400">nog niets gezocht</span></span>
-        <div class="relative ml-auto shrink-0">
-          <button type="button" id="filterToggle" class="rounded-md px-2 py-1 font-medium text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800">Filters voor de kaart ▾</button>
-          <div id="filterMenu" class="absolute right-0 top-[calc(100%+4px)] z-[1100] grid w-64 gap-2 rounded-xl bg-white p-3 shadow-xl ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700" hidden>
-            <p class="text-xs text-slate-500 dark:text-slate-400">Alleen om de kaart te filteren; verandert het resultaat niet.</p>
-            <select class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-950"><option>Alle zorggroepen</option></select>
-            <select class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-950"><option>Alle facturatiestromen</option></select>
-          </div>
-        </div>
-      </div>
-    </form>
-
-    <!-- RESULTAAT (breed) | KAART + PLAATSEN/POSTCODES (smal) -->
-    <main class="grid min-h-0 flex-1 gap-3 xl:grid-cols-[minmax(0,1.75fr)_minmax(340px,1fr)]">
-
-      <section class="min-h-0">
+      <div class="contents xl:flex xl:min-h-0 xl:flex-col xl:gap-3">
+      <section class="order-2 min-h-[360px] xl:order-none xl:min-h-0 xl:flex-1">
         <div class="flex h-full flex-col rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800">
           <div class="flex h-12 shrink-0 items-center gap-3 border-b border-slate-100 px-5 dark:border-slate-800">
             <h2 id="resTitle" class="text-base font-semibold text-slate-900 dark:text-white">Resultaat</h2>
@@ -159,23 +168,7 @@
           </div>
         </div>
       </section>
-
-      <section class="flex min-h-0 flex-col gap-3">
-        <div class="flex h-[60%] max-h-[340px] min-h-[180px] shrink-0 flex-col overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800">
-          <div class="flex shrink-0 items-center justify-between border-b border-slate-100 px-4 py-2 dark:border-slate-800">
-            <span class="text-sm font-semibold text-slate-800 dark:text-slate-100">Kaart</span>
-            <span class="text-xs text-slate-400">Klik op een gebied voor de zorggroep</span>
-          </div>
-          <div id="map" class="min-h-0 w-full flex-1"></div>
-        </div>
-        <div class="flex min-h-[130px] flex-1 flex-col rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800">
-          <div class="flex shrink-0 gap-1 border-b border-slate-100 p-2 dark:border-slate-800" role="tablist">
-            <button type="button" data-tab="plaatsen" class="tab rounded-lg px-3 py-1.5 text-sm font-medium">Plaatsen</button>
-            <button type="button" data-tab="postcodes" class="tab rounded-lg px-3 py-1.5 text-sm font-medium">Postcodes (PC4)</button>
-          </div>
-          <div id="tabBody" class="min-h-0 flex-1 overflow-y-auto p-3 text-sm"></div>
-        </div>
-      </section>
+      </div>
     </main>
 
     <p class="hidden shrink-0 text-[11px] text-slate-400 xl:block">Iets onjuist of een update nodig? Mail info@miguide.nl of stuur een bericht aan Onur.</p>
@@ -275,7 +268,7 @@
   const $ = (id) => document.getElementById(id);
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
   let current = null;
-  let activeTab = "plaatsen";
+  let activeTab = "kaart";
 
   function fillInsurers() {
     $("insurerInput").innerHTML = '<option value="">Kies een zorgverzekeraar…</option>' + INSURERS.map(([label, , names]) =>
@@ -332,6 +325,8 @@
       const on = b.dataset.tab === activeTab;
       b.className = "tab rounded-lg px-3 py-1.5 text-sm font-medium " + (on ? "bg-brand-50 text-brand-700 dark:bg-brand-900/50 dark:text-brand-100" : "text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800");
     });
+    $("tabBody").hidden = activeTab === "kaart";
+    if (activeTab === "kaart") { setTimeout(() => map.invalidateSize(), 0); return; }
     if (!current) { $("tabBody").innerHTML = '<p class="text-slate-400">Zoek eerst een postcode of plaats.</p>'; return; }
     const zg = current.r.zg;
     $("tabBody").innerHTML = activeTab === "plaatsen"
