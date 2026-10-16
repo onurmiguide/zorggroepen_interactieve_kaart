@@ -6,6 +6,8 @@
   <meta name="robots" content="noindex, nofollow" />
   <title>Zorgtools - MiGuide (test)</title>
   <script>
+    // Zonder slash (/test-omgeving) wijzen relatieve links naar de hoofdmap: eerst de slash toevoegen.
+    if (/\/test-omgeving$/.test(location.pathname)) location.replace(location.pathname + "/" + location.search + location.hash);
     // Oude testlinks (?postcode= / ?gemeente=) gingen naar de Zorgtool: doorsturen.
     if (/[?&](postcode|gemeente)=/.test(location.search)) location.replace("zorgtool.html" + location.search);
     // Thema direct zetten (voorkomt flitsen); zelfde voorkeur als de rest van de site.

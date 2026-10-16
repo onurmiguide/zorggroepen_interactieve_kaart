@@ -2,6 +2,18 @@
   "updates": [
     {
       "date": "2026-10-16",
+      "title": "Testomgeving: hele site in het nieuwe ontwerp",
+      "scope": "website",
+      "description": "Op /test-omgeving staat nu de hele site in het nieuwe, rustigere ontwerp: startpagina, Zorgtool, Zorggroep kaart, Updates en Documentatie. De testversie gebruikt dezelfde data en regels als de huidige Zorgtool; de huidige site blijft ongewijzigd.",
+      "summary": [
+        "Zorgtool: invoer en uitkomst in een vast blok links op de kaart, met de reden waarom een postcode bij een zorggroep en facturatiemodule hoort.",
+        "Zorggroep kaart: alle zorggroepen, met filter op wel of geen contract en een klikbare lijst.",
+        "Inloggen gaat altijd via de startpagina; vanaf de kaartpagina's ga je met het logo of '← Start' in één klik terug.",
+        "Werkt ook op mobiel (versleepbaar onderpaneel) en in donkere modus."
+      ]
+    },
+    {
+      "date": "2026-10-16",
       "title": "Testomgeving voor de nieuwe Zorgtool",
       "scope": "website",
       "description": "Op /test-omgeving staat een eerste ontwerp van de nieuwe, overzichtelijkere Zorgtool. Dit is alleen een voorbeeld met testdata; de huidige Zorgtool blijft ongewijzigd.",
