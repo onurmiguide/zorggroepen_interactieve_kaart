@@ -4,6 +4,16 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="robots" content="noindex, nofollow" />
+  <script>
+    // Niet ingelogd: eerst naar de startpagina, daar staat het wachtwoordscherm.
+    // Een zoekopdracht in de link (?postcode=...) gaat mee en opent na het inloggen weer.
+    try {
+      if (sessionStorage.getItem("miguide_auth_ok") !== "1") {
+        const page = location.pathname.split("/").pop();
+        location.replace("./" + (location.search ? "?next=" + encodeURIComponent(page + location.search) : ""));
+      }
+    } catch (e) { /* geen sessionStorage: wachtwoordscherm op deze pagina zelf */ }
+  </script>
   <title>Zorggroep kaart - MiGuide (test)</title>
   <script>
     try {
@@ -80,7 +90,7 @@
   </aside>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="site.js?v=20261016-8"></script>
+  <script src="site.js?v=20261016-9"></script>
   <script src="zorggroepkaart.js?v=20261016-7"></script>
 </body>
 </html>

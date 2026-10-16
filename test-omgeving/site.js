@@ -75,8 +75,16 @@ window.ZT = (() => {
   function isUnlocked() {
     try { return sessionStorage.getItem(AUTH_KEY) === "1"; } catch (e) { return false; }
   }
+  // Na inloggen op de startpagina: alleen terug naar een tool als de link een zoekopdracht had.
+  function goNext() {
+    const next = new URLSearchParams(location.search).get("next");
+    if (next && /^(zorgtool|zorggroepkaart)\.html(\?[^#]*)?$/.test(next)) { location.replace(next); return true; }
+    if (next !== null) history.replaceState(null, "", location.pathname);
+    return false;
+  }
   function initGate() {
-    if (document.body.dataset.auth !== "required" || isUnlocked()) return;
+    if (document.body.dataset.auth !== "required") return;
+    if (isUnlocked()) { goNext(); return; }
     const gate = document.createElement("div");
     gate.className = "gate";
     gate.innerHTML = `
@@ -105,6 +113,7 @@ window.ZT = (() => {
         return;
       }
       try { sessionStorage.setItem(AUTH_KEY, "1"); } catch (err) { /* alleen deze pagina */ }
+      if (goNext()) return;
       gate.remove();
       document.body.removeAttribute("aria-busy");
       document.dispatchEvent(new CustomEvent("zt:unlocked"));
