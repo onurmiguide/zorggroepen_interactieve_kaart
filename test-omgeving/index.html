@@ -2,427 +2,81 @@
 <html lang="nl">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="robots" content="noindex, nofollow" />
   <title>Zorgtool testomgeving - MiGuide</title>
   <link rel="icon" type="image/svg+xml" href="/zg-data/map-find-search-svgrepo-com.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: "class",
-      theme: {
-        extend: {
-          fontFamily: { sans: ["Inter", "ui-sans-serif", "system-ui", "Segoe UI", "sans-serif"] },
-          colors: { brand: { 50: "#eef0fb", 100: "#dde1f6", 500: "#4a50a8", 600: "#373c8c", 700: "#2b2f73", 900: "#1b1e4b" } }
-        }
-      }
-    };
-  </script>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <style>
-    .tile { transition: box-shadow .15s, transform .15s; }
-    .fade-in { animation: fadeIn .25s ease-out; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
-    details > summary { list-style: none; cursor: pointer; }
-    details > summary::-webkit-details-marker { display: none; }
-    details[open] .chev { transform: rotate(180deg); }
-    .leaflet-container { font-family: inherit; }
-    [hidden] { display: none !important; }
-    :root { --top-row: 330px; }
-  </style>
+  <link rel="stylesheet" href="zorgtool.css?v=20261016-5" />
+  <script>
+    // Thema direct zetten (voorkomt flitsen); zelfde voorkeur als de rest van de site.
+    try {
+      const t = localStorage.getItem("miguide_theme");
+      if (t === "dark" || t === "light") document.documentElement.dataset.theme = t;
+    } catch (e) {}
+  </script>
 </head>
-<body class="flex min-h-screen flex-col bg-slate-100 font-sans text-slate-800 antialiased xl:h-screen xl:overflow-hidden dark:bg-slate-950 dark:text-slate-200">
+<body>
+  <div id="map" class="map" role="region" aria-label="Kaart met zorggroepen"></div>
 
-  <!-- Prototypebalk: alleen voor het voorstel -->
-  <div class="shrink-0 bg-amber-100 px-4 py-1.5 text-xs text-amber-900 dark:bg-amber-900/40 dark:text-amber-100">
-    <div class="mx-auto flex max-w-[1400px] flex-wrap items-center gap-2">
-      <span class="font-semibold">Testomgeving nieuwe Zorgtool</span>
-      <span class="hidden sm:inline">· voorbeelddata ·</span>
-      <span class="font-medium">Probeer:</span>
-      <span id="demoChips" class="flex flex-wrap gap-1.5"></span>
-    </div>
-  </div>
+  <aside id="panel" class="panel" aria-label="Zoeken en resultaat">
+    <button type="button" id="sheetHandle" class="sheet-handle" aria-label="Paneel groter of kleiner maken"></button>
 
-  <!-- Topbalk -->
-  <header class="z-[1000] shrink-0 border-b border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
-    <div class="mx-auto flex max-w-[1400px] items-center gap-4 px-4 py-2.5">
-      <img id="logo" src="/zg-data/MiGuide_Logo_Nieuw.png" data-light="/zg-data/MiGuide_Logo_Nieuw.png" data-dark="/zg-data/MiGuide_Logo_White.png" alt="MiGuide" class="h-auto w-[100px]" />
-      <div class="hidden h-6 w-px bg-slate-200 sm:block dark:bg-slate-700"></div>
-      <nav class="hidden items-center gap-1 text-sm font-medium sm:flex">
-        <a class="rounded-lg bg-brand-50 px-3 py-1.5 text-brand-700 dark:bg-brand-900/50 dark:text-brand-100" href="#">Zorgtool</a>
-        <a class="rounded-lg px-3 py-1.5 text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800" href="#">Zorggroep kaart</a>
-        <a class="rounded-lg px-3 py-1.5 text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800" href="#">Updates</a>
-        <a class="rounded-lg px-3 py-1.5 text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800" href="#">Documentatie</a>
-      </nav>
-      <div class="ml-auto flex items-center gap-2">
-        <button id="themeToggle" type="button" class="flex h-9 w-9 items-center justify-center rounded-full border border-slate-300 text-slate-700 hover:bg-slate-100 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800" aria-label="Donkere modus">◐</button>
-        <a href="#" class="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800">Admin</a>
+    <header class="panel-head">
+      <img class="logo logo-light" src="/zg-data/MiGuide_Logo_Nieuw.png" alt="MiGuide" />
+      <img class="logo logo-dark" src="/zg-data/MiGuide_Logo_White.png" alt="MiGuide" />
+      <span class="app-name">Zorgtool</span>
+      <div class="head-actions">
+        <button type="button" id="themeBtn" class="icon-btn" aria-label="Donkere modus aan of uit">Thema</button>
+        <button type="button" id="menuBtn" class="icon-btn" aria-haspopup="true" aria-expanded="false" aria-controls="menu">Menu</button>
+        <ul id="menu" class="menu" hidden>
+          <li><a href="/test-omgeving/" aria-current="page">Zorgtool (test)</a></li>
+          <li><a href="/index.html#zorgtool">Zorgtool (huidig)</a></li>
+          <li><a href="/alle-zorggroepen.html">Zorggroep kaart</a></li>
+          <li><a href="/updates.html">Updates</a></li>
+          <li><a href="/documentatie.html">Documentatie</a></li>
+          <li><a href="/admin/">Admin</a></li>
+        </ul>
       </div>
-    </div>
-  </header>
+    </header>
 
-  <div class="mx-auto flex min-h-0 w-full max-w-[1400px] flex-1 flex-col gap-3 p-3">
-
-
-    <!-- Links: invoer + kaart | rechts: resultaat + plaatsen/postcodes. Niets verspringt. -->
-    <!-- Boven: invoer | resultaat (vaste hoogte, zodat de kaart nooit verspringt). Onder: kaart over de volle breedte. -->
-    <main class="flex min-h-0 flex-1 flex-col gap-3">
-      <div class="contents xl:grid xl:h-[var(--top-row)] xl:shrink-0 xl:grid-cols-[360px_minmax(0,1fr)] xl:gap-3">
-      <!-- 1. INVOER (compact, velden onder elkaar) -->
-      <form id="inputForm" class="order-1 rounded-2xl bg-white p-4 xl:h-full xl:overflow-y-auto shadow-sm ring-1 ring-slate-200 xl:order-none dark:bg-slate-900 dark:ring-slate-800" autocomplete="off">
-        <label for="locInput" class="text-xs font-medium text-slate-600 dark:text-slate-300">Postcode of gemeente</label>
-        <div class="relative mt-1">
-          <svg class="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11ZM2 9a7 7 0 1 1 12.45 4.39l3.08 3.08a.75.75 0 1 1-1.06 1.06l-3.08-3.08A7 7 0 0 1 2 9Z" clip-rule="evenodd"/></svg>
-          <input id="locInput" list="locSuggestions" class="w-full rounded-xl border border-slate-300 bg-white py-2.5 pl-9 pr-3 text-[15px] text-slate-900 outline-none placeholder:text-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-500/15 dark:border-slate-600 dark:bg-slate-950 dark:text-white" placeholder="Bijv. 5341AA of Oss" />
-          <datalist id="locSuggestions"></datalist>
+    <div class="panel-scroll">
+      <form id="searchForm" class="search" role="search" autocomplete="off" novalidate>
+        <label class="label" for="q">Postcode of gemeente</label>
+        <div class="combo">
+          <input id="q" class="field" type="text" inputmode="text" spellcheck="false"
+                 placeholder="1234 AB of plaatsnaam"
+                 role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="suggest" />
+          <ul id="suggest" class="suggest" role="listbox" aria-label="Suggesties" hidden></ul>
         </div>
-        <label for="insurerInput" class="mt-3 block text-xs font-medium text-slate-600 dark:text-slate-300">Zorgverzekeraar <span class="font-normal text-slate-400">(per concern)</span></label>
-        <select id="insurerInput" class="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-[15px] text-slate-900 outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/15 dark:border-slate-600 dark:bg-slate-950 dark:text-white"></select>
-        <div class="mt-3 grid grid-cols-[1fr_auto] gap-2">
-          <button type="submit" class="rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700 focus:outline-none focus:ring-4 focus:ring-brand-500/30 active:translate-y-px">Bepaal facturatie</button>
-          <button type="button" id="clearBtn" class="rounded-xl px-3 py-2.5 text-sm font-medium text-slate-500 transition hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-800">Wissen</button>
-        </div>
-        <!-- Vaste hoogte, zodat er niets verspringt -->
-        <div class="mt-3 flex h-6 items-center gap-2 overflow-hidden text-xs">
-          <span class="shrink-0 font-medium text-slate-400">Recent:</span>
-          <span id="recentChips" class="flex min-w-0 gap-1.5 overflow-hidden"><span class="text-slate-400">nog niets gezocht</span></span>
+
+        <label class="label field-gap" for="insurer">Zorgverzekeraar</label>
+        <select id="insurer" class="field">
+          <option value="ALL">Alle zorgverzekeraars</option>
+        </select>
+
+        <div class="actions">
+          <button type="submit" class="btn btn-primary">Zoeken</button>
+          <button type="button" id="resetBtn" class="btn btn-secondary">Wissen</button>
         </div>
       </form>
-      <section class="order-2 min-h-[360px] xl:order-none xl:h-full xl:min-h-0">
-        <div class="flex h-full flex-col rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800">
-          <div class="flex h-12 shrink-0 items-center gap-3 border-b border-slate-100 px-5 dark:border-slate-800">
-            <h2 id="resTitle" class="text-base font-semibold text-slate-900 dark:text-white">Resultaat</h2>
-            <h3 id="resLocation" class="truncate text-base font-semibold text-slate-900 dark:text-white" hidden></h3>
-            <span id="resInsurer" class="truncate text-sm text-slate-500 dark:text-slate-400" hidden></span>
-            <span id="copyHint" class="ml-auto text-xs text-emerald-600" hidden>Gekopieerd</span>
-            <button type="button" id="copySummaryBtn" data-copy="summary" class="ml-auto rounded-lg border border-slate-300 px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800" hidden>Kopieer samenvatting</button>
-            <span id="resultMeta" hidden></span>
-          </div>
 
-          <div class="min-h-0 flex-1 overflow-y-auto px-5 pb-4 pt-3.5">
-            <!-- Lege staat -->
-            <div id="emptyState" class="flex h-full flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 px-6 py-8 text-center dark:border-slate-700">
-              <div class="flex h-12 w-12 items-center justify-center rounded-full bg-brand-50 text-xl text-brand-600 dark:bg-brand-900/40 dark:text-brand-100">⌕</div>
-              <p class="mt-3 font-medium text-slate-700 dark:text-slate-200">Vul hierboven een postcode of gemeente en een zorgverzekeraar in</p>
-              <p class="mt-1 max-w-md text-sm text-slate-500 dark:text-slate-400">Je ziet hier dan direct de zorggroep, facturatiemodule, facturatiestroom en prestatiecode.</p>
-            </div>
+      <div id="result" aria-live="polite"></div>
 
-            <!-- Gevuld -->
-            <div id="resultState" hidden>
-              <div id="alerts" class="mb-2.5 grid gap-1.5 empty:hidden"></div>
-
-              <div class="grid grid-cols-2 gap-2.5 xl:grid-cols-4">
-                <div class="tile rounded-xl border border-slate-200 px-3.5 py-3 dark:border-slate-700">
-                  <div class="text-[11px] font-medium uppercase tracking-wide text-slate-400">Zorggroep</div>
-                  <div class="mt-1 flex items-center gap-2"><span id="resZgDot" class="h-3 w-3 shrink-0 rounded-full"></span><span id="resZg" class="font-semibold text-slate-900 dark:text-white"></span></div>
-                  <div id="resContract" class="mt-1.5"></div>
-                </div>
-                <div class="tile rounded-xl border-2 border-brand-500 bg-brand-50 px-3.5 py-3 dark:border-brand-500 dark:bg-brand-900/30">
-                  <div class="text-[11px] font-medium uppercase tracking-wide text-brand-600 dark:text-brand-100">Facturatiemodule</div>
-                  <div id="resModule" class="mt-1 text-base font-bold leading-snug text-brand-900 dark:text-white"></div>
-                </div>
-                <div class="tile rounded-xl border border-slate-200 px-3.5 py-3 dark:border-slate-700">
-                  <div class="text-[11px] font-medium uppercase tracking-wide text-slate-400">Facturatiestroom</div>
-                  <div id="resStroom" class="mt-1 font-semibold text-slate-900 dark:text-white"></div>
-                  <div id="resStroomSub" class="text-xs text-slate-500 dark:text-slate-400"></div>
-                </div>
-                <div class="tile rounded-xl border border-slate-200 px-3.5 py-3 dark:border-slate-700">
-                  <div class="text-[11px] font-medium uppercase tracking-wide text-slate-400">Prestatiecode</div>
-                  <div class="mt-1 flex items-center justify-between gap-2">
-                    <span id="resCode" class="font-mono font-semibold text-slate-900 dark:text-white"></span>
-                    <button type="button" data-copy="code" class="rounded-md px-2 py-1 text-xs font-medium text-brand-600 hover:bg-brand-50 dark:text-brand-100 dark:hover:bg-brand-900/40">Kopieer</button>
-                  </div>
-                </div>
-              </div>
-
-              <div class="mt-2.5 rounded-xl bg-slate-50 px-3.5 py-2.5 dark:bg-slate-800/50">
-                <div class="flex flex-wrap items-center gap-x-2 gap-y-1.5">
-                  <span class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Waarom?</span>
-                  <div id="resChain" class="flex flex-wrap items-center gap-1 text-[13px]"></div>
-                  <button type="button" id="whyToggle" class="ml-auto text-xs font-medium text-brand-600 hover:underline dark:text-brand-100">Uitleg ▾</button>
-                </div>
-                <div id="whyFull" hidden>
-                  <ol id="resWhy" class="mt-2 grid gap-1 text-sm text-slate-600 dark:text-slate-300"></ol>
-                  <p class="mt-2 border-t border-slate-200 pt-2 text-xs leading-5 text-slate-500 dark:border-slate-700 dark:text-slate-400"><span class="font-semibold text-slate-600 dark:text-slate-300">Over deze module:</span> <span id="resModuleInfo"></span></p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-      </div>
-        <div class="order-3 flex h-[340px] min-h-[200px] flex-col overflow-hidden xl:h-auto xl:min-h-[180px] xl:flex-1 rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800">
-          <div class="flex shrink-0 items-center gap-2 border-b border-slate-100 px-3 py-2 dark:border-slate-800">
-            <span class="text-sm font-semibold text-slate-800 dark:text-slate-100">Kaart</span>
-            <span class="hidden text-xs text-slate-400 md:inline">Klik op een gebied voor de zorggroep</span>
-            <div class="ml-auto flex gap-1" role="tablist">
-              <button type="button" data-panel="plaatsen" class="panel-btn rounded-lg px-3 py-1.5 text-sm font-medium">Plaatsen</button>
-              <button type="button" data-panel="postcodes" class="panel-btn rounded-lg px-3 py-1.5 text-sm font-medium">Postcodes (PC4)</button>
-              <button type="button" data-panel="filter" class="panel-btn rounded-lg px-3 py-1.5 text-sm font-medium">Filter</button>
-            </div>
-          </div>
-          <div class="relative min-h-0 flex-1">
-            <!-- isolate: Leaflet-lagen blijven binnen de kaart, zodat het paneel er altijd boven ligt -->
-            <div id="map" class="absolute inset-0 isolate"></div>
-            <!-- Paneel over het rechterdeel van de kaart -->
-            <aside id="mapPanel" class="absolute bottom-3 right-3 top-3 z-10 flex w-[300px] max-w-[60%] flex-col rounded-xl bg-white/95 shadow-xl ring-1 ring-slate-200 backdrop-blur dark:bg-slate-900/95 dark:ring-slate-700" hidden>
-              <div class="flex shrink-0 items-center justify-between border-b border-slate-100 px-3 py-2 dark:border-slate-800">
-                <span id="mapPanelTitle" class="text-sm font-semibold text-slate-800 dark:text-slate-100"></span>
-                <button type="button" id="mapPanelClose" class="flex h-7 w-7 items-center justify-center rounded-md text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200" aria-label="Sluiten">✕</button>
-              </div>
-              <div id="tabBody" class="min-h-0 flex-1 overflow-y-auto p-3 text-sm"></div>
-            </aside>
-          </div>
-        </div>
-    </main>
-
-    <p class="hidden shrink-0 text-[11px] text-slate-400 xl:block">Iets onjuist of een update nodig? Mail info@miguide.nl of stuur een bericht aan Onur.</p>
-  </div>
+      <details id="filters" class="section more">
+        <summary>Filters voor de kaart</summary>
+        <label class="label field-gap" for="filterZorggroep">Zorggroep</label>
+        <select id="filterZorggroep" class="field"><option value="ALL">Alle zorggroepen</option></select>
+        <label class="label field-gap" for="filterStroom">Facturatiestroom</label>
+        <select id="filterStroom" class="field"><option value="ALL">Alle facturatiestromen</option></select>
+      </details>
+    </div>
+  </aside>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script>
-  // ---------- Voorbeelddata (prototype; de echte versie gebruikt de admin-API) ----------
-  const STROOM = {
-    1: ["Stroom 1", "Zorggroep declaraties"],
-    2: ["Stroom 2", "VECOZO Gecontracteerde Zorg"],
-    3: ["Stroom 3", "Niet gecontracteerde zorg - losse facturen"],
-    4: ["Stroom 4", "Gezondheid Amsterdam GA"],
-  };
-  const MODULES = {
-    "Zorggroep": { stroom: 1, code: "CoOL-MiGuide", info: "Declaraties lopen via het platform van de zorggroep (bijv. VIPLive of Monter); tarieven vanuit de zorggroep." },
-    "MiGuide": { stroom: 2, code: "CoOL-MiGuide", info: "MiGuide declareert direct bij de zorgverzekeraar (niet VGZ), conform contractafspraken." },
-    "MiGuide - VGZ": { stroom: 2, code: "CoOL", info: "MiGuide declareert direct bij VGZ, conform het contract met VGZ." },
-    "ZoHealthy": { stroom: 3, code: "CoOL", info: "Declaraties lopen via ZoHealthy; de verkooptarieven van ZoHealthy worden gebruikt." },
-    "ESV": { stroom: 1, code: "CoOL-MiGuide", info: "Declaraties voor deelnemers in de ESV-regio worden verwerkt via de ESV-facturatiemodule." },
-    "Zuid Holland Zuid - VGZ": { stroom: 2, code: "CoOL-MiGuide", info: "Declaraties voor het VGZ-gebied in dit contract via de statische declarant GLI-ZHZ-VGZ." },
-    "Gezondheid Amsterdam (GA)": { stroom: 4, code: "CoOL-MiGuide", info: "Declaraties in de GA-regio worden periodiek via een XML-bestand aangeleverd aan GA." },
-  };
-  const INSURERS = [
-    ["CZ-concern", "cz", ["CZ", "CZ direct", "OHRA", "Nationale-Nederlanden", "Just"]],
-    ["VGZ-concern", "vgz", ["VGZ", "IZA", "Univé", "Zekur"]],
-    ["Menzis-concern", "menzis", ["Menzis", "Anderzorg"]],
-    ["Zilveren Kruis-concern", "zk", ["Zilveren Kruis (Achmea)", "FBTO", "Interpolis"]],
-    ["DSW-concern", "dsw", ["DSW", "Stad Holland"]],
-    ["Overig", null, ["a.s.r.", "ONVZ", "Zorg & Zekerheid", "Salland", "RMA"]],
-  ];
-  const CONCERN = {};
-  INSURERS.forEach(([, key, names]) => names.forEach((n) => (CONCERN[n] = key || n.toLowerCase())));
-  CONCERN["Zorg & Zekerheid"] = "zorg zekerheid"; CONCERN["Salland"] = "salland"; CONCERN["RMA"] = "rma";
-  const ZOHEALTHY = new Set(["cz", "dsw", "salland", "zorg zekerheid"]);
-
-  const ZG = {
-    "HUMO": { color: "#e0803a", contract: true, base: "Zorggroep", rule: { alleen: ["cz"], module: "MiGuide", text: "HUMO heeft alleen contract met CZ" },
-      plaatsen: ["Oss", "Uden", "Veghel"], pc4: [["5340", "5389", 52]], center: [51.73, 5.55] },
-    "ESV": { color: "#3aa76d", contract: true, base: "ESV", plaatsen: ["Bennekom", "Veenendaal", "Wageningen", "Renkum", "Heelsum", "Rhenen"],
-      pc4: [["3901", "3911", 9], ["6701", "6721", 14], ["6861", "6871", 6]], center: [51.99, 5.66] },
-    "ZHZ VGZ": { color: "#7c5cd6", contract: true, base: "Zuid Holland Zuid - VGZ", plaatsen: ["Alblasserdam", "Altena", "Dordrecht", "Gorinchem", "Hardinxveld-Giessendam", "Hendrik Ido Ambacht", "Molenlanden", "Papendrecht", "Sliedrecht", "Zwijndrecht"],
-      pc4: [["3311", "3329", 15], ["3350", "3364", 12], ["4200", "4286", 41]], center: [51.82, 4.75], zhz: true },
-    "Kennemerland": { color: "#d6455d", contract: true, base: "Zorggroep", rule: { behalve: ["dsw"], module: "ZoHealthy", text: "Kennemerland heeft geen contract met DSW" },
-      plaatsen: ["Haarlem", "Bloemendaal", "Heemstede", "Velsen", "Beverwijk", "Zandvoort"], pc4: [["1940", "1991", 22], ["2011", "2106", 43]], center: [52.42, 4.6] },
-    "HOOG": { color: "#94a3b8", contract: false, plaatsen: ["Apeldoorn", "Epe"], pc4: [["7311", "7364", 40]], center: [52.21, 5.97] },
-    "Zorggroep Gezondheid Amsterdam": { color: "#2f8fd8", contract: true, base: "Gezondheid Amsterdam (GA)", rule: { behalve: ["dsw"], module: "ZoHealthy", text: "Gezondheid Amsterdam + DSW loopt via ZoHealthy" },
-      plaatsen: ["Amsterdam", "Diemen", "Duivendrecht", "Badhoevedorp"], pc4: [["1011", "1109", 88]], center: [52.37, 4.9] },
-  };
-  const PLACES = [
-    { key: "5341AA", plaats: "Oss", gemeente: "Oss", zg: "HUMO", at: [51.765, 5.518] },
-    { key: "Oss", plaats: "Oss", gemeente: "Oss", zg: "HUMO", at: [51.765, 5.518] },
-    { key: "6709PD", plaats: "Wageningen", gemeente: "Wageningen", zg: "ESV", at: [51.969, 5.663] },
-    { key: "3311AA", plaats: "Dordrecht", gemeente: "Dordrecht", zg: "ZHZ VGZ", at: [51.813, 4.69] },
-    { key: "2011AA", plaats: "Haarlem", gemeente: "Haarlem", zg: "Kennemerland", at: [52.381, 4.636] },
-    { key: "7311AA", plaats: "Apeldoorn", gemeente: "Apeldoorn", zg: "HOOG", at: [52.211, 5.969] },
-    { key: "1011AA", plaats: "Amsterdam", gemeente: "Amsterdam", zg: "Zorggroep Gezondheid Amsterdam", at: [52.373, 4.9] },
-  ];
-  const DEMOS = [["5341AA", "Menzis"], ["5341AA", "CZ"], ["6709PD", "Menzis"], ["3311AA", "VGZ"], ["2011AA", "DSW"], ["7311AA", "Menzis"], ["1011AA", "RMA"]];
-
-  // ---------- Prototype-logica (vereenvoudigd) ----------
-  function route(place, insurer) {
-    const zg = ZG[place.zg];
-    const concern = CONCERN[insurer];
-    const why = [`Postcode/plaats ${place.key} ligt in gemeente ${place.gemeente}.`];
-    const chain = [place.key === place.gemeente ? place.gemeente : `${place.key} · ${place.gemeente}`];
-    let module;
-    if (!zg.contract) {
-      why.push(`${place.gemeente} valt onder ${place.zg}, maar daar heeft MiGuide geen zorggroep-contract.`);
-      chain.push(`${place.zg} (geen contract)`, `${insurer}`);
-      module = concern === "vgz" ? "MiGuide - VGZ" : ZOHEALTHY.has(concern) ? "ZoHealthy" : "MiGuide";
-      why.push(`Zonder contract bepaalt de verzekeraar de route: ${insurer} → ${module}.`);
-    } else {
-      why.push(`${place.gemeente} valt onder zorggroep ${place.zg} (gecontracteerd).`);
-      chain.push(place.zg);
-      module = zg.base;
-      const r = zg.rule;
-      if (r && ((r.alleen && !r.alleen.includes(concern)) || (r.behalve && r.behalve.includes(concern)))) {
-        module = r.module;
-        why.push(`Uitzondering: ${r.text}. ${insurer} → ${module}.`);
-        chain.push(`uitzondering ${r.alleen ? "alleen " + r.alleen.join(", ").toUpperCase() : r.behalve.join(", ").toUpperCase()}`, insurer);
-      } else if (r) {
-        why.push(`${insurer} valt niet onder de uitzondering van ${place.zg}; de route van de zorggroep geldt.`);
-      }
-    }
-    const m = MODULES[module];
-    why.push(`${module} → ${STROOM[m.stroom][0]}, prestatiecode ${m.code}.`);
-    const alerts = [];
-    if (zg.zhz) alerts.push({ tone: "amber", title: "Regio Zuid-Holland Zuid", text: "Alleen via Monter verwerken, niet via Zorgdomein." });
-    if (concern === "vgz") alerts.push({ tone: "red", title: "Let op bij VGZ", text: "VGZ keurt declaraties af als de verwijzing van een specialist komt.", confirm: "Gecontroleerd: verwijzing van huisarts" });
-    if (concern === "rma") alerts.push({ tone: "red", title: "RMA (asielzoekersverzekering)", text: "De GLI (Gecombineerde Leefstijlinterventie) wordt niet vergoed binnen deze verzekering." });
-    chain.push({ module });
-    return { zg, module, m, why, chain, alerts };
-  }
-
-  // ---------- UI ----------
-  const $ = (id) => document.getElementById(id);
-  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
-  let current = null;
-  let activeTab = null; // open paneel: "plaatsen" | "postcodes" | "filter" | null
-
-  function fillInsurers() {
-    $("insurerInput").innerHTML = '<option value="">Kies een zorgverzekeraar…</option>' + INSURERS.map(([label, , names]) =>
-      `<optgroup label="${label}">${names.map((n) => `<option>${esc(n)}</option>`).join("")}</optgroup>`).join("");
-    $("locSuggestions").innerHTML = PLACES.map((p) => `<option value="${p.key}">${p.plaats}</option>`).join("");
-    $("demoChips").innerHTML = DEMOS.map(([pc, ins]) =>
-      `<button type="button" data-demo="${pc}|${ins}" class="rounded-full bg-white/70 px-2 py-0.5 font-medium hover:bg-white dark:bg-amber-950/60">${pc} + ${ins}</button>`).join("");
-  }
-
-  function alertHtml(a, i) {
-    const tone = a.tone === "red"
-      ? "border-red-200 bg-red-50 text-red-900 dark:border-red-900 dark:bg-red-950/40 dark:text-red-100"
-      : "border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-100";
-    return `<div class="fade-in flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border px-3 py-1.5 text-[13px] leading-5 ${tone}">
-      <span><span class="font-semibold">⚠ ${esc(a.title)}:</span> ${esc(a.text)}</span>
-      ${a.confirm ? `<label class="ml-auto flex shrink-0 items-center gap-1.5 font-medium"><input type="checkbox" data-confirm="${i}" class="size-4 rounded" /> ${esc(a.confirm)}</label>` : ""}
-    </div>`;
-  }
-
-  function render(place, insurer) {
-    const r = route(place, insurer);
-    current = { place, insurer, r };
-    $("emptyState").hidden = true;
-    $("resultState").hidden = false;
-    $("copySummaryBtn").hidden = false;
-    $("resultState").classList.remove("fade-in"); void $("resultState").offsetWidth; $("resultState").classList.add("fade-in");
-    $("resLocation").textContent = `${place.key.length === 6 ? place.key + " · " : ""}${place.plaats}`;
-    $("resInsurer").textContent = `· ${insurer}`;
-    $("resTitle").hidden = true; $("resLocation").hidden = false; $("resInsurer").hidden = false;
-    $("resultMeta").textContent = "Bijgewerkt " + new Date().toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" });
-    $("alerts").innerHTML = r.alerts.map(alertHtml).join("");
-    $("resZgDot").style.background = r.zg.color;
-    $("resZg").textContent = place.zg;
-    $("resContract").innerHTML = r.zg.contract
-      ? '<span class="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200">Gecontracteerd</span>'
-      : '<span class="rounded-full bg-slate-200 px-2 py-0.5 text-xs font-medium text-slate-700 dark:bg-slate-700 dark:text-slate-200">Geen zorggroep-contract</span>';
-    $("resModule").textContent = r.module;
-    $("resStroom").textContent = STROOM[r.m.stroom][0];
-    $("resStroomSub").textContent = STROOM[r.m.stroom][1];
-    $("resCode").textContent = r.m.code;
-    $("resWhy").innerHTML = r.why.map((w, i) => `<li class="flex gap-2"><span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white text-[11px] font-semibold text-slate-500 ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">${i + 1}</span><span>${esc(w)}</span></li>`).join("");
-    $("resModuleInfo").textContent = r.m.info;
-    $("resChain").innerHTML = r.chain.map((c) => typeof c === "object"
-      ? `<span class="rounded-md bg-brand-600 px-2 py-0.5 font-semibold text-white">${esc(c.module)}</span>`
-      : `<span class="rounded-md bg-white px-2 py-0.5 text-slate-700 ring-1 ring-slate-200 dark:bg-slate-900 dark:text-slate-200 dark:ring-slate-700">${esc(c)}</span>`
-    ).join('<span class="text-slate-400">→</span>');
-    drawTab();
-    focusMap(place, r.zg);
-    remember(place.key, insurer);
-  }
-
-  function drawTab() {
-    document.querySelectorAll(".panel-btn").forEach((b) => {
-      const on = b.dataset.panel === activeTab;
-      b.className = "panel-btn rounded-lg px-3 py-1.5 text-sm font-medium " + (on ? "bg-brand-50 text-brand-700 dark:bg-brand-900/50 dark:text-brand-100" : "text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800");
-    });
-    $("mapPanel").hidden = !activeTab;
-    if (!activeTab) return;
-    const titles = { plaatsen: "Plaatsen", postcodes: "Postcodes (PC4)", filter: "Filters voor de kaart" };
-    $("mapPanelTitle").textContent = titles[activeTab] + (current && activeTab !== "filter" ? ` · ${current.place.zg}` : "");
-    if (activeTab === "filter") {
-      $("tabBody").innerHTML = `<div class="grid gap-2"><p class="text-xs text-slate-500 dark:text-slate-400">Alleen om de kaart te filteren; verandert het resultaat niet.</p>
-        <select class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-950"><option>Alle zorggroepen</option>${Object.keys(ZG).map((n) => `<option>${esc(n)}</option>`).join("")}</select>
-        <select class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-950"><option>Alle facturatiestromen</option>${Object.values(STROOM).map((v) => `<option>${esc(v.join(" - "))}</option>`).join("")}</select></div>`;
-      return;
-    }
-    if (!current) { $("tabBody").innerHTML = '<p class="text-slate-400">Zoek eerst een postcode of plaats.</p>'; return; }
-    const zg = current.r.zg;
-    $("tabBody").innerHTML = activeTab === "plaatsen"
-      ? `<div class="flex flex-wrap gap-1.5">${zg.plaatsen.map((p) => `<span class="rounded-full px-2.5 py-1 text-xs ${p === current.place.plaats ? "bg-brand-600 text-white" : "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200"}">${esc(p)}</span>`).join("")}</div>`
-      : `<ul class="grid gap-1.5">${zg.pc4.map(([a, b, n]) => `<li class="flex justify-between rounded-lg bg-slate-50 px-3 py-2 dark:bg-slate-800/50"><span class="font-mono">${a} – ${b}</span><span class="text-xs text-slate-500">${n} PC4</span></li>`).join("")}</ul>`;
-  }
-
-  // ---------- Kaart ----------
-  const map = L.map("map", { maxBounds: [[50.6, 3.1], [53.7, 7.4]], minZoom: 6 }).setView([52.15, 5.3], 7);
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "© OpenStreetMap" }).addTo(map);
-  Object.entries(ZG).forEach(([name, z]) => L.circle(z.center, { radius: 14000, color: z.color, weight: 1, fillOpacity: 0.25 }).bindTooltip(name).addTo(map));
-  window.addEventListener("resize", () => map.invalidateSize());
-  setTimeout(() => map.invalidateSize(), 0);
-  let marker = null;
-  function focusMap(place, zg) {
-    if (marker) marker.remove();
-    marker = L.marker(place.at).addTo(map).bindPopup(`<b>${esc(place.plaats)}</b><br>${esc(place.zg)}`);
-    map.flyTo(place.at, 10, { duration: 0.6 });
-  }
-
-  // ---------- Recent ----------
-  function remember(key, insurer) {
-    let list = [];
-    try { list = JSON.parse(localStorage.getItem("zgv2_recent") || "[]"); } catch (e) {}
-    list = [[key, insurer], ...list.filter(([k, i]) => !(k === key && i === insurer))].slice(0, 5);
-    try { localStorage.setItem("zgv2_recent", JSON.stringify(list)); } catch (e) {}
-    drawRecent(list);
-  }
-  function drawRecent(list) {
-    if (!list.length) { $("recentChips").innerHTML = '<span class="text-slate-400">nog niets gezocht</span>'; return; }
-    $("recentChips").innerHTML = list.map(([k, i]) => `<button type="button" data-demo="${esc(k)}|${esc(i)}" class="shrink-0 rounded-full bg-slate-100 px-2.5 py-0.5 text-xs text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200">${esc(k)} · ${esc(i)}</button>`).join("");
-  }
-
-  // ---------- Events ----------
-  function run() {
-    const q = $("locInput").value.trim().replace(/\s+/g, "").toUpperCase();
-    const place = PLACES.find((p) => p.key.toUpperCase() === q);
-    const insurer = $("insurerInput").value;
-    if (!place) { $("locInput").focus(); $("locInput").classList.add("ring-4", "ring-red-500/20", "border-red-400"); return; }
-    $("locInput").classList.remove("ring-4", "ring-red-500/20", "border-red-400");
-    if (!insurer) { $("insurerInput").focus(); return; }
-    render(place, insurer);
-  }
-  $("inputForm").addEventListener("submit", (e) => { e.preventDefault(); run(); });
-  $("clearBtn").addEventListener("click", () => {
-    $("locInput").value = ""; $("insurerInput").value = ""; current = null;
-    $("emptyState").hidden = false; $("resultState").hidden = true; $("copySummaryBtn").hidden = true;
-    $("resTitle").hidden = false; $("resLocation").hidden = true; $("resInsurer").hidden = true; $("resultMeta").textContent = "";
-    if (marker) marker.remove(); map.setView([52.15, 5.3], 7); drawTab(); $("locInput").focus();
-  });
-  document.addEventListener("click", (e) => {
-    const demo = e.target.closest("[data-demo]");
-    if (demo) { const [k, i] = demo.dataset.demo.split("|"); $("locInput").value = k; $("insurerInput").value = i; run(); }
-    const panelBtn = e.target.closest("[data-panel]");
-    if (panelBtn) { activeTab = activeTab === panelBtn.dataset.panel ? null : panelBtn.dataset.panel; drawTab(); }
-    if (e.target.closest("#mapPanelClose")) { activeTab = null; drawTab(); }
-    const copy = e.target.closest("[data-copy]");
-    if (copy && current) {
-      const r = current.r;
-      const text = copy.dataset.copy === "code" ? r.m.code
-        : `${current.place.key} (${current.place.plaats}) + ${current.insurer}\nZorggroep: ${current.place.zg}\nFacturatiemodule: ${r.module}\n${STROOM[r.m.stroom].join(" - ")}\nPrestatiecode: ${r.m.code}`;
-      (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject()).then(() => {
-        $("copyHint").hidden = false; $("copySummaryBtn").classList.remove("ml-auto");
-        setTimeout(() => { $("copyHint").hidden = true; $("copySummaryBtn").classList.add("ml-auto"); }, 1500);
-      }).catch(() => {});
-    }
-  });
-  $("whyToggle").addEventListener("click", () => {
-    const open = $("whyFull").hidden;
-    $("whyFull").hidden = !open;
-    $("whyToggle").textContent = open ? "Uitleg ▴" : "Uitleg ▾";
-  });
-  $("themeToggle").addEventListener("click", () => {
-    const dark = document.documentElement.classList.toggle("dark");
-    $("logo").src = dark ? $("logo").dataset.dark : $("logo").dataset.light;
-  });
-
-  fillInsurers();
-  drawTab();
-  try { drawRecent(JSON.parse(localStorage.getItem("zgv2_recent") || "[]")); } catch (e) {}
-  $("locInput").focus();
-  </script>
+  <script src="zorgtool.js?v=20261016-6"></script>
 </body>
 </html>
