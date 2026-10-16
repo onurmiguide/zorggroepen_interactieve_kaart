@@ -1,6 +1,13 @@
 {
   "updates": [
     {
+      "date": "2026-10-16",
+      "title": "Testomgeving voor de nieuwe Zorgtool",
+      "scope": "website",
+      "description": "Op /test-omgeving staat een eerste ontwerp van de nieuwe, overzichtelijkere Zorgtool. Dit is alleen een voorbeeld met testdata; de huidige Zorgtool blijft ongewijzigd.",
+      "summary": []
+    },
+    {
       "date": "2026-10-15",
       "title": "Kennemerland (LCK): alleen DSW via ZoHealthy",
       "scope": "kaart",
