@@ -38,7 +38,8 @@
   --fs-l: 20px;
 
   --radius: 5px;
-  --panel-w: 380px;
+  --panel-w: 440px;
+  --panel-x: clamp(16px, 8vw, 160px); /* midden-links: meeschalend met de schermbreedte */
   --gap: 16px;
   --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
   --t: 200ms;
@@ -129,8 +130,8 @@ button, input, select { font: inherit; color: inherit; }
 .panel {
   position: fixed;
   top: var(--gap);
-  left: var(--gap);
-  width: var(--panel-w);
+  left: var(--panel-x);
+  width: min(var(--panel-w), calc(100vw - 2 * var(--panel-x)));
   /* Linksboven, tot ongeveer tweederde van het scherm; details scrollen binnen het blok. */
   max-height: min(calc(100dvh - 2 * var(--gap)), max(560px, 70dvh));
   display: flex;
