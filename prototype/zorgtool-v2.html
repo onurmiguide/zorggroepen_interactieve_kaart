@@ -35,7 +35,7 @@
 
   <!-- Prototypebalk: alleen voor het voorstel -->
   <div class="shrink-0 bg-amber-100 px-4 py-1.5 text-xs text-amber-900 dark:bg-amber-900/40 dark:text-amber-100">
-    <div class="flex flex-wrap items-center gap-2">
+    <div class="mx-auto flex max-w-[1400px] flex-wrap items-center gap-2">
       <span class="font-semibold">Prototype nieuwe Zorgtool</span>
       <span class="hidden sm:inline">· voorbeelddata ·</span>
       <span class="font-medium">Probeer:</span>
@@ -45,7 +45,7 @@
 
   <!-- Topbalk -->
   <header class="z-[1000] shrink-0 border-b border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
-    <div class="flex items-center gap-4 px-4 py-2.5">
+    <div class="mx-auto flex max-w-[1400px] items-center gap-4 px-4 py-2.5">
       <img id="logo" src="../zg-data/MiGuide_Logo_Nieuw.png" data-light="../zg-data/MiGuide_Logo_Nieuw.png" data-dark="../zg-data/MiGuide_Logo_White.png" alt="MiGuide" class="h-auto w-[100px]" />
       <div class="hidden h-6 w-px bg-slate-200 sm:block dark:bg-slate-700"></div>
       <nav class="hidden items-center gap-1 text-sm font-medium sm:flex">
@@ -61,138 +61,125 @@
     </div>
   </header>
 
-  <!-- Vaste indeling op één scherm (vanaf 1280px): Invoer | Resultaat | Kaart. Niets verspringt. -->
-  <main class="grid min-h-0 flex-1 gap-4 p-4 xl:gap-3 xl:p-3 xl:grid-cols-[280px_minmax(0,1.15fr)_minmax(0,1fr)]">
+  <div class="mx-auto flex min-h-0 w-full max-w-[1400px] flex-1 flex-col gap-3 p-3">
 
-    <!-- 1. INVOER -->
-    <section class="min-h-0">
-      <form id="inputForm" class="flex h-full flex-col overflow-y-auto rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800" autocomplete="off">
-        <div class="mb-4 flex items-center gap-2">
-          <span class="flex h-6 w-6 items-center justify-center rounded-full bg-brand-600 text-xs font-bold text-white">1</span>
-          <h2 class="text-base font-semibold text-slate-900 dark:text-white">Invoer</h2>
+    <!-- ZOEKBALK (invoer) -->
+    <form id="inputForm" class="shrink-0 rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800" autocomplete="off">
+      <div class="grid items-end gap-3 md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)_auto_auto]">
+        <div>
+          <label for="locInput" class="text-xs font-medium text-slate-600 dark:text-slate-300">Postcode of gemeente</label>
+          <div class="relative mt-1">
+            <svg class="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11ZM2 9a7 7 0 1 1 12.45 4.39l3.08 3.08a.75.75 0 1 1-1.06 1.06l-3.08-3.08A7 7 0 0 1 2 9Z" clip-rule="evenodd"/></svg>
+            <input id="locInput" list="locSuggestions" class="w-full rounded-xl border border-slate-300 bg-white py-2.5 pl-9 pr-3 text-[15px] text-slate-900 outline-none placeholder:text-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-500/15 dark:border-slate-600 dark:bg-slate-950 dark:text-white" placeholder="Bijv. 5341AA of Oss" />
+            <datalist id="locSuggestions"></datalist>
+          </div>
         </div>
-
-        <label for="locInput" class="text-sm font-medium text-slate-700 dark:text-slate-200">Postcode of gemeente</label>
-        <div class="relative mt-1.5">
-          <svg class="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11ZM2 9a7 7 0 1 1 12.45 4.39l3.08 3.08a.75.75 0 1 1-1.06 1.06l-3.08-3.08A7 7 0 0 1 2 9Z" clip-rule="evenodd"/></svg>
-          <input id="locInput" list="locSuggestions" class="w-full rounded-xl border border-slate-300 bg-white py-2.5 pl-9 pr-3 text-[15px] text-slate-900 outline-none placeholder:text-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-500/15 dark:border-slate-600 dark:bg-slate-950 dark:text-white" placeholder="Bijv. 5341AA of Oss" />
-          <datalist id="locSuggestions"></datalist>
+        <div>
+          <label for="insurerInput" class="text-xs font-medium text-slate-600 dark:text-slate-300">Zorgverzekeraar <span class="font-normal text-slate-400">(per concern)</span></label>
+          <select id="insurerInput" class="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-[15px] text-slate-900 outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/15 dark:border-slate-600 dark:bg-slate-950 dark:text-white"></select>
         </div>
-        <p class="mt-1.5 text-xs text-slate-500 dark:text-slate-400">Postcode (1234AB) of plaatsnaam.</p>
-
-        <label for="insurerInput" class="mt-4 block text-sm font-medium text-slate-700 dark:text-slate-200">Zorgverzekeraar</label>
-        <select id="insurerInput" class="mt-1.5 w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-[15px] text-slate-900 outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/15 dark:border-slate-600 dark:bg-slate-950 dark:text-white"></select>
-        <p class="mt-1.5 text-xs text-slate-500 dark:text-slate-400">Gegroepeerd per concern (bijv. OHRA valt onder CZ).</p>
-
-        <button type="submit" class="mt-5 w-full rounded-xl bg-brand-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700 focus:outline-none focus:ring-4 focus:ring-brand-500/30 active:translate-y-px">Bepaal facturatie</button>
-        <button type="button" id="clearBtn" class="mt-2 w-full rounded-xl px-4 py-2 text-sm font-medium text-slate-500 transition hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-800">Wissen</button>
-
-        <div id="recentWrap" class="mt-4 border-t border-slate-100 pt-4 dark:border-slate-800" hidden>
-          <div class="text-xs font-medium uppercase tracking-wide text-slate-400">Recent gezocht</div>
-          <div id="recentChips" class="mt-2 flex flex-wrap gap-1.5"></div>
-        </div>
-
-        <details class="mt-4 rounded-xl border border-slate-200 dark:border-slate-700">
-          <summary class="flex items-center justify-between px-3 py-2.5 text-sm font-medium text-slate-600 dark:text-slate-300">
-            Filters voor de kaart
-            <svg class="chev size-4 transition" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd"/></svg>
-          </summary>
-          <div class="grid gap-3 px-3 pb-3">
-            <p class="text-xs text-slate-500 dark:text-slate-400">Alleen om de kaart te filteren; dit verandert het resultaat niet.</p>
+        <button type="submit" class="rounded-xl bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700 focus:outline-none focus:ring-4 focus:ring-brand-500/30 active:translate-y-px">Bepaal facturatie</button>
+        <button type="button" id="clearBtn" class="rounded-xl px-3 py-2.5 text-sm font-medium text-slate-500 transition hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-800">Wissen</button>
+      </div>
+      <!-- Vaste hoogte, zodat er niets verspringt -->
+      <div class="mt-2 flex h-6 items-center gap-2 overflow-hidden text-xs">
+        <span class="shrink-0 font-medium text-slate-400">Recent:</span>
+        <span id="recentChips" class="flex min-w-0 gap-1.5 overflow-hidden"><span class="text-slate-400">nog niets gezocht</span></span>
+        <div class="relative ml-auto shrink-0">
+          <button type="button" id="filterToggle" class="rounded-md px-2 py-1 font-medium text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800">Filters voor de kaart ▾</button>
+          <div id="filterMenu" class="absolute right-0 top-[calc(100%+4px)] z-[1100] grid w-64 gap-2 rounded-xl bg-white p-3 shadow-xl ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700" hidden>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Alleen om de kaart te filteren; verandert het resultaat niet.</p>
             <select class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-950"><option>Alle zorggroepen</option></select>
             <select class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-950"><option>Alle facturatiestromen</option></select>
           </div>
-        </details>
-
-        <p class="mt-auto pt-4 text-[11px] leading-4 text-slate-400">Iets onjuist of een update nodig? Mail info@miguide.nl of stuur een bericht aan Onur.</p>
-      </form>
-    </section>
-
-    <!-- 2. RESULTAAT -->
-    <section class="min-h-0">
-      <div class="flex h-full flex-col rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800">
-        <div class="flex shrink-0 items-center gap-2 px-5 pt-5">
-          <span class="flex h-6 w-6 items-center justify-center rounded-full bg-brand-600 text-xs font-bold text-white">2</span>
-          <h2 class="text-base font-semibold text-slate-900 dark:text-white">Resultaat</h2>
-          <span id="copyHint" class="ml-auto text-xs text-emerald-600" hidden>Gekopieerd</span>
-          <button type="button" id="copySummaryBtn" data-copy="summary" class="ml-auto rounded-lg border border-slate-300 px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800" hidden>Kopieer samenvatting</button>
-          <span id="resultMeta" hidden></span>
         </div>
+      </div>
+    </form>
 
-        <div class="min-h-0 flex-1 overflow-y-auto px-5 pb-4 pt-3">
-          <!-- Lege staat -->
-          <div id="emptyState" class="flex h-full flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 px-6 py-10 text-center dark:border-slate-700">
-            <div class="flex h-12 w-12 items-center justify-center rounded-full bg-brand-50 text-xl text-brand-600 dark:bg-brand-900/40 dark:text-brand-100">⌕</div>
-            <p class="mt-3 font-medium text-slate-700 dark:text-slate-200">Vul een postcode of gemeente en een zorgverzekeraar in</p>
-            <p class="mt-1 max-w-sm text-sm text-slate-500 dark:text-slate-400">Je ziet hier dan direct de zorggroep, facturatiemodule, facturatiestroom en prestatiecode.</p>
+    <!-- RESULTAAT (breed) | KAART + PLAATSEN/POSTCODES (smal) -->
+    <main class="grid min-h-0 flex-1 gap-3 xl:grid-cols-[minmax(0,1.75fr)_minmax(340px,1fr)]">
+
+      <section class="min-h-0">
+        <div class="flex h-full flex-col rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800">
+          <div class="flex h-12 shrink-0 items-center gap-3 border-b border-slate-100 px-5 dark:border-slate-800">
+            <h2 id="resTitle" class="text-base font-semibold text-slate-900 dark:text-white">Resultaat</h2>
+            <h3 id="resLocation" class="truncate text-base font-semibold text-slate-900 dark:text-white" hidden></h3>
+            <span id="resInsurer" class="truncate text-sm text-slate-500 dark:text-slate-400" hidden></span>
+            <span id="copyHint" class="ml-auto text-xs text-emerald-600" hidden>Gekopieerd</span>
+            <button type="button" id="copySummaryBtn" data-copy="summary" class="ml-auto rounded-lg border border-slate-300 px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800" hidden>Kopieer samenvatting</button>
+            <span id="resultMeta" hidden></span>
           </div>
 
-          <!-- Gevuld -->
-          <div id="resultState" hidden>
-            <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-              <h3 id="resLocation" class="text-lg font-semibold text-slate-900 dark:text-white"></h3>
-              <span id="resInsurer" class="text-sm text-slate-500 dark:text-slate-400"></span>
+          <div class="min-h-0 flex-1 overflow-y-auto px-5 pb-4 pt-3.5">
+            <!-- Lege staat -->
+            <div id="emptyState" class="flex h-full flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 px-6 py-8 text-center dark:border-slate-700">
+              <div class="flex h-12 w-12 items-center justify-center rounded-full bg-brand-50 text-xl text-brand-600 dark:bg-brand-900/40 dark:text-brand-100">⌕</div>
+              <p class="mt-3 font-medium text-slate-700 dark:text-slate-200">Vul hierboven een postcode of gemeente en een zorgverzekeraar in</p>
+              <p class="mt-1 max-w-md text-sm text-slate-500 dark:text-slate-400">Je ziet hier dan direct de zorggroep, facturatiemodule, facturatiestroom en prestatiecode.</p>
             </div>
 
-            <div id="alerts" class="mt-2.5 grid gap-1.5"></div>
+            <!-- Gevuld -->
+            <div id="resultState" hidden>
+              <div id="alerts" class="mb-2.5 grid gap-1.5 empty:hidden"></div>
 
-            <div class="mt-2.5 grid grid-cols-2 gap-2.5">
-              <div class="tile rounded-xl border border-slate-200 px-3.5 py-3 dark:border-slate-700">
-                <div class="text-[11px] font-medium uppercase tracking-wide text-slate-400">Zorggroep</div>
-                <div class="mt-1 flex items-center gap-2"><span id="resZgDot" class="h-3 w-3 shrink-0 rounded-full"></span><span id="resZg" class="font-semibold text-slate-900 dark:text-white"></span></div>
-                <div id="resContract" class="mt-1.5"></div>
-              </div>
-              <div class="tile rounded-xl border-2 border-brand-500 bg-brand-50 px-3.5 py-3 dark:border-brand-500 dark:bg-brand-900/30">
-                <div class="text-[11px] font-medium uppercase tracking-wide text-brand-600 dark:text-brand-100">Facturatiemodule</div>
-                <div id="resModule" class="mt-1 text-lg font-bold leading-snug text-brand-900 dark:text-white"></div>
-              </div>
-              <div class="tile rounded-xl border border-slate-200 px-3.5 py-3 dark:border-slate-700">
-                <div class="text-[11px] font-medium uppercase tracking-wide text-slate-400">Facturatiestroom</div>
-                <div id="resStroom" class="mt-1 font-semibold text-slate-900 dark:text-white"></div>
-                <div id="resStroomSub" class="text-xs text-slate-500 dark:text-slate-400"></div>
-              </div>
-              <div class="tile rounded-xl border border-slate-200 px-3.5 py-3 dark:border-slate-700">
-                <div class="text-[11px] font-medium uppercase tracking-wide text-slate-400">Prestatiecode</div>
-                <div class="mt-1 flex items-center justify-between gap-2">
-                  <span id="resCode" class="font-mono font-semibold text-slate-900 dark:text-white"></span>
-                  <button type="button" data-copy="code" class="rounded-md px-2 py-1 text-xs font-medium text-brand-600 hover:bg-brand-50 dark:text-brand-100 dark:hover:bg-brand-900/40">Kopieer</button>
+              <div class="grid grid-cols-2 gap-2.5 xl:grid-cols-4">
+                <div class="tile rounded-xl border border-slate-200 px-3.5 py-3 dark:border-slate-700">
+                  <div class="text-[11px] font-medium uppercase tracking-wide text-slate-400">Zorggroep</div>
+                  <div class="mt-1 flex items-center gap-2"><span id="resZgDot" class="h-3 w-3 shrink-0 rounded-full"></span><span id="resZg" class="font-semibold text-slate-900 dark:text-white"></span></div>
+                  <div id="resContract" class="mt-1.5"></div>
+                </div>
+                <div class="tile rounded-xl border-2 border-brand-500 bg-brand-50 px-3.5 py-3 dark:border-brand-500 dark:bg-brand-900/30">
+                  <div class="text-[11px] font-medium uppercase tracking-wide text-brand-600 dark:text-brand-100">Facturatiemodule</div>
+                  <div id="resModule" class="mt-1 text-base font-bold leading-snug text-brand-900 dark:text-white"></div>
+                </div>
+                <div class="tile rounded-xl border border-slate-200 px-3.5 py-3 dark:border-slate-700">
+                  <div class="text-[11px] font-medium uppercase tracking-wide text-slate-400">Facturatiestroom</div>
+                  <div id="resStroom" class="mt-1 font-semibold text-slate-900 dark:text-white"></div>
+                  <div id="resStroomSub" class="text-xs text-slate-500 dark:text-slate-400"></div>
+                </div>
+                <div class="tile rounded-xl border border-slate-200 px-3.5 py-3 dark:border-slate-700">
+                  <div class="text-[11px] font-medium uppercase tracking-wide text-slate-400">Prestatiecode</div>
+                  <div class="mt-1 flex items-center justify-between gap-2">
+                    <span id="resCode" class="font-mono font-semibold text-slate-900 dark:text-white"></span>
+                    <button type="button" data-copy="code" class="rounded-md px-2 py-1 text-xs font-medium text-brand-600 hover:bg-brand-50 dark:text-brand-100 dark:hover:bg-brand-900/40">Kopieer</button>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div class="mt-2.5 rounded-xl bg-slate-50 px-3.5 py-2.5 dark:bg-slate-800/50">
-              <div class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Waarom deze uitkomst?</div>
-              <div id="resChain" class="mt-1.5 flex flex-wrap items-center gap-1 text-[13px]"></div>
-              <details class="mt-2">
-                <summary class="text-xs font-medium text-brand-600 hover:underline dark:text-brand-100">Toon volledige uitleg</summary>
-                <ol id="resWhy" class="mt-2 grid gap-1 text-sm text-slate-600 dark:text-slate-300"></ol>
-                <p class="mt-2 border-t border-slate-200 pt-2 text-xs leading-5 text-slate-500 dark:border-slate-700 dark:text-slate-400"><span class="font-semibold text-slate-600 dark:text-slate-300">Over deze module:</span> <span id="resModuleInfo"></span></p>
-              </details>
+              <div class="mt-2.5 rounded-xl bg-slate-50 px-3.5 py-2.5 dark:bg-slate-800/50">
+                <div class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Waarom deze uitkomst?</div>
+                <div id="resChain" class="mt-1.5 flex flex-wrap items-center gap-1 text-[13px]"></div>
+                <details class="mt-2">
+                  <summary class="text-xs font-medium text-brand-600 hover:underline dark:text-brand-100">Toon volledige uitleg</summary>
+                  <ol id="resWhy" class="mt-2 grid gap-1 text-sm text-slate-600 dark:text-slate-300"></ol>
+                  <p class="mt-2 border-t border-slate-200 pt-2 text-xs leading-5 text-slate-500 dark:border-slate-700 dark:text-slate-400"><span class="font-semibold text-slate-600 dark:text-slate-300">Over deze module:</span> <span id="resModuleInfo"></span></p>
+                </details>
+              </div>
             </div>
-
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- 3. KAART + PLAATSEN/POSTCODES (vaste plek) -->
-    <section class="flex min-h-0 flex-col gap-4 xl:gap-3">
-      <div class="flex min-h-[260px] flex-1 flex-col overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800">
-        <div class="flex shrink-0 items-center justify-between border-b border-slate-100 px-4 py-2.5 dark:border-slate-800">
-          <span class="text-sm font-semibold text-slate-800 dark:text-slate-100">Kaart</span>
-          <span class="text-xs text-slate-400">Klik op een gebied voor de zorggroep</span>
+      <section class="flex min-h-0 flex-col gap-3">
+        <div class="flex h-[60%] max-h-[340px] min-h-[180px] shrink-0 flex-col overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800">
+          <div class="flex shrink-0 items-center justify-between border-b border-slate-100 px-4 py-2 dark:border-slate-800">
+            <span class="text-sm font-semibold text-slate-800 dark:text-slate-100">Kaart</span>
+            <span class="text-xs text-slate-400">Klik op een gebied voor de zorggroep</span>
+          </div>
+          <div id="map" class="min-h-0 w-full flex-1"></div>
         </div>
-        <div id="map" class="min-h-0 w-full flex-1"></div>
-      </div>
-      <div class="flex h-[150px] shrink-0 flex-col rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800">
-        <div class="flex shrink-0 gap-1 border-b border-slate-100 p-2 dark:border-slate-800" role="tablist">
-          <button type="button" data-tab="plaatsen" class="tab rounded-lg px-3 py-1.5 text-sm font-medium">Plaatsen</button>
-          <button type="button" data-tab="postcodes" class="tab rounded-lg px-3 py-1.5 text-sm font-medium">Postcodes (PC4)</button>
+        <div class="flex min-h-[130px] flex-1 flex-col rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800">
+          <div class="flex shrink-0 gap-1 border-b border-slate-100 p-2 dark:border-slate-800" role="tablist">
+            <button type="button" data-tab="plaatsen" class="tab rounded-lg px-3 py-1.5 text-sm font-medium">Plaatsen</button>
+            <button type="button" data-tab="postcodes" class="tab rounded-lg px-3 py-1.5 text-sm font-medium">Postcodes (PC4)</button>
+          </div>
+          <div id="tabBody" class="min-h-0 flex-1 overflow-y-auto p-3 text-sm"></div>
         </div>
-        <div id="tabBody" class="min-h-0 flex-1 overflow-y-auto p-3 text-sm"></div>
-      </div>
-    </section>
-  </main>
+      </section>
+    </main>
+
+    <p class="hidden shrink-0 text-[11px] text-slate-400 xl:block">Iets onjuist of een update nodig? Mail info@miguide.nl of stuur een bericht aan Onur.</p>
+  </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
@@ -316,7 +303,8 @@
     $("copySummaryBtn").hidden = false;
     $("resultState").classList.remove("fade-in"); void $("resultState").offsetWidth; $("resultState").classList.add("fade-in");
     $("resLocation").textContent = `${place.key.length === 6 ? place.key + " · " : ""}${place.plaats}`;
-    $("resInsurer").textContent = `Zorgverzekeraar: ${insurer}`;
+    $("resInsurer").textContent = `· ${insurer}`;
+    $("resTitle").hidden = true; $("resLocation").hidden = false; $("resInsurer").hidden = false;
     $("resultMeta").textContent = "Bijgewerkt " + new Date().toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" });
     $("alerts").innerHTML = r.alerts.map(alertHtml).join("");
     $("resZgDot").style.background = r.zg.color;
@@ -373,8 +361,8 @@
     drawRecent(list);
   }
   function drawRecent(list) {
-    $("recentWrap").hidden = !list.length;
-    $("recentChips").innerHTML = list.map(([k, i]) => `<button type="button" data-demo="${esc(k)}|${esc(i)}" class="rounded-full bg-slate-100 px-2.5 py-1 text-xs text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200">${esc(k)} · ${esc(i)}</button>`).join("");
+    if (!list.length) { $("recentChips").innerHTML = '<span class="text-slate-400">nog niets gezocht</span>'; return; }
+    $("recentChips").innerHTML = list.map(([k, i]) => `<button type="button" data-demo="${esc(k)}|${esc(i)}" class="shrink-0 rounded-full bg-slate-100 px-2.5 py-0.5 text-xs text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200">${esc(k)} · ${esc(i)}</button>`).join("");
   }
 
   // ---------- Events ----------
@@ -390,7 +378,8 @@
   $("inputForm").addEventListener("submit", (e) => { e.preventDefault(); run(); });
   $("clearBtn").addEventListener("click", () => {
     $("locInput").value = ""; $("insurerInput").value = ""; current = null;
-    $("emptyState").hidden = false; $("resultState").hidden = true; $("copySummaryBtn").hidden = true; $("resultMeta").textContent = "";
+    $("emptyState").hidden = false; $("resultState").hidden = true; $("copySummaryBtn").hidden = true;
+    $("resTitle").hidden = false; $("resLocation").hidden = true; $("resInsurer").hidden = true; $("resultMeta").textContent = "";
     if (marker) marker.remove(); map.setView([52.15, 5.3], 7); drawTab(); $("locInput").focus();
   });
   document.addEventListener("click", (e) => {
@@ -409,6 +398,8 @@
       }).catch(() => {});
     }
   });
+  $("filterToggle").addEventListener("click", (e) => { e.stopPropagation(); $("filterMenu").hidden = !$("filterMenu").hidden; });
+  document.addEventListener("click", (e) => { if (!e.target.closest("#filterMenu") && !e.target.closest("#filterToggle")) $("filterMenu").hidden = true; });
   $("themeToggle").addEventListener("click", () => {
     const dark = document.documentElement.classList.toggle("dark");
     $("logo").src = dark ? $("logo").dataset.dark : $("logo").dataset.light;
