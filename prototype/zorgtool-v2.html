@@ -153,22 +153,26 @@
       </section>
       </div>
         <div class="order-3 flex h-[340px] min-h-[200px] flex-col overflow-hidden xl:h-auto xl:min-h-[180px] xl:flex-1 rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800">
-          <div class="flex shrink-0 gap-1 border-b border-slate-100 p-2 dark:border-slate-800" role="tablist">
-            <button type="button" data-tab="kaart" class="tab rounded-lg px-3 py-1.5 text-sm font-medium">Kaart</button>
-            <button type="button" data-tab="plaatsen" class="tab rounded-lg px-3 py-1.5 text-sm font-medium">Plaatsen</button>
-            <button type="button" data-tab="postcodes" class="tab rounded-lg px-3 py-1.5 text-sm font-medium">Postcodes (PC4)</button>
-            <div class="relative ml-auto">
-              <button type="button" id="filterToggle" class="rounded-lg px-2.5 py-1.5 text-xs font-medium text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800" title="Filters voor de kaart">Filter ▾</button>
-              <div id="filterMenu" class="absolute right-0 top-[calc(100%+4px)] z-[1100] grid w-64 gap-2 rounded-xl bg-white p-3 shadow-xl ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700" hidden>
-                <p class="text-xs text-slate-500 dark:text-slate-400">Filters voor de kaart; verandert het resultaat niet.</p>
-                <select class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-950"><option>Alle zorggroepen</option></select>
-                <select class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-950"><option>Alle facturatiestromen</option></select>
-              </div>
+          <div class="flex shrink-0 items-center gap-2 border-b border-slate-100 px-3 py-2 dark:border-slate-800">
+            <span class="text-sm font-semibold text-slate-800 dark:text-slate-100">Kaart</span>
+            <span class="hidden text-xs text-slate-400 md:inline">Klik op een gebied voor de zorggroep</span>
+            <div class="ml-auto flex gap-1" role="tablist">
+              <button type="button" data-panel="plaatsen" class="panel-btn rounded-lg px-3 py-1.5 text-sm font-medium">Plaatsen</button>
+              <button type="button" data-panel="postcodes" class="panel-btn rounded-lg px-3 py-1.5 text-sm font-medium">Postcodes (PC4)</button>
+              <button type="button" data-panel="filter" class="panel-btn rounded-lg px-3 py-1.5 text-sm font-medium">Filter</button>
             </div>
           </div>
           <div class="relative min-h-0 flex-1">
-            <div id="map" class="absolute inset-0"></div>
-            <div id="tabBody" class="absolute inset-0 overflow-y-auto bg-white p-3 text-sm dark:bg-slate-900" hidden></div>
+            <!-- isolate: Leaflet-lagen blijven binnen de kaart, zodat het paneel er altijd boven ligt -->
+            <div id="map" class="absolute inset-0 isolate"></div>
+            <!-- Paneel over het rechterdeel van de kaart -->
+            <aside id="mapPanel" class="absolute bottom-3 right-3 top-3 z-10 flex w-[300px] max-w-[60%] flex-col rounded-xl bg-white/95 shadow-xl ring-1 ring-slate-200 backdrop-blur dark:bg-slate-900/95 dark:ring-slate-700" hidden>
+              <div class="flex shrink-0 items-center justify-between border-b border-slate-100 px-3 py-2 dark:border-slate-800">
+                <span id="mapPanelTitle" class="text-sm font-semibold text-slate-800 dark:text-slate-100"></span>
+                <button type="button" id="mapPanelClose" class="flex h-7 w-7 items-center justify-center rounded-md text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200" aria-label="Sluiten">✕</button>
+              </div>
+              <div id="tabBody" class="min-h-0 flex-1 overflow-y-auto p-3 text-sm"></div>
+            </aside>
           </div>
         </div>
     </main>
@@ -270,7 +274,7 @@
   const $ = (id) => document.getElementById(id);
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
   let current = null;
-  let activeTab = "kaart";
+  let activeTab = null; // open paneel: "plaatsen" | "postcodes" | "filter" | null
 
   function fillInsurers() {
     $("insurerInput").innerHTML = '<option value="">Kies een zorgverzekeraar…</option>' + INSURERS.map(([label, , names]) =>
@@ -323,17 +327,25 @@
   }
 
   function drawTab() {
-    document.querySelectorAll(".tab").forEach((b) => {
-      const on = b.dataset.tab === activeTab;
-      b.className = "tab rounded-lg px-3 py-1.5 text-sm font-medium " + (on ? "bg-brand-50 text-brand-700 dark:bg-brand-900/50 dark:text-brand-100" : "text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800");
+    document.querySelectorAll(".panel-btn").forEach((b) => {
+      const on = b.dataset.panel === activeTab;
+      b.className = "panel-btn rounded-lg px-3 py-1.5 text-sm font-medium " + (on ? "bg-brand-50 text-brand-700 dark:bg-brand-900/50 dark:text-brand-100" : "text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800");
     });
-    $("tabBody").hidden = activeTab === "kaart";
-    if (activeTab === "kaart") { setTimeout(() => map.invalidateSize(), 0); return; }
+    $("mapPanel").hidden = !activeTab;
+    if (!activeTab) return;
+    const titles = { plaatsen: "Plaatsen", postcodes: "Postcodes (PC4)", filter: "Filters voor de kaart" };
+    $("mapPanelTitle").textContent = titles[activeTab] + (current && activeTab !== "filter" ? ` · ${current.place.zg}` : "");
+    if (activeTab === "filter") {
+      $("tabBody").innerHTML = `<div class="grid gap-2"><p class="text-xs text-slate-500 dark:text-slate-400">Alleen om de kaart te filteren; verandert het resultaat niet.</p>
+        <select class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-950"><option>Alle zorggroepen</option>${Object.keys(ZG).map((n) => `<option>${esc(n)}</option>`).join("")}</select>
+        <select class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-950"><option>Alle facturatiestromen</option>${Object.values(STROOM).map((v) => `<option>${esc(v.join(" - "))}</option>`).join("")}</select></div>`;
+      return;
+    }
     if (!current) { $("tabBody").innerHTML = '<p class="text-slate-400">Zoek eerst een postcode of plaats.</p>'; return; }
     const zg = current.r.zg;
     $("tabBody").innerHTML = activeTab === "plaatsen"
-      ? `<div class="mb-2 text-xs text-slate-500 dark:text-slate-400">Plaatsen van ${esc(current.place.zg)}</div><div class="flex flex-wrap gap-1.5">${zg.plaatsen.map((p) => `<span class="rounded-full px-2.5 py-1 text-xs ${p === current.place.plaats ? "bg-brand-600 text-white" : "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200"}">${esc(p)}</span>`).join("")}</div>`
-      : `<div class="mb-2 text-xs text-slate-500 dark:text-slate-400">PC4-gebieden van ${esc(current.place.zg)}</div><ul class="grid gap-1.5">${zg.pc4.map(([a, b, n]) => `<li class="flex justify-between rounded-lg bg-slate-50 px-3 py-2 dark:bg-slate-800/50"><span class="font-mono">${a} – ${b}</span><span class="text-xs text-slate-500">${n} PC4</span></li>`).join("")}</ul>`;
+      ? `<div class="flex flex-wrap gap-1.5">${zg.plaatsen.map((p) => `<span class="rounded-full px-2.5 py-1 text-xs ${p === current.place.plaats ? "bg-brand-600 text-white" : "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200"}">${esc(p)}</span>`).join("")}</div>`
+      : `<ul class="grid gap-1.5">${zg.pc4.map(([a, b, n]) => `<li class="flex justify-between rounded-lg bg-slate-50 px-3 py-2 dark:bg-slate-800/50"><span class="font-mono">${a} – ${b}</span><span class="text-xs text-slate-500">${n} PC4</span></li>`).join("")}</ul>`;
   }
 
   // ---------- Kaart ----------
@@ -382,8 +394,9 @@
   document.addEventListener("click", (e) => {
     const demo = e.target.closest("[data-demo]");
     if (demo) { const [k, i] = demo.dataset.demo.split("|"); $("locInput").value = k; $("insurerInput").value = i; run(); }
-    const tab = e.target.closest("[data-tab]");
-    if (tab) { activeTab = tab.dataset.tab; drawTab(); }
+    const panelBtn = e.target.closest("[data-panel]");
+    if (panelBtn) { activeTab = activeTab === panelBtn.dataset.panel ? null : panelBtn.dataset.panel; drawTab(); }
+    if (e.target.closest("#mapPanelClose")) { activeTab = null; drawTab(); }
     const copy = e.target.closest("[data-copy]");
     if (copy && current) {
       const r = current.r;
@@ -400,8 +413,6 @@
     $("whyFull").hidden = !open;
     $("whyToggle").textContent = open ? "Uitleg ▴" : "Uitleg ▾";
   });
-  $("filterToggle").addEventListener("click", (e) => { e.stopPropagation(); $("filterMenu").hidden = !$("filterMenu").hidden; });
-  document.addEventListener("click", (e) => { if (!e.target.closest("#filterMenu") && !e.target.closest("#filterToggle")) $("filterMenu").hidden = true; });
   $("themeToggle").addEventListener("click", () => {
     const dark = document.documentElement.classList.toggle("dark");
     $("logo").src = dark ? $("logo").dataset.dark : $("logo").dataset.light;
