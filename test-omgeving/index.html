@@ -4,79 +4,110 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="robots" content="noindex, nofollow" />
-  <title>Zorgtool testomgeving - MiGuide</title>
-  <link rel="icon" type="image/svg+xml" href="/zg-data/map-find-search-svgrepo-com.svg" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="zorgtool.css?v=20261016-6" />
+  <title>Zorgtools - MiGuide (test)</title>
   <script>
+    // Oude testlinks (?postcode= / ?gemeente=) gingen naar de Zorgtool: doorsturen.
+    if (/[?&](postcode|gemeente)=/.test(location.search)) location.replace("zorgtool.html" + location.search);
     // Thema direct zetten (voorkomt flitsen); zelfde voorkeur als de rest van de site.
     try {
       const t = localStorage.getItem("miguide_theme");
       if (t === "dark" || t === "light") document.documentElement.dataset.theme = t;
     } catch (e) {}
   </script>
+  <link rel="icon" type="image/svg+xml" href="/zg-data/map-find-search-svgrepo-com.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="site.css?v=20261016-7" />
 </head>
-<body>
-  <div id="map" class="map" role="region" aria-label="Kaart met zorggroepen"></div>
-
-  <aside id="panel" class="panel" aria-label="Zoeken en resultaat">
-    <button type="button" id="sheetHandle" class="sheet-handle" aria-label="Paneel groter of kleiner maken"></button>
-
-    <header class="panel-head">
-      <img class="logo logo-light" src="/zg-data/MiGuide_Logo_Nieuw.png" alt="MiGuide" />
-      <img class="logo logo-dark" src="/zg-data/MiGuide_Logo_White.png" alt="MiGuide" />
-      <span class="app-name">Zorgtool</span>
-      <div class="head-actions">
-        <button type="button" id="themeBtn" class="icon-btn" aria-label="Donkere modus aan of uit">Thema</button>
-        <button type="button" id="menuBtn" class="icon-btn" aria-haspopup="true" aria-expanded="false" aria-controls="menu">Menu</button>
-        <ul id="menu" class="menu" hidden>
-          <li><a href="/test-omgeving/" aria-current="page">Zorgtool (test)</a></li>
-          <li><a href="/index.html#zorgtool">Zorgtool (huidig)</a></li>
-          <li><a href="/alle-zorggroepen.html">Zorggroep kaart</a></li>
-          <li><a href="/updates.html">Updates</a></li>
-          <li><a href="/documentatie.html">Documentatie</a></li>
-          <li><a href="/admin/">Admin</a></li>
-        </ul>
+<body data-auth="required">
+  <div class="site">
+    <header class="site-head">
+      <div class="wrap">
+        <a class="brand" href="./" aria-label="MiGuide Zorgtools, startpagina">
+          <img class="logo logo-light" src="/zg-data/MiGuide_Logo_Nieuw.png" alt="MiGuide" />
+          <img class="logo logo-dark" src="/zg-data/MiGuide_Logo_White.png" alt="" />
+          <span class="app-name">Zorgtools</span>
+        </a>
+        <nav id="siteNav" class="site-nav" aria-label="Hoofdmenu">
+          <a href="zorgtool.html">Zorgtool</a>
+          <a href="zorggroepkaart.html">Zorggroep kaart</a>
+          <a href="updates.html">Updates</a>
+          <a href="documentatie.html">Documentatie</a>
+        </nav>
+        <div class="head-actions">
+          <span class="test-tag">Testomgeving</span>
+          <button type="button" class="icon-btn" data-theme-toggle aria-label="Donkere modus aan of uit">Thema</button>
+          <a class="icon-btn" href="/admin/">Admin</a>
+          <button type="button" class="icon-btn nav-toggle" aria-expanded="false" aria-controls="siteNav">Menu</button>
+        </div>
       </div>
     </header>
 
-    <div class="panel-scroll">
-      <form id="searchForm" class="search" role="search" autocomplete="off" novalidate>
-        <label class="label" for="q">Postcode of gemeente</label>
-        <div class="combo">
-          <input id="q" class="field" type="text" inputmode="text" spellcheck="false"
-                 placeholder="1234 AB of plaatsnaam"
-                 role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="suggest" />
-          <ul id="suggest" class="suggest" role="listbox" aria-label="Suggesties" hidden></ul>
-        </div>
+    <main class="site-main">
+      <div class="wrap">
+        <section class="hero">
+          <div>
+            <p class="eyebrow">MiGuide intern</p>
+            <h1>Kies een tool om verder te gaan.</h1>
+            <p class="lead">Deze omgeving bundelt interne zorgtools op een centrale plek. Open de Zorgtool of bekijk het overzicht van alle zorggroepen.</p>
+          </div>
+          <nav class="tools" aria-label="Tools">
+            <a class="tool" href="zorgtool.html">
+              <span class="tool-nr num">01</span>
+              <span>
+                <span class="tool-title">Zorgtool</span>
+                <span class="tool-desc">Zoek op postcode, gemeente en zorgverzekeraar en zie direct de zorggroep, facturatiemodule, facturatiestroom en prestatiecode.</span>
+              </span>
+              <span class="tool-go" aria-hidden="true">→</span>
+            </a>
+            <a class="tool" href="zorggroepkaart.html">
+              <span class="tool-nr num">02</span>
+              <span>
+                <span class="tool-title">Zorggroep kaart</span>
+                <span class="tool-desc">Overzicht van alle gecontracteerde zorggroepen in kleur en de gebieden zonder contract in grijs.</span>
+              </span>
+              <span class="tool-go" aria-hidden="true">→</span>
+            </a>
+          </nav>
+        </section>
 
-        <label class="label field-gap" for="insurer">Zorgverzekeraar</label>
-        <select id="insurer" class="field">
-          <option value="ALL">Alle zorgverzekeraars</option>
-        </select>
+        <section class="recent" aria-labelledby="recentTitle">
+          <div class="recent-head">
+            <h2 id="recentTitle">Laatste updates</h2>
+            <a href="updates.html">Alle updates →</a>
+          </div>
+          <ul id="recentList" class="recent-list" aria-live="polite">
+            <li><span class="recent-date">&nbsp;</span><div class="skel" aria-label="Laden"><span></span><span></span></div></li>
+          </ul>
+        </section>
+      </div>
+    </main>
 
-        <div class="actions">
-          <button type="submit" class="btn btn-primary">Zoeken</button>
-          <button type="button" id="resetBtn" class="btn btn-secondary">Wissen</button>
-        </div>
-      </form>
+    <footer class="site-foot">
+      <div class="wrap">
+        <span>Iets onjuist of een update nodig? Mail info@miguide.nl of stuur een intern bericht aan Onur.</span>
+        <a href="https://github.com/onurmiguide/zorggroepen_interactieve_kaart" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </div>
+    </footer>
+  </div>
 
-      <div id="result" aria-live="polite"></div>
-
-      <details id="filters" class="section more">
-        <summary>Filters voor de kaart</summary>
-        <label class="label field-gap" for="filterZorggroep">Zorggroep</label>
-        <select id="filterZorggroep" class="field"><option value="ALL">Alle zorggroepen</option></select>
-        <label class="label field-gap" for="filterStroom">Facturatiestroom</label>
-        <select id="filterStroom" class="field"><option value="ALL">Alle facturatiestromen</option></select>
-      </details>
-    </div>
-  </aside>
-
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="zorgtool.js?v=20261016-6"></script>
+  <script src="site.js?v=20261016-7"></script>
+  <script>
+    // Laatste drie updates uit hetzelfde bestand als de updates-pagina.
+    (async () => {
+      const list = document.getElementById("recentList");
+      try {
+        const res = await fetch("/zg-data/updates.json", { cache: "no-store" });
+        if (!res.ok) throw new Error(res.status);
+        const updates = ((await res.json()).updates || []).slice(0, 3);
+        list.innerHTML = updates.length
+          ? updates.map((u) => `<li><span class="recent-date num">${ZT.esc(ZT.formatDate(u.date))}</span><a href="updates.html">${ZT.esc(u.title || "Update")}</a></li>`).join("")
+          : `<li><span class="recent-date">–</span><span class="muted">Nog geen updates.</span></li>`;
+      } catch (e) {
+        list.innerHTML = `<li><span class="recent-date">–</span><span class="muted">Updates konden niet worden geladen. <a href="updates.html">Bekijk de updates-pagina</a>.</span></li>`;
+      }
+    })();
+  </script>
 </body>
 </html>

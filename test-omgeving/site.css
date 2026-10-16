@@ -1,4 +1,4 @@
-/* ZorgTool - testomgeving. Functioneel ontwerp: strak raster, haarlijnen, merkkleur uit het MiGuide-logo. */
+/* MiGuide Zorgtools - testomgeving. Eén stylesheet voor de hele site: functioneel ontwerp (strak raster, haarlijnen, merkkleur uit het logo). */
 
 :root {
   /* Merk (logo #25315E) en afgeleide tinten */
@@ -460,3 +460,216 @@ details.more[open] > summary::after { content: "–"; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+/* =====================================================================================
+   Site-onderdelen voor de inhoudspagina's (start, updates, documentatie)
+   ===================================================================================== */
+.site { min-height: 100%; display: flex; flex-direction: column; }
+.wrap { width: 100%; max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+
+.site-head {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+}
+.site-head .wrap { display: flex; align-items: center; gap: 24px; height: 60px; }
+.brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit; }
+.site-nav { display: flex; gap: 2px; }
+.site-nav a {
+  padding: 6px 10px;
+  border-radius: 4px;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-weight: 500;
+  transition: background-color var(--t) var(--ease), color var(--t) var(--ease);
+}
+.site-nav a:hover { background: var(--surface); color: var(--text); }
+.site-nav a[aria-current="page"] { color: var(--brand-text); background: var(--brand-tint); }
+.site-head .head-actions { margin-left: auto; }
+.nav-toggle { display: none; }
+.test-tag {
+  padding: 1px 6px;
+  border: 1px solid var(--warn-line);
+  border-radius: 4px;
+  background: var(--warn-bg);
+  color: var(--warn-text);
+  font-size: var(--fs-s);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.site-main { flex: 1; padding: 48px 0 64px; }
+.site-foot { border-top: 1px solid var(--line); padding: 20px 0 28px; color: var(--text-muted); font-size: var(--fs-s); }
+.site-foot .wrap { display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: space-between; }
+.site-foot a { color: var(--text-muted); }
+
+h1, h2, h3 { font-weight: 600; line-height: 1.25; margin: 0; }
+h1 { font-size: var(--fs-l); }
+h2 { font-size: var(--fs-l); }
+h3 { font-size: var(--fs-m); }
+.lead { margin: 12px 0 0; color: var(--text-muted); max-width: 60ch; }
+a { color: var(--brand-text); text-underline-offset: 2px; }
+code, pre { font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace; font-size: var(--fs-s); }
+code { padding: 0 4px; border: 1px solid var(--line); border-radius: 3px; background: var(--surface); }
+pre { margin: 12px 0 0; padding: 12px; overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+pre code { padding: 0; border: 0; background: none; }
+
+/* ---------- Start ---------- */
+.hero { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 48px; align-items: start; }
+.tools { display: grid; border-top: 1px solid var(--text); }
+.tool {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: start;
+  padding: 22px 4px;
+  border-bottom: 1px solid var(--line);
+  color: inherit;
+  text-decoration: none;
+  transition: background-color var(--t) var(--ease);
+}
+.tool:hover { background: var(--brand-tint); }
+.tool-nr { font-size: var(--fs-s); font-weight: 600; color: var(--text-muted); padding-top: 3px; }
+.tool-title { font-size: var(--fs-l); font-weight: 600; color: var(--brand-text); line-height: 1.25; }
+.tool-desc { margin-top: 4px; color: var(--text-muted); }
+.tool-go { align-self: center; font-weight: 600; color: var(--brand-text); transition: transform var(--t) var(--ease); }
+.tool:hover .tool-go { transform: translateX(4px); }
+.recent { margin-top: 64px; }
+.recent-head { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--text); }
+.recent-list { margin: 0; padding: 0; list-style: none; }
+.recent-list li { display: grid; grid-template-columns: 160px minmax(0, 1fr); gap: 24px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.recent-date { color: var(--text-muted); font-size: var(--fs-s); padding-top: 2px; }
+
+/* ---------- Updates ---------- */
+.page-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--text); }
+.update { display: grid; grid-template-columns: 160px minmax(0, 1fr); gap: 24px; padding: 22px 0; border-bottom: 1px solid var(--line); }
+.update-date { color: var(--text-muted); font-size: var(--fs-s); padding-top: 3px; }
+.update-title { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 12px; }
+.update-title h2 { font-size: var(--fs-m); }
+.update p { margin: 6px 0 0; color: var(--text-muted); max-width: 72ch; }
+.update ul { margin: 8px 0 0; padding-left: 18px; max-width: 72ch; }
+.update li { padding: 2px 0; }
+
+/* ---------- Documentatie ---------- */
+.docs { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 48px; align-items: start; }
+.toc { position: sticky; top: 84px; display: grid; gap: 2px; }
+.toc a { padding: 6px 10px; border-left: 2px solid var(--line); color: var(--text-muted); text-decoration: none; }
+.toc a:hover { color: var(--text); border-left-color: var(--line-strong); }
+.toc a.is-active { color: var(--brand-text); border-left-color: var(--brand); font-weight: 600; }
+.doc-section { padding: 0 0 40px; scroll-margin-top: 84px; }
+.doc-section > h2 { padding-bottom: 12px; margin-bottom: 16px; border-bottom: 1px solid var(--text); }
+.doc-section p { margin: 0 0 12px; max-width: 72ch; }
+.doc-section ul, .doc-section ol { margin: 0 0 12px; padding-left: 20px; max-width: 72ch; }
+.doc-section li { padding: 3px 0; }
+.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); border-top: 1px solid var(--line); }
+.cell { padding: 16px 16px 16px 0; border-bottom: 1px solid var(--line); }
+.cell h3 { margin-bottom: 6px; }
+.cell p { margin: 0; color: var(--text-muted); }
+.table-wrap { overflow-x: auto; }
+table.data { width: 100%; border-collapse: collapse; }
+table.data th, table.data td { text-align: left; padding: 10px 12px 10px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+table.data th { font-size: var(--fs-s); font-weight: 600; color: var(--text-muted); border-bottom-color: var(--text); }
+.steps-list { counter-reset: s; list-style: none; padding: 0 !important; }
+.steps-list li { counter-increment: s; display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 8px; padding: 10px 0 !important; border-bottom: 1px solid var(--line); }
+.steps-list li::before { content: counter(s, decimal-leading-zero); color: var(--text-muted); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* ---------- Wachtwoordscherm (zelfde toegang als de huidige site) ---------- */
+.gate {
+  position: fixed;
+  inset: 0;
+  z-index: 5000;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: var(--surface);
+}
+.gate-box { width: 100%; max-width: 360px; padding: 28px; border: 1px solid var(--line-strong); border-radius: 6px; background: var(--bg); }
+.gate-box .logo { margin-bottom: 20px; }
+.gate-box h1 { margin-bottom: 4px; }
+.gate-box .btn { width: 100%; margin-top: 12px; }
+.gate-error { margin: 10px 0 0; color: var(--error-text); font-size: var(--fs-s); }
+
+/* ---------- Zorggroep kaart ---------- */
+.seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; border: 1px solid var(--line-strong); border-radius: var(--radius); overflow: hidden; }
+.seg button {
+  height: 36px;
+  border: 0;
+  border-left: 1px solid var(--line-strong);
+  background: var(--bg);
+  font-size: var(--fs-s);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color var(--t) var(--ease);
+}
+.seg button:first-child { border-left: 0; }
+.seg button:hover { background: var(--surface); }
+.seg button[aria-pressed="true"] { background: var(--brand); color: var(--on-brand); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 12px; font-size: var(--fs-s); color: var(--text-muted); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 12px; height: 12px; border-radius: 2px; border: 1px solid var(--line-strong); }
+.dir { margin: 8px 0 0; padding: 0; list-style: none; }
+.dir li { border-bottom: 1px solid var(--line); }
+.dir button {
+  display: grid;
+  grid-template-columns: 12px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+  padding: 9px 2px;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--t) var(--ease);
+}
+.dir button:hover, .dir button[aria-current="true"] { background: var(--brand-tint); }
+.info-list { margin: 10px 0 0; padding: 0; list-style: none; }
+.info-list li { padding: 8px 0; border-top: 1px solid var(--line); }
+.info-list .muted { display: block; font-size: var(--fs-s); }
+
+/* ---------- Responsief (inhoudspagina's) ---------- */
+@media (max-width: 900px) {
+  .hero, .docs { grid-template-columns: 1fr; gap: 28px; }
+  .toc { position: static; display: flex; flex-wrap: wrap; gap: 4px; }
+  .toc a { border: 1px solid var(--line); border-radius: 4px; }
+  .update, .recent-list li { grid-template-columns: 1fr; gap: 6px; }
+}
+@media (max-width: 760px) {
+  .site-head .wrap { gap: 12px; }
+  .site-nav {
+    display: none;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 60px;
+    flex-direction: column;
+    padding: 8px 24px 16px;
+    background: var(--bg);
+    border-bottom: 1px solid var(--line);
+  }
+  .site-nav.is-open { display: flex; }
+  .nav-toggle { display: inline-flex; align-items: center; }
+  .site-main { padding: 28px 0 48px; }
+  .test-tag { display: none; }
+}
+
+/* Links die als knop werken, en blokregels in de toolkaarten */
+a.icon-btn { display: inline-flex; align-items: center; color: var(--text); text-decoration: none; }
+.tool-title, .tool-desc { display: block; }
+.doc-section h3 { margin: 0 0 6px; }
+
+/* ---------- Zorggroep kaart: grijstinten voor gebieden zonder contract ---------- */
+:root { --nc-fill: #cfd7e3; --unc-fill: #bcc3cd; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --nc-fill: #3a4354; --unc-fill: #2c313a; }
+}
+:root[data-theme="dark"] { --nc-fill: #3a4354; --unc-fill: #2c313a; }
+.legend .sw-nc { background: var(--nc-fill); }
+.legend .sw-unc { background: var(--unc-fill); }
+.dir-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.dir-head .eyebrow { margin: 0; }
+.dir .site-link { display: block; padding: 0 2px 9px 24px; margin-top: -4px; font-size: var(--fs-s); word-break: break-all; }
+.detail-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.detail-head .icon-btn { flex-shrink: 0; }

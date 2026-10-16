@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Updates - MiGuide (test)</title>
+  <script>
+    try {
+      const t = localStorage.getItem("miguide_theme");
+      if (t === "dark" || t === "light") document.documentElement.dataset.theme = t;
+    } catch (e) {}
+  </script>
+  <link rel="icon" type="image/svg+xml" href="/zg-data/map-find-search-svgrepo-com.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="site.css?v=20261016-7" />
+</head>
+<body>
+  <div class="site">
+    <header class="site-head">
+      <div class="wrap">
+        <a class="brand" href="./" aria-label="MiGuide Zorgtools, startpagina">
+          <img class="logo logo-light" src="/zg-data/MiGuide_Logo_Nieuw.png" alt="MiGuide" />
+          <img class="logo logo-dark" src="/zg-data/MiGuide_Logo_White.png" alt="" />
+          <span class="app-name">Zorgtools</span>
+        </a>
+        <nav id="siteNav" class="site-nav" aria-label="Hoofdmenu">
+          <a href="zorgtool.html">Zorgtool</a>
+          <a href="zorggroepkaart.html">Zorggroep kaart</a>
+          <a href="updates.html" aria-current="page">Updates</a>
+          <a href="documentatie.html">Documentatie</a>
+        </nav>
+        <div class="head-actions">
+          <span class="test-tag">Testomgeving</span>
+          <button type="button" class="icon-btn" data-theme-toggle aria-label="Donkere modus aan of uit">Thema</button>
+          <a class="icon-btn" href="/admin/">Admin</a>
+          <button type="button" class="icon-btn nav-toggle" aria-expanded="false" aria-controls="siteNav">Menu</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="site-main">
+      <div class="wrap">
+        <div class="page-head">
+          <div>
+            <p class="eyebrow">Wijzigingslogboek</p>
+            <h1>Updates</h1>
+            <p class="lead">Wat er veranderd is na een push naar GitHub. Zo is snel terug te zien welke logica, data of weergave is aangepast, zonder door commits te zoeken.</p>
+          </div>
+          <span id="updatesMeta" class="meta num">Laden…</span>
+        </div>
+        <div id="updatesList" aria-live="polite">
+          <div class="update"><span class="update-date">&nbsp;</span><div class="skel" aria-label="Laden"><span></span><span></span><span></span></div></div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="site-foot">
+      <div class="wrap">
+        <span>Iets onjuist of een update nodig? Mail info@miguide.nl of stuur een intern bericht aan Onur.</span>
+        <a href="https://github.com/onurmiguide/zorggroepen_interactieve_kaart" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </div>
+    </footer>
+  </div>
+
+  <script src="site.js?v=20261016-7"></script>
+  <script>
+    // Zelfde bron en volgorde als de huidige updates-pagina (zg-data/updates.json).
+    (() => {
+      const list = document.getElementById("updatesList");
+      const meta = document.getElementById("updatesMeta");
+      const render = (updates) => {
+        meta.textContent = `${updates.length} update${updates.length === 1 ? "" : "s"}`;
+        if (!updates.length) {
+          list.innerHTML = `<div class="update"><span class="update-date">–</span><p class="muted">Er zijn nog geen updates toegevoegd.</p></div>`;
+          return;
+        }
+        list.innerHTML = updates.map((u) => {
+          const items = Array.isArray(u.summary) && u.summary.length ? `<ul>${u.summary.map((i) => `<li>${ZT.esc(i)}</li>`).join("")}</ul>` : "";
+          return `
+            <article class="update">
+              <time class="update-date num" datetime="${ZT.esc(u.date)}">${ZT.esc(ZT.formatDate(u.date))}</time>
+              <div>
+                <div class="update-title">
+                  <h2>${ZT.esc(u.title || "Update")}</h2>
+                  ${u.scope ? `<span class="tag">${ZT.esc(u.scope)}</span>` : ""}
+                </div>
+                ${u.description ? `<p>${ZT.esc(u.description)}</p>` : ""}
+                ${items}
+                ${u.commit ? `<p class="small">Commit <code>${ZT.esc(u.commit)}</code></p>` : ""}
+              </div>
+            </article>`;
+        }).join("");
+      };
+      const load = async () => {
+        meta.textContent = "Laden…";
+        try {
+          const res = await fetch("/zg-data/updates.json", { cache: "no-store" });
+          if (!res.ok) throw new Error(`updates.json laden mislukt (${res.status})`);
+          const data = await res.json();
+          render(Array.isArray(data?.updates) ? data.updates : []);
+        } catch (err) {
+          console.error(err);
+          meta.textContent = "Fout bij laden";
+          list.innerHTML = `
+            <div class="alert alert-error" role="alert"><strong>De updates konden niet worden geladen</strong>Controleer de verbinding en probeer het opnieuw.
+              <div class="alert-actions"><button type="button" id="retryBtn">Opnieuw proberen</button></div>
+            </div>`;
+          document.getElementById("retryBtn").addEventListener("click", load);
+        }
+      };
+      load();
+    })();
+  </script>
+</body>
+</html>

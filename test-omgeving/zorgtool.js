@@ -29,16 +29,9 @@
   // ---------------------------------------------------------------------------------------
   // 1. Bestaande logica laden (zonder de automatische start van de huidige pagina)
   // ---------------------------------------------------------------------------------------
-  async function loadLogic() {
-    const res = await fetch("/script/script.js", { cache: "no-cache" });
-    if (!res.ok) throw new Error(`script.js laden mislukt (${res.status})`);
-    const src = await res.text();
-    const start = src.search(/\r?\ninitThemeToggle\(\);\r?\ninitAuthGate\(\);/);
-    if (start === -1) throw new Error("Startpunt in script.js niet gevonden");
-    const el = document.createElement("script");
-    el.textContent = `${src.slice(0, start)}\n//# sourceURL=zorgtool-logica.js`;
-    document.head.appendChild(el);
-    if (typeof buildZorggroepFeatures !== "function") throw new Error("Logica niet geladen");
+  function loadLogic() {
+    return ZT.loadLegacyScript("/script/script.js", /\r?\ninitThemeToggle\(\);\r?\ninitAuthGate\(\);/,
+      () => typeof buildZorggroepFeatures === "function");
   }
 
   async function loadData() {
@@ -682,7 +675,7 @@
     runSearch(chosen || $("q").value);
   });
   $("q").addEventListener("input", onInput);
-  $("q").addEventListener("focus", () => { if (isMobile() && sheetState === "peek") setSheet("half"); });
+  $("q").addEventListener("focus", () => { if (isMobile() && sheet.state === "peek") setSheet("half"); });
   $("q").addEventListener("keydown", (e) => {
     if (e.key === "ArrowDown") { e.preventDefault(); if ($("suggest").hidden) renderSuggest(); moveActive(1); }
     else if (e.key === "ArrowUp") { e.preventDefault(); moveActive(-1); }
@@ -751,83 +744,16 @@
   });
 
   // ---------------------------------------------------------------------------------------
-  // 7. Kop: thema en menu
+  // 7. Thema en menu staan in site.js; bij een themawissel alleen de kaartkleuren bijwerken
   // ---------------------------------------------------------------------------------------
-  $("themeBtn").addEventListener("click", () => {
-    const dark = document.documentElement.dataset.theme
-      ? document.documentElement.dataset.theme === "dark"
-      : window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const next = dark ? "light" : "dark";
-    document.documentElement.dataset.theme = next;
-    try { localStorage.setItem("miguide_theme", next); } catch (e) {}
-    restyleRegions();
-  });
-  $("menuBtn").addEventListener("click", (e) => {
-    e.stopPropagation();
-    const open = $("menu").hidden;
-    $("menu").hidden = !open;
-    $("menuBtn").setAttribute("aria-expanded", String(open));
-  });
-  document.addEventListener("click", (e) => {
-    if (!e.target.closest(".head-actions")) { $("menu").hidden = true; $("menuBtn").setAttribute("aria-expanded", "false"); }
-  });
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && !$("menu").hidden) { $("menu").hidden = true; $("menuBtn").setAttribute("aria-expanded", "false"); $("menuBtn").focus(); }
-  });
+  document.addEventListener("zt:theme", restyleRegions);
 
   // ---------------------------------------------------------------------------------------
   // 8. Mobiel onderpaneel (versleepbaar; alleen transform)
   // ---------------------------------------------------------------------------------------
-  let sheetState = "peek";
-  function sheetPositions() {
-    const h = $("panel").offsetHeight;
-    return { full: 0, half: Math.max(0, h - window.innerHeight * 0.55), peek: Math.max(0, h - 196) };
-  }
-  function setSheet(state) {
-    if (!isMobile()) return;
-    sheetState = state;
-    $("panel").style.setProperty("--sheet-y", `${sheetPositions()[state]}px`);
-  }
-  (() => {
-    const handle = $("sheetHandle");
-    const cycle = () => setSheet(sheetState === "peek" ? "half" : sheetState === "half" ? "full" : "peek");
-    let startY = 0, startOffset = 0, moved = false, dragging = false;
-    handle.addEventListener("pointerdown", (e) => {
-      if (!isMobile()) return;
-      try { handle.setPointerCapture(e.pointerId); } catch (err) { /* geen capture: slepen werkt nog steeds */ }
-      dragging = true;
-      startY = e.clientY;
-      startOffset = sheetPositions()[sheetState];
-      moved = false;
-      $("panel").classList.add("dragging");
-    });
-    handle.addEventListener("pointermove", (e) => {
-      if (!dragging) return;
-      const dy = e.clientY - startY;
-      if (Math.abs(dy) > 4) moved = true;
-      const y = Math.min(sheetPositions().peek, Math.max(0, startOffset + dy));
-      $("panel").style.setProperty("--sheet-y", `${y}px`);
-    });
-    const end = () => {
-      if (!dragging) return;
-      dragging = false;
-      $("panel").classList.remove("dragging");
-      if (!moved) { cycle(); return; }
-      const y = parseFloat(getComputedStyle($("panel")).getPropertyValue("--sheet-y")) || 0;
-      const pos = sheetPositions();
-      setSheet(Object.entries(pos).sort((x, z) => Math.abs(x[1] - y) - Math.abs(z[1] - y))[0][0]);
-    };
-    handle.addEventListener("pointerup", end);
-    handle.addEventListener("pointercancel", end);
-    // Toetsenbord: Enter/spatie wisselt de stand, pijltjes schuiven op en neer.
-    handle.addEventListener("click", (e) => { if (e.detail === 0) cycle(); });
-    handle.addEventListener("keydown", (e) => {
-      if (e.key === "ArrowUp") { e.preventDefault(); setSheet(sheetState === "peek" ? "half" : "full"); }
-      if (e.key === "ArrowDown") { e.preventDefault(); setSheet(sheetState === "full" ? "half" : "peek"); }
-    });
-  })();
+  const sheet = ZT.initSheet($("panel"), $("sheetHandle"));
+  const setSheet = (state) => sheet.set(state);
   window.addEventListener("resize", () => {
-    if (isMobile()) setSheet(sheetState);
     lmap.invalidateSize();
     updateMinZoom();
   });
