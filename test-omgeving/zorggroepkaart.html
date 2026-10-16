@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="site.css?v=20261016-7" />
+  <link rel="stylesheet" href="site.css?v=20261016-8" />
 </head>
 <body data-auth="required">
   <div id="map" class="map" role="region" aria-label="Kaart met alle zorggroepen"></div>
@@ -25,9 +25,10 @@
     <button type="button" id="sheetHandle" class="sheet-handle" aria-label="Paneel groter of kleiner maken"></button>
 
     <header class="panel-head">
-      <img class="logo logo-light" src="/zg-data/MiGuide_Logo_Nieuw.png" alt="MiGuide" />
-      <img class="logo logo-dark" src="/zg-data/MiGuide_Logo_White.png" alt="MiGuide" />
-      <span class="app-name">Zorggroep kaart</span>
+      <a class="brand" href="./" aria-label="MiGuide Zorgtools, naar de startpagina">
+        <img class="logo logo-light" src="/zg-data/MiGuide_Logo_Nieuw.png" alt="MiGuide" />
+        <img class="logo logo-dark" src="/zg-data/MiGuide_Logo_White.png" alt="" />
+      </a>
       <div class="head-actions">
         <button type="button" class="icon-btn" data-theme-toggle aria-label="Donkere modus aan of uit">Thema</button>
         <button type="button" id="menuBtn" class="icon-btn" aria-haspopup="true" aria-expanded="false" aria-controls="menu">Menu</button>
@@ -42,6 +43,12 @@
         </ul>
       </div>
     </header>
+    <nav class="crumbs" aria-label="Kruimelpad">
+      <a href="./">← Start</a>
+      <span class="sep" aria-hidden="true">/</span>
+      <span class="here" aria-current="page">Zorggroep kaart</span>
+      <a class="switch" href="zorgtool.html">Zorgtool →</a>
+    </nav>
 
     <div class="panel-scroll">
       <section class="section">
@@ -73,7 +80,7 @@
   </aside>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="site.js?v=20261016-7"></script>
+  <script src="site.js?v=20261016-8"></script>
   <script src="zorggroepkaart.js?v=20261016-7"></script>
 </body>
 </html>

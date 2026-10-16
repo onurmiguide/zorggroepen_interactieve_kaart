@@ -133,7 +133,7 @@ window.ZT = (() => {
     let state = "peek";
     const positions = () => {
       const h = panel.offsetHeight;
-      return { full: 0, half: Math.max(0, h - window.innerHeight * 0.55), peek: Math.max(0, h - 196) };
+      return { full: 0, half: Math.max(0, h - window.innerHeight * 0.55), peek: Math.max(0, h - 232) };
     };
     const set = (next) => {
       if (!isMobile()) return;

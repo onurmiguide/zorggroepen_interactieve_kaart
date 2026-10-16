@@ -673,3 +673,20 @@ a.icon-btn { display: inline-flex; align-items: center; color: var(--text); text
 .dir .site-link { display: block; padding: 0 2px 9px 24px; margin-top: -4px; font-size: var(--fs-s); word-break: break-all; }
 .detail-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
 .detail-head .icon-btn { flex-shrink: 0; }
+
+/* Navigatieregel op de kaartpagina's: één klik terug naar start of naar de andere tool */
+.crumbs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 20px;
+  border-bottom: 1px solid var(--line);
+  font-size: var(--fs-s);
+  flex-shrink: 0;
+}
+.crumbs a { font-weight: 600; color: var(--brand-text); text-decoration: none; border-radius: 3px; }
+.crumbs a:hover { text-decoration: underline; }
+.crumbs .sep { color: var(--line-strong); }
+.crumbs .here { font-weight: 600; color: var(--text); }
+.crumbs .switch { margin-left: auto; }
+.panel-head .brand { flex-shrink: 0; }
