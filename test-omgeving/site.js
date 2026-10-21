@@ -126,11 +126,11 @@ window.ZT = (() => {
     const res = await fetch(url, { cache: "no-cache" });
     if (!res.ok) throw new Error(`${url} laden mislukt (${res.status})`);
     const src = await res.text();
+    // Sinds de livegang bevatten de logicabestanden geen automatische start meer: dan het hele bestand.
     const start = src.search(startPattern);
-    if (start === -1) throw new Error(`Startpunt in ${url} niet gevonden`);
     // Relatieve datapaden ("zg-data/...") wijzen vanuit /test-omgeving/ naar de verkeerde map:
     // absoluut maken, zodat ook de reservebestanden (bij een onbereikbare API) gevonden worden.
-    const code = src.slice(0, start).replace(/(["'`])zg-data\//g, "$1/zg-data/");
+    const code = (start === -1 ? src : src.slice(0, start)).replace(/(["'`])zg-data\//g, "$1/zg-data/");
     const el = document.createElement("script");
     el.textContent = `${code}\n//# sourceURL=${url.split("/").pop()}-logica.js`;
     document.head.appendChild(el);

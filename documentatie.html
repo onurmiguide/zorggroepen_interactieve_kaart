@@ -2,243 +2,205 @@
 <html lang="nl">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Documentatie - MiGuide Zorg Tools</title>
-  <link rel="icon" type="image/svg+xml" href="zg-data/map-find-search-svgrepo-com.svg" />
-  <script src="https://cdn.tailwindcss.com"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Documentatie - MiGuide</title>
   <script>
-    tailwind.config = { darkMode: "class" };
+    try {
+      const t = localStorage.getItem("miguide_theme");
+      if (t === "dark" || t === "light") document.documentElement.dataset.theme = t;
+    } catch (e) {}
   </script>
-  <link rel="stylesheet" href="css/style.css?v=20260507-cachefix" />
+  <link rel="icon" type="image/svg+xml" href="zg-data/map-find-search-svgrepo-com.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/site.css?v=20261021-2" />
 </head>
-<body class="min-h-full bg-slate-100 text-slate-800 antialiased dark:bg-slate-950 dark:text-slate-200">
-  <div class="app-topbar sticky top-0 z-[1000] flex flex-wrap items-center gap-2 border-b border-slate-200 bg-white/95 px-3 py-2.5 shadow-sm backdrop-blur sm:gap-3 sm:px-4 sm:py-3 dark:border-slate-800 dark:bg-slate-900/95">
-    <a href="index.html" aria-label="Ga naar hoofdpagina" class="app-topbar-brand">
-      <img
-        class="h-auto w-[104px] object-contain sm:w-[120px]"
-        id="siteLogo"
-        src="zg-data/MiGuide_Logo_Nieuw.png"
-        data-logo-light="zg-data/MiGuide_Logo_Nieuw.png"
-        data-logo-dark="zg-data/MiGuide_Logo_White.png"
-        alt="MiGuide logo"
-      />
-    </a>
-    <div class="app-topbar-meta min-w-0">
-      <div class="truncate text-[1rem] font-semibold leading-tight tracking-tight text-slate-900 sm:text-[1.08rem] dark:text-slate-100">Documentatie</div>
-      <div class="hidden truncate text-xs font-medium text-slate-500 sm:block dark:text-slate-400">Structuur, dataflow en onderhoud van de zorggroepentool</div>
-    </div>
-    <button id="themeToggle" class="theme-toggle ml-auto inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-slate-400 bg-white text-slate-900 transition hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800" type="button" aria-label="Schakel dark mode" title="Schakel dark mode">
-      <span id="themeToggleIcon" aria-hidden="true">&#127769;</span>
-    </button>
-    <details class="topbar-dropdown inline-block shrink-0">
-      <summary class="inline-flex items-center justify-center gap-x-1.5 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-900 shadow-sm hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800">
-        Menu
-      </summary>
-      <ul role="listbox" class="w-56 rounded-md bg-white p-1 shadow-xl outline-1 -outline-offset-1 outline-slate-200 dark:bg-slate-900 dark:outline-slate-700">
-        <li><a href="index.html#zorgtool" class="block rounded px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 focus:bg-slate-100 focus:text-slate-900 focus:outline-none dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white dark:focus:bg-slate-800 dark:focus:text-white">Zorgtool</a></li>
-        <li><a href="losse-verwijzing-tool/index.html" class="block rounded px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 focus:bg-slate-100 focus:text-slate-900 focus:outline-none dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white dark:focus:bg-slate-800 dark:focus:text-white">Losse verwijzing tool</a></li>
-        <li><a href="alle-zorggroepen.html" class="block rounded px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 focus:bg-slate-100 focus:text-slate-900 focus:outline-none dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white dark:focus:bg-slate-800 dark:focus:text-white">Zorggroep kaart</a></li>
-        <li><a href="updates.html" class="block rounded px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 focus:bg-slate-100 focus:text-slate-900 focus:outline-none dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white dark:focus:bg-slate-800 dark:focus:text-white">Updates</a></li>
-        <li><a href="documentatie.html" class="block rounded bg-slate-100 px-3 py-2 text-sm font-medium text-slate-900 focus:bg-slate-100 focus:text-slate-900 focus:outline-none dark:bg-slate-800 dark:text-white">Documentatie</a></li>
-        <li><a href="https://github.com/onurmiguide/zorggroepen_interactieve_kaart" target="_blank" rel="noopener noreferrer" class="block rounded px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 focus:bg-slate-100 focus:text-slate-900 focus:outline-none dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white dark:focus:bg-slate-800 dark:focus:text-white">GitHub repo</a></li>
-      </ul>
-    </details>
-    <div class="app-topbar-badge hidden whitespace-nowrap rounded-lg border border-sky-300 bg-sky-50 px-2.5 py-1 text-[11px] font-bold text-sky-800 lg:block dark:border-sky-500/50 dark:bg-sky-950/40 dark:text-sky-200">Interne documentatie</div>
+<body>
+  <div class="site">
+    <header class="site-head">
+      <div class="wrap">
+        <a class="brand" href="./" aria-label="MiGuide Zorgtools, startpagina">
+          <img class="logo logo-light" src="zg-data/MiGuide_Logo_Nieuw.png" alt="MiGuide" />
+          <img class="logo logo-dark" src="zg-data/MiGuide_Logo_White.png" alt="" />
+          <span class="app-name">Zorgtools</span>
+        </a>
+        <nav id="siteNav" class="site-nav" aria-label="Hoofdmenu">
+          <a href="zorgtool.html">Zorgtool</a>
+          <a href="zorggroepkaart.html">Zorggroep kaart</a>
+          <a href="losse-verwijzing-tool/index.html">Losse verwijzing</a>
+          <a href="updates.html">Updates</a>
+          <a href="documentatie.html" aria-current="page">Documentatie</a>
+        </nav>
+        <div class="head-actions">
+          <button type="button" class="icon-btn" data-theme-toggle aria-label="Donkere modus aan of uit">Thema</button>
+          <a class="icon-btn" href="admin/index.html">Admin</a>
+          <button type="button" class="icon-btn nav-toggle" aria-expanded="false" aria-controls="siteNav">Menu</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="site-main">
+      <div class="wrap docs">
+        <nav class="toc" aria-label="Inhoud">
+          <a href="#overzicht">Overzicht</a>
+          <a href="#paginas">Pagina's</a>
+          <a href="#dataflow">Dataflow</a>
+          <a href="#bestanden">Belangrijke bestanden</a>
+          <a href="#beslislogica">Beslislogica</a>
+          <a href="#onderhoud">Onderhoud</a>
+          <a href="#checks">Checks</a>
+        </nav>
+
+        <div>
+          <section id="overzicht" class="doc-section">
+            <p class="eyebrow">MiGuide Zorgtools</p>
+            <h1>Documentatie van de zorggroepentool</h1>
+            <p class="lead">De Zorgtool zoekt op gemeente, postcode en zorgverzekeraar. De uitkomst is een zorggroep, facturatiestroom, facturatiemodule en prestatiecode, met een korte uitleg waarom. De data wordt beheerd in de adminomgeving; de rekenregels staan in JavaScript.</p>
+            <div class="cols field-gap">
+              <div class="cell">
+                <p class="eyebrow">Beheer</p>
+                <h3><code>admin/</code></h3>
+                <p>Zorggroepen, verzekeraars, contracten, postcode-uitzonderingen en plaatsnamen. Wijzigingen zijn direct live.</p>
+              </div>
+              <div class="cell">
+                <p class="eyebrow">Hoofdlogica</p>
+                <h3><code>script/script.js</code></h3>
+                <p>Postcodeflow, plaatsmatching, beslisboom, facturatiestroom, facturatiemodule en prestatiecode.</p>
+              </div>
+              <div class="cell">
+                <p class="eyebrow">Reservedata</p>
+                <h3><code>zg-data/*.json</code></h3>
+                <p>Kopie van de admindata. Wordt gebruikt als de admin-API even niet bereikbaar is.</p>
+              </div>
+            </div>
+          </section>
+
+          <section id="paginas" class="doc-section">
+            <h2>Pagina's</h2>
+            <div class="table-wrap">
+              <table class="data">
+                <thead><tr><th scope="col">Bestand</th><th scope="col">Doel</th></tr></thead>
+                <tbody>
+                  <tr><td><code>index.html</code></td><td>Startpagina met wachtwoordscherm, de tools en de laatste updates.</td></tr>
+                  <tr><td><code>zorgtool.html</code></td><td>Zorgtool: zoeken op postcode of gemeente en zorgverzekeraar, met kaart, uitkomst en uitleg.</td></tr>
+                  <tr><td><code>zorggroepkaart.html</code></td><td>Overzichtskaart met gecontracteerde zorggroepen in kleur en gebieden zonder contract in grijs. Het oude adres <code>alle-zorggroepen.html</code> stuurt hierheen door.</td></tr>
+                  <tr><td><code>losse-verwijzing-tool/</code></td><td>Verwijzing (PDF of afbeelding) uitlezen, per veld controleren en als JSON exporteren.</td></tr>
+                  <tr><td><code>data-overzicht.html</code></td><td>Leesbare tabellen van gebruikte zorggroepen, verzekeraars, stromen en templates.</td></tr>
+                  <tr><td><code>updates.html</code></td><td>Wijzigingslogboek op basis van <code>zg-data/updates.json</code>.</td></tr>
+                  <tr><td><code>documentatie.html</code></td><td>Deze uitlegpagina voor structuur, logica en onderhoud.</td></tr>
+                  <tr><td><code>admin/</code></td><td>Adminomgeving (inloggen met een eigen account) voor het beheer van alle data.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <section id="dataflow" class="doc-section">
+            <h2>Dataflow van postcode naar resultaat</h2>
+            <ol class="steps-list">
+              <li><span><strong>Laden:</strong> de Zorgtool haalt zorggroepen, postcode-uitzonderingen en verzekeraars op via <code>/api/public/…</code>. Lukt dat niet, dan gebruikt hij de JSON-bestanden in <code>zg-data/</code>.</span></li>
+              <li><span><strong>Invoer:</strong> de gebruiker vult een postcode of gemeente in en eventueel een zorgverzekeraar.</span></li>
+              <li><span><strong>Normalisatie:</strong> een postcode wordt omgezet naar <code>1234AB</code> of <code>1234</code>.</span></li>
+              <li><span><strong>Uitzonderingen:</strong> <code>findPostcodeOverride</code> kijkt eerst naar exacte postcodes (PC6) en daarna naar postcode-ranges (PC4).</span></li>
+              <li><span><strong>PDOK lookup:</strong> de tool zoekt de woonplaats en gemeente van de postcode op via PDOK.</span></li>
+              <li><span><strong>Zorggroepmatch:</strong> de gemeente of woonplaats wordt gekoppeld aan een zorggroepgebied (met de plaatsnamen uit de admin).</span></li>
+              <li><span><strong>Beslisboom:</strong> <code>resolveDecisionTreeRouting2026</code> bepaalt route en stroom, inclusief afwijkende facturatie per verzekeraar.</span></li>
+              <li><span><strong>Resultaat:</strong> de Zorgtool toont facturatiemodule, facturatiestroom en prestatiecode (<code>resolvePrestatiecodeByFacturatiemodule</code>) met de uitleg waarom.</span></li>
+            </ol>
+          </section>
+
+          <section id="bestanden" class="doc-section">
+            <h2>Belangrijke bestanden</h2>
+            <div class="cols">
+              <div class="cell">
+                <h3>Code</h3>
+                <ul>
+                  <li><code>script/script.js</code>: logica van de Zorgtool (data laden, postcodeflow, beslisboom, facturatiemodule en prestatiecode).</li>
+                  <li><code>script/zorgtool.js</code>: weergave van de Zorgtool (zoekveld, kaart, uitkomst, uitleg).</li>
+                  <li><code>script/alle-zorggroepen.js</code>: logica van de Zorggroep kaart (gecontracteerde en niet-gecontracteerde gebieden).</li>
+                  <li><code>script/zorggroepkaart.js</code>: weergave van de Zorggroep kaart.</li>
+                  <li><code>script/site.js</code> en <code>css/site.css</code>: gedeeld door alle pagina's (thema, menu, wachtwoordscherm, huisstijl).</li>
+                  <li><code>script/data-overzicht.js</code>: vult de tabellen van het data-overzicht.</li>
+                </ul>
+              </div>
+              <div class="cell">
+                <h3>Data</h3>
+                <ul>
+                  <li><code>zg-data/zorggroepen.json</code>: reservekopie van de zorggroepen, plaatsen en contracten.</li>
+                  <li><code>zg-data/postcode_overrides.json</code>: reservekopie van de postcode-uitzonderingen.</li>
+                  <li><code>zg-data/alle-zorggroepen-info.json</code>: websites en extra context voor de Zorggroep kaart.</li>
+                  <li><code>zg-data/woonplaatsen.json</code>: alle woonplaatsen uit de BAG, eenmalig ingelezen als plaatsnamen.</li>
+                  <li><code>zg-data/updates.json</code>: zichtbare changelog voor wijzigingen.</li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
+          <section id="beslislogica" class="doc-section">
+            <h2>Beslislogica</h2>
+            <div class="cols">
+              <div class="cell">
+                <h3>Zorggroepgebieden</h3>
+                <p>Bij een gecontracteerde zorggroep is de standaardroute <code>Zorggroep</code>. <code>ESV</code>, <code>Gezondheid Amsterdam (GA)</code> en <code>Zuid Holland Zuid - CZ/VGZ</code> krijgen een eigen facturatiemodule.</p>
+              </div>
+              <div class="cell">
+                <h3>Afwijkend per verzekeraar</h3>
+                <p>Per zorggroep kan in de admin een uitzondering staan, bijvoorbeeld Kennemerland: alleen DSW via <code>ZoHealthy</code>, en HUMO: alleen CZ via de zorggroep, andere verzekeraars via <code>MiGuide</code>.</p>
+              </div>
+              <div class="cell">
+                <h3>Geen contractgebieden</h3>
+                <p>Bij <code>Geen zorggroep contract</code> bepaalt de zorgverzekeraar de route: VGZ-labels naar <code>MiGuide - VGZ</code>, losse-factuurverzekeraars naar <code>ZoHealthy</code>, en overige gecontracteerde verzekeraars naar <code>MiGuide</code>.</p>
+              </div>
+              <div class="cell">
+                <h3>Postcode-uitzonderingen</h3>
+                <p>Exacte postcodes (PC6) gaan vóór postcode-ranges (PC4), en ranges gaan vóór de brede gemeente- of plaatsmatching.</p>
+              </div>
+              <div class="cell">
+                <h3>Prestatiecode</h3>
+                <p>De prestatiecode komt uit <code>FACTURATIEMODULE_PRESTATIECODE</code>. Voorbeelden: <code>ESV</code> geeft <code>CoOL-MiGuide</code>, <code>MiGuide - VGZ</code> geeft <code>CoOL</code>.</p>
+              </div>
+            </div>
+          </section>
+
+          <section id="onderhoud" class="doc-section">
+            <h2>Onderhoud</h2>
+            <h3>Een postcode valt niet onder de juiste zorggroep</h3>
+            <p>Voeg in de admin onder <strong>Postcodes → Exacte postcodes (PC6)</strong> een uitzondering toe. Kies <code>Geen zorggroep contract</code> als de postcode uit een brede zorggroepregio moet worden gehaald. Voor een hele reeks postcodes gebruik je <strong>Postcode-ranges (PC4)</strong>.</p>
+            <h3 class="field-gap">Een plaats wordt niet gevonden</h3>
+            <p>Koppel de plaatsnaam in de admin onder <strong>Postcodes → Plaatsnamen (plaats → gemeente)</strong> aan de juiste gemeente. De lijst <code>CITY_TO_GEMEENTE</code> in de code is alleen nog een reserve voor als de API niet bereikbaar is.</p>
+            <h3 class="field-gap">Een nieuwe zorggroep of afwijkende verzekeraar</h3>
+            <p>Voeg de zorggroep toe onder <strong>Zorggroepen</strong>, met regio, plaatsen, contractstatus en eventueel een eigen kaartkleur. Een afwijkende route voor bepaalde verzekeraars stel je in bij <strong>Afwijkende facturatie per verzekeraar</strong>.</p>
+            <h3 class="field-gap">Reservedata bijwerken</h3>
+            <p>De knop <strong>Publiceren</strong> in de lokale admin zet de actuele data in <code>zg-data/zorggroepen.json</code> en <code>zg-data/postcode_overrides.json</code> en pusht die naar GitHub.</p>
+            <h3 class="field-gap">Cache-bust na een codewijziging</h3>
+            <p>Verhoog de <code>?v=</code>-querystring van de gewijzigde CSS- of JS-bestanden in de HTML-pagina's die ze laden, zodat browsers de nieuwe versie ophalen.</p>
+            <h3 class="field-gap">Wijziging zichtbaar maken</h3>
+            <p>Voeg een korte entry toe aan <code>zg-data/updates.json</code>. De pagina <code>updates.html</code> en de startpagina tonen deze automatisch.</p>
+          </section>
+
+          <section id="checks" class="doc-section">
+            <h2>Checks voor livegang</h2>
+            <ul>
+              <li>Controleer JavaScript met <code>node --check script/script.js</code> (en de andere gewijzigde scripts).</li>
+              <li>Valideer gewijzigde JSON-bestanden, zoals <code>zg-data/updates.json</code>.</li>
+              <li>Draai de backendtests: <code>python -m pytest backend/tests</code>.</li>
+              <li>Doe een smokecheck voor de concrete postcode en zorgverzekeraar die is aangepast.</li>
+              <li>Commit alleen de bedoelde bestanden; laat losse brondata of tijdelijke bestanden buiten de commit.</li>
+              <li>Push naar <code>main</code>; Vercel zet de nieuwe versie daarna automatisch live.</li>
+            </ul>
+          </section>
+        </div>
+      </div>
+    </main>
+
+    <footer class="site-foot">
+      <div class="wrap">
+        <span>Iets onjuist of een update nodig? Mail info@miguide.nl of stuur een intern bericht aan Onur. Bronnen en mappings staan in het <a href="data-overzicht.html">data-overzicht</a>.</span>
+        <a href="https://github.com/onurmiguide/zorggroepen_interactieve_kaart" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </div>
+    </footer>
   </div>
 
-  <main class="mx-auto mt-6 mb-6 grid w-[96%] max-w-[1280px] gap-4 lg:grid-cols-[280px_minmax(0,1fr)]">
-    <aside class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm lg:sticky lg:top-[86px] lg:h-fit dark:border-slate-700 dark:bg-slate-900">
-      <div class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">Inhoud</div>
-      <nav class="mt-3 grid gap-1 text-sm">
-        <a class="rounded-lg px-3 py-2 text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800" href="#overzicht">Overzicht</a>
-        <a class="rounded-lg px-3 py-2 text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800" href="#paginas">Pagina's</a>
-        <a class="rounded-lg px-3 py-2 text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800" href="#dataflow">Dataflow</a>
-        <a class="rounded-lg px-3 py-2 text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800" href="#bestanden">Belangrijke bestanden</a>
-        <a class="rounded-lg px-3 py-2 text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800" href="#beslislogica">Beslislogica</a>
-        <a class="rounded-lg px-3 py-2 text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800" href="#onderhoud">Onderhoud</a>
-        <a class="rounded-lg px-3 py-2 text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800" href="#checks">Checks</a>
-      </nav>
-    </aside>
-
-    <div class="grid gap-4">
-      <section id="overzicht" class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-        <div class="inline-flex rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-sky-700 dark:border-sky-900 dark:bg-sky-950/40 dark:text-sky-300">MiGuide Zorg Tools</div>
-        <h1 class="mt-4 text-2xl font-semibold leading-tight text-slate-900 sm:text-3xl dark:text-slate-100">Documentatie van de zorggroepentool</h1>
-        <p class="mt-3 max-w-3xl text-sm leading-7 text-slate-600 sm:text-base dark:text-slate-300">
-          Deze tool zoekt op gemeente, postcode en zorgverzekeraar. De uitkomst is een zorggroepcontext, facturatiestroom, facturatiemodule en prestatiecode. De belangrijkste logica staat in JavaScript; de zorggroepen en postcode-uitzonderingen staan in JSON-bestanden.
-        </p>
-        <div class="mt-5 grid gap-3 md:grid-cols-3">
-          <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
-            <div class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">Hoofdlogica</div>
-            <div class="mt-2 text-sm font-semibold text-slate-900 dark:text-slate-100">script/script.js</div>
-            <p class="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">Postcodeflow, filters, kaartopbouw, beslisboom en facturatiemodules.</p>
-          </div>
-          <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
-            <div class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">Hoofddata</div>
-            <div class="mt-2 text-sm font-semibold text-slate-900 dark:text-slate-100">zg-data/zorggroepen.json</div>
-            <p class="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">Zorggroepen, regio's, plaatsen en contractcontext.</p>
-          </div>
-          <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
-            <div class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">Uitzonderingen</div>
-            <div class="mt-2 text-sm font-semibold text-slate-900 dark:text-slate-100">zg-data/postcode_overrides.json</div>
-            <p class="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">Exacte postcodecorrecties en postcode4-ranges die boven brede regio's gaan.</p>
-          </div>
-        </div>
-      </section>
-
-      <section id="paginas" class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-        <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">Pagina's</h2>
-        <div class="mt-4 overflow-auto rounded-lg border border-slate-200 dark:border-slate-700">
-          <table class="data-table w-full border-collapse text-sm">
-            <thead>
-              <tr>
-                <th>Bestand</th>
-                <th>Doel</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><code>index.html</code></td>
-                <td>Landing en interactieve kaart met postcodezoeker, filters en facturatiemodule-uitkomst.</td>
-              </tr>
-              <tr>
-                <td><code>alle-zorggroepen.html</code></td>
-                <td>Overzichtskaart met gecontracteerde zorggroepen en grijze geen-contract gebieden.</td>
-              </tr>
-              <tr>
-                <td><code>data-overzicht.html</code></td>
-                <td>Leesbare tabellen van gebruikte zorggroepen, verzekeraars, stromen en templates.</td>
-              </tr>
-              <tr>
-                <td><code>updates.html</code></td>
-                <td>Wijzigingslogboek op basis van <code>zg-data/updates.json</code>.</td>
-              </tr>
-              <tr>
-                <td><code>documentatie.html</code></td>
-                <td>Deze uitlegpagina voor structuur, logica en onderhoud.</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <section id="dataflow" class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-        <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">Dataflow van postcode naar resultaat</h2>
-        <ol class="mt-4 grid gap-3 text-sm leading-6 text-slate-700 dark:text-slate-300">
-          <li class="rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-950"><strong>1. Invoer:</strong> gebruiker vult gemeente, postcode en eventueel zorgverzekeraar in.</li>
-          <li class="rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-950"><strong>2. Normalisatie:</strong> postcode wordt omgezet naar formaat <code>1234AB</code> of <code>1234</code>.</li>
-          <li class="rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-950"><strong>3. Overridecheck:</strong> <code>findPostcodeOverride</code> kijkt eerst in <code>postcode_overrides.json</code>.</li>
-          <li class="rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-950"><strong>4. PDOK lookup:</strong> als er geen override is, zoekt de tool de woonplaats/gemeente op via PDOK.</li>
-          <li class="rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-950"><strong>5. Zorggroepmatch:</strong> gemeente of woonplaats wordt gekoppeld aan een feature uit <code>zorggroepen.json</code>.</li>
-          <li class="rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-950"><strong>6. Beslisboom:</strong> <code>resolveDecisionTreeRouting2026</code> bepaalt route, stroom en module.</li>
-          <li class="rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-950"><strong>7. Resultaat:</strong> de UI toont facturatiemodule en prestatiecode via <code>resolvePrestatiecodeByFacturatiemodule</code>.</li>
-        </ol>
-      </section>
-
-      <section id="bestanden" class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-        <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">Belangrijke bestanden</h2>
-        <div class="mt-4 grid gap-4 xl:grid-cols-2">
-          <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
-            <h3 class="text-sm font-semibold text-slate-900 dark:text-slate-100">Code</h3>
-            <ul class="mt-3 list-disc space-y-2 pl-5 text-sm leading-6 text-slate-700 dark:text-slate-300">
-              <li><code>script/script.js</code>: hoofdkaart, filters, postcodeflow, beslisboom, facturatiemodule en prestatiecode.</li>
-              <li><code>script/alle-zorggroepen.js</code>: eenvoudige overzichtskaart met gecontracteerd/geen-contract lagen.</li>
-              <li><code>script/data-overzicht.js</code>: vult de data-overzichtstabellen.</li>
-              <li><code>script/updates.js</code>: laadt en toont het wijzigingslogboek.</li>
-              <li><code>script/documentatie.js</code>: thema-toggle voor deze pagina.</li>
-            </ul>
-          </div>
-          <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
-            <h3 class="text-sm font-semibold text-slate-900 dark:text-slate-100">Data</h3>
-            <ul class="mt-3 list-disc space-y-2 pl-5 text-sm leading-6 text-slate-700 dark:text-slate-300">
-              <li><code>zg-data/zorggroepen.json</code>: leidende zorggroepenlijst voor de kaart.</li>
-              <li><code>zg-data/postcode_overrides.json</code>: exacte postcode- en range-uitzonderingen.</li>
-              <li><code>zg-data/alle-zorggroepen-info.json</code>: websites en extra context voor de overzichtskaart.</li>
-              <li><code>zg-data/updates.json</code>: zichtbare changelog voor wijzigingen.</li>
-              <li><code>zg-data/_beslisboom_20260204_extracted.txt</code>: tekstextract uit de beslisboom-bron.</li>
-            </ul>
-          </div>
-        </div>
-      </section>
-
-      <section id="beslislogica" class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-        <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">Beslislogica</h2>
-        <div class="mt-4 grid gap-4 md:grid-cols-2">
-          <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
-            <h3 class="text-sm font-semibold text-slate-900 dark:text-slate-100">Zorggroepgebieden</h3>
-            <p class="mt-2 text-sm leading-6 text-slate-700 dark:text-slate-300">
-              Bij een gecontracteerde zorggroep is de standaardroute <code>Zorggroep</code>. Uitzonderingen zoals <code>ESV</code>, <code>LCK</code>, <code>Gezondheid Amsterdam (GA)</code> en <code>Zuid Holland Zuid - CZ/VGZ</code> krijgen een eigen facturatiemodule.
-            </p>
-          </div>
-          <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
-            <h3 class="text-sm font-semibold text-slate-900 dark:text-slate-100">Geen contractgebieden</h3>
-            <p class="mt-2 text-sm leading-6 text-slate-700 dark:text-slate-300">
-              Bij <code>Geen zorggroep contract</code> bepaalt de zorgverzekeraar meestal de route: VGZ-labels naar <code>MiGuide - VGZ</code>, losse-factuurverzekeraars naar <code>ZoHealthy</code>, en overige gecontracteerde verzekeraars naar <code>MiGuide</code>.
-            </p>
-          </div>
-          <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
-            <h3 class="text-sm font-semibold text-slate-900 dark:text-slate-100">Postcode-uitzonderingen</h3>
-            <p class="mt-2 text-sm leading-6 text-slate-700 dark:text-slate-300">
-              Exacte postcodes in <code>exact_postcode6_overrides</code> gaan voor brede gemeente- of plaatsmatching. Dit is de veiligste manier om een enkele postcode te corrigeren.
-            </p>
-          </div>
-          <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
-            <h3 class="text-sm font-semibold text-slate-900 dark:text-slate-100">Prestatiecode</h3>
-            <p class="mt-2 text-sm leading-6 text-slate-700 dark:text-slate-300">
-              De prestatiecode komt uit <code>FACTURATIEMODULE_PRESTATIECODE</code>. Voorbeelden: <code>ESV</code> geeft <code>CoOL-MiGuide</code>, <code>MiGuide - VGZ</code> geeft <code>CoOL</code>.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <section id="onderhoud" class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-        <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">Onderhoud</h2>
-        <div class="mt-4 grid gap-4">
-          <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
-            <h3 class="text-sm font-semibold text-slate-900 dark:text-slate-100">Een postcode valt niet onder de juiste zorggroep</h3>
-            <p class="mt-2 text-sm leading-6 text-slate-700 dark:text-slate-300">
-              Voeg een entry toe in <code>zg-data/postcode_overrides.json</code> onder <code>exact_postcode6_overrides</code>. Gebruik <code>Geen zorggroep contract</code> als de postcode uit een brede zorggroepcontext moet worden gehaald.
-            </p>
-            <pre class="mt-3 overflow-auto rounded-lg border border-slate-200 bg-white p-3 text-xs leading-5 text-slate-800 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"><code>"1234AB": {
-  "zorggroep": "Geen zorggroep contract",
-  "source_sheet": "Handmatige uitzondering",
-  "note": "Korte reden waarom deze postcode afwijkt."
-}</code></pre>
-          </div>
-          <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
-            <h3 class="text-sm font-semibold text-slate-900 dark:text-slate-100">Een nieuwe zorggroep toevoegen</h3>
-            <p class="mt-2 text-sm leading-6 text-slate-700 dark:text-slate-300">
-              Voeg de zorggroep toe in <code>zg-data/zorggroepen.json</code> met <code>zorggroep</code>, <code>regio</code>, optioneel <code>website</code> en een lijst <code>cities</code>. Als een plaatsnaam niet direct naar een gemeente mapt, voeg dan een mapping toe in <code>CITY_TO_GEMEENTE</code> in <code>script/script.js</code> en zo nodig ook in <code>script/alle-zorggroepen.js</code>.
-            </p>
-          </div>
-          <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
-            <h3 class="text-sm font-semibold text-slate-900 dark:text-slate-100">Cache-bust na datawijziging</h3>
-            <p class="mt-2 text-sm leading-6 text-slate-700 dark:text-slate-300">
-              Als <code>postcode_overrides.json</code> verandert, verhoog dan de querystring in <code>POSTCODE_OVERRIDES_URL</code> in <code>script/script.js</code>. Als <code>script/script.js</code> verandert, verhoog dan ook de querystring van de script-tag in <code>index.html</code>.
-            </p>
-          </div>
-          <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
-            <h3 class="text-sm font-semibold text-slate-900 dark:text-slate-100">Wijziging zichtbaar maken</h3>
-            <p class="mt-2 text-sm leading-6 text-slate-700 dark:text-slate-300">
-              Voeg een korte entry toe aan <code>zg-data/updates.json</code>. De pagina <code>updates.html</code> toont deze automatisch.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <section id="checks" class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-        <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">Checks voor livegang</h2>
-        <ul class="mt-4 list-disc space-y-2 pl-5 text-sm leading-6 text-slate-700 dark:text-slate-300">
-          <li>Controleer JavaScript met <code>node --check script/script.js</code>.</li>
-          <li>Valideer JSON-bestanden zoals <code>zg-data/postcode_overrides.json</code> en <code>zg-data/updates.json</code>.</li>
-          <li>Draai een smokecheck voor de concrete postcode en zorgverzekeraar die is aangepast.</li>
-          <li>Commit alleen de bedoelde bestanden; laat losse brondata of tijdelijke bestanden buiten de commit.</li>
-          <li>Push naar <code>main</code>; de statische site pakt daarna de nieuwe HTML, JS en JSON op.</li>
-        </ul>
-      </section>
-    </div>
-  </main>
-
-  <script src="script/documentatie.js?v=20260603-docs"></script>
+  <script src="script/site.js?v=20261021-1"></script>
 </body>
 </html>

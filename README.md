@@ -3,11 +3,13 @@
 Deze repository bevat inmiddels meer dan 1 webapp binnen dezelfde toolset.
 
 Huidige apps:
-- `Zorggroepen Interactieve Kaart`
-- `Losse verwijzing verwerken` (in opbouw)
-- `Admin CRUD-omgeving` (lokaal, in opbouw) - zie [`backend/README.md`](backend/README.md)
+- `Zorgtool` (`zorgtool.html`): zoeken op postcode/gemeente en zorgverzekeraar
+- `Zorggroep kaart` (`zorggroepkaart.html`): overzicht van alle zorggroepen
+- `Losse verwijzing tool` (`losse-verwijzing-tool/`, in opbouw)
+- `Admin CRUD-omgeving` (`admin/`) - zie [`backend/README.md`](backend/README.md)
 
-De landing page in `index.html` laat na inloggen kiezen tussen deze apps.
+De startpagina `index.html` toont na inloggen de tools en de laatste updates.
+Alle pagina's (behalve de admin) delen `css/site.css` en `script/site.js`.
 
 ## Admin CRUD-omgeving (lokaal)
 
@@ -29,7 +31,7 @@ python -m uvicorn backend.app.main:app --reload --port 8000
 Open daarna **http://127.0.0.1:8000/admin/**. Volledige uitleg, API-overzicht en een
 testchecklist staan in [`backend/README.md`](backend/README.md).
 
-> Deze adminomgeving is bewust eerst **lokaal**; er is niets naar GitHub gepusht.
+> Online draait de admin-API als Vercel-functie met een Neon-database; zie `backend/README.md`.
 
 ## App 1: Zorggroepen Interactieve Kaart
 
@@ -37,19 +39,14 @@ Interactieve webapp (Leaflet.js) voor het tonen en filteren van Nederlandse zorg
 
 ## Functionaliteiten
 
-- Choropleth-kaart met zorggroepgebieden (Leaflet + OpenStreetMap tiles)
-- Domeinfilter (`Alle zorggroepen` of 1 specifieke zorggroep)
-- Zorgverzekeraar-filter
-- Facturatiestroom-filter (afhankelijk van geselecteerde zorgverzekeraar)
-- Zoekveld voor:
-  - Gemeente
-  - Plaats/stad/dorp
-  - Postcode4 (`1234`) en Postcode6 (`1234AB` of `1234 AB`)
-- Live suggesties tijdens typen
-- Klik op kaartdomein zet direct het domeinfilter
-- Linker plaatsenlijst (vast formaat, scrollbaar) met plaatsen uit actuele filterset
-- Tooltip + popup per zorggroep
-- Responsieve layout voor desktop/tablet/mobiel
+- Kaart met zorggroepgebieden (Leaflet + OpenStreetMap tiles), begrensd tot Nederland
+- Zoekveld voor gemeente, plaats/stad/dorp, Postcode4 (`1234`) en Postcode6 (`1234AB` of `1234 AB`), met suggesties (ook met het toetsenbord te bedienen)
+- Zorgverzekeraar-keuze; de uitkomst toont zorggroep, facturatiemodule, facturatiestroom en prestatiecode, met een uitleg "Waarom?"
+- Meldingen voor ZHZ (via Monter), VGZ (verwijzing controleren) en RMA (GLI niet vergoed)
+- Kaartfilters voor zorggroep en facturatiestroom (wat niet past wordt gedimd)
+- Klik op een gebied: zorggroep met plaatsen en postcodes
+- Deelbare link: `zorgtool.html?postcode=1234AB&verzekeraar=CZ`
+- Donkere modus en een versleepbaar onderpaneel op mobiel
 
 ## Tech Stack
 
@@ -99,12 +96,20 @@ Meer details en startinstructies:
 
 ```text
 .
-|- index.html
+|- index.html               startpagina (wachtwoord, tools, laatste updates)
+|- zorgtool.html            Zorgtool
+|- zorggroepkaart.html      Zorggroep kaart (alle-zorggroepen.html stuurt hierheen door)
+|- updates.html / documentatie.html / data-overzicht.html
 |- README.md
 |- css/
-|  |- style.css
+|  |- site.css              huisstijl voor alle pagina's
 |- script/
-|  |- script.js
+|  |- site.js               thema, menu, wachtwoordscherm, mobiel onderpaneel
+|  |- script.js             logica Zorgtool
+|  |- zorgtool.js           weergave Zorgtool
+|  |- alle-zorggroepen.js   logica Zorggroep kaart
+|  |- zorggroepkaart.js     weergave Zorggroep kaart
+|  |- data-overzicht.js
 |- losse-verwijzing-tool/
 |  |- index.html
 |  |- style.css
@@ -129,7 +134,8 @@ Meer details en startinstructies:
 
 1. Open de map in VS Code.
 2. Installeer/gebruik de extension `Live Server`.
-3. Start `index.html` met Live Server.
+3. Start `index.html` met Live Server, of start de backend (zie hierboven) en open
+   http://127.0.0.1:8000/.
 
 Belangrijk:
 - Gebruik een lokale server (niet `file://`) i.v.m. `fetch` van JSON/API data.
@@ -188,7 +194,7 @@ De app ondersteunt contractdata per zorggroep via 2 opties:
 
 ## Bekende aandachtspunten
 
-- Plaatsnamen met varianten/afkortingen worden deels via alias-mapping opgelost in `script/script.js`.
+- Plaatsnamen met varianten/afkortingen beheer je in de admin (Postcodes → Plaatsnamen); `CITY_TO_GEMEENTE` in `script/script.js` is alleen een reserve als de API niet bereikbaar is.
 - Resultaten van postcodezoeking hangen af van beschikbaarheid/kwaliteit van PDOK dataset.
 - De verwijzing-tool heeft voor documentverwerking een aparte Python backend nodig.
 

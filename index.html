@@ -2,239 +2,120 @@
 <html lang="nl">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Zorggroepen Choropleth</title>
-  <link rel="icon" type="image/svg+xml" href="zg-data/map-find-search-svgrepo-com.svg" />
-  <script src="https://cdn.tailwindcss.com"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Zorgtools - MiGuide</title>
   <script>
-    tailwind.config = { darkMode: "class" };
+    // Oude links naar de Zorgtool (?postcode=, ?gemeente= of #zorgtool) openen de Zorgtool zelf.
+    if (/[?&](postcode|gemeente)=/.test(location.search) || location.hash === "#zorgtool") location.replace("zorgtool.html" + location.search);
+    // Thema direct zetten (voorkomt flitsen); zelfde voorkeur als de rest van de site.
+    try {
+      const t = localStorage.getItem("miguide_theme");
+      if (t === "dark" || t === "light") document.documentElement.dataset.theme = t;
+    } catch (e) {}
   </script>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="css/style.css?v=20260603-facturatiestroom-layout" />
+  <link rel="icon" type="image/svg+xml" href="zg-data/map-find-search-svgrepo-com.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/site.css?v=20261021-2" />
 </head>
-<body class="min-h-full bg-slate-100 text-slate-800 antialiased dark:bg-slate-950 dark:text-slate-200">
-  <div id="authGate" class="grid min-h-screen place-items-center bg-gradient-to-b from-slate-50 to-slate-200 p-4 dark:from-slate-900 dark:to-slate-950">
-    <div class="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-5 shadow-xl shadow-slate-900/10 dark:border-slate-700 dark:bg-slate-900">
-      <img class="mb-3 h-auto w-28 object-contain" src="zg-data/MiGuide_Logo_Nieuw.png" alt="MiGuide logo" />
-      <h1 class="mb-1 text-lg font-bold text-slate-900 dark:text-slate-100">Beveiligde Toegang</h1>
-      <p class="mb-3 text-sm text-slate-500 dark:text-slate-400">Voer wachtwoord in om de kaart te openen.</p>
-      <input id="authPassword" class="mb-3 w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm outline-none placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/15 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100" type="password" placeholder="Wachtwoord" autocomplete="current-password" />
-      <button id="authSubmit" class="w-full rounded-xl bg-slate-900 px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 active:translate-y-px dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-white" type="button">Inloggen</button>
-      <p id="authError" class="mt-3 text-sm font-medium text-red-700 dark:text-red-300" hidden>Onjuist wachtwoord.</p>
-      <p class="mt-3 text-sm text-slate-500 dark:text-slate-400">
-        Voor toegang: neem contact op via
-        <a class="font-medium text-slate-700 underline underline-offset-2 dark:text-slate-200" href="mailto:info@miguide.nl">info@miguide.nl</a>
-        of stuur Onur een intern Teams-bericht.
-      </p>
-    </div>
-  </div>
-
-  <div id="appShell" hidden>
-    <div class="app-topbar sticky top-0 z-[1000] flex flex-wrap items-center gap-2 border-b border-slate-200 bg-white/95 px-3 py-2.5 shadow-sm backdrop-blur sm:gap-3 sm:px-4 sm:py-3 dark:border-slate-800 dark:bg-slate-900/95">
-      <a href="index.html" aria-label="Ga naar hoofdpagina" class="app-topbar-brand">
-        <img
-          class="h-auto w-[104px] object-contain sm:w-[120px]"
-          id="siteLogo"
-          src="zg-data/MiGuide_Logo_Nieuw.png"
-          data-logo-light="zg-data/MiGuide_Logo_Nieuw.png"
-          data-logo-dark="zg-data/MiGuide_Logo_White.png"
-          alt="MiGuide logo"
-        />
-      </a>
-      <div class="app-topbar-meta min-w-0">
-        <div id="appTitle" class="truncate text-[1rem] font-semibold leading-tight tracking-tight text-slate-900 sm:text-[1.12rem] dark:text-slate-100">MiGuide Zorg Tools</div>
-        <div id="appSubtitle" class="hidden truncate text-xs font-medium text-slate-500 sm:block dark:text-slate-400">Kies een tool om verder te gaan</div>
-      </div>
-      <button id="themeToggle" class="theme-toggle ml-auto inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-slate-400 bg-white text-slate-900 transition hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800" type="button" aria-label="Schakel dark mode" title="Schakel dark mode">
-        <span id="themeToggleIcon" aria-hidden="true">🌙</span>
-      </button>
-      <a href="admin/index.html" id="adminLink" class="inline-flex shrink-0 items-center justify-center rounded-md border border-sky-300 bg-sky-50 px-3 py-2 text-sm font-semibold text-sky-800 shadow-sm transition hover:bg-sky-100 dark:border-sky-700 dark:bg-sky-950/40 dark:text-sky-200 dark:hover:bg-sky-900/60" title="Open de adminomgeving">Admin</a>
-      <details class="topbar-dropdown inline-block shrink-0">
-        <summary class="inline-flex items-center justify-center gap-x-1.5 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-900 shadow-sm hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800">
-          Menu
-        </summary>
-        <ul role="listbox" class="w-56 rounded-md bg-white p-1 shadow-xl outline-1 -outline-offset-1 outline-slate-200 dark:bg-slate-900 dark:outline-slate-700">
-          <li><button id="menuZorgtoolButton" type="button" class="block w-full rounded px-3 py-2 text-left text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 focus:bg-slate-100 focus:text-slate-900 focus:outline-none dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white dark:focus:bg-slate-800 dark:focus:text-white">Zorgtool</button></li>
-          <li><a href="losse-verwijzing-tool/index.html" title="Open losse verwijzing tool" class="block rounded px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 focus:bg-slate-100 focus:text-slate-900 focus:outline-none dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white dark:focus:bg-slate-800 dark:focus:text-white">Losse verwijzing tool</a></li>
-          <li><a href="alle-zorggroepen.html" title="Bekijk de zorggroep kaart" class="block rounded px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 focus:bg-slate-100 focus:text-slate-900 focus:outline-none dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white dark:focus:bg-slate-800 dark:focus:text-white">Zorggroep kaart</a></li>
-          <li><a href="updates.html" title="Bekijk recente wijzigingen" class="block rounded px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 focus:bg-slate-100 focus:text-slate-900 focus:outline-none dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white dark:focus:bg-slate-800 dark:focus:text-white">Updates</a></li>
-          <li><a href="documentatie.html" title="Bekijk documentatie" class="block rounded px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 focus:bg-slate-100 focus:text-slate-900 focus:outline-none dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white dark:focus:bg-slate-800 dark:focus:text-white">Documentatie</a></li>
-          <li id="adminMenuItem"><a href="admin/index.html" title="Open de adminomgeving" class="block rounded px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 focus:bg-slate-100 focus:text-slate-900 focus:outline-none dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white dark:focus:bg-slate-800 dark:focus:text-white">Admin</a></li>
-          <li><a href="https://github.com/onurmiguide/zorggroepen_interactieve_kaart" target="_blank" rel="noopener noreferrer" class="block rounded px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 focus:bg-slate-100 focus:text-slate-900 focus:outline-none dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white dark:focus:bg-slate-800 dark:focus:text-white">GitHub repo</a></li>
-        </ul>
-      </details>
-      <div class="app-topbar-badge hidden whitespace-nowrap rounded-lg border border-red-300 bg-red-50 px-2.5 py-1 text-[11px] font-bold text-red-800 lg:block dark:border-red-500/50 dark:bg-red-950/40 dark:text-red-200">Concept / Demo - Work in progress - Niet 100% werkend</div>
-    </div>
-    <div id="statusMessage" class="status-toast fixed left-1/2 top-3 z-[2500] w-fit max-w-[92vw] -translate-x-1/2 rounded-xl border border-amber-300 bg-amber-50 px-4 py-2.5 text-sm font-medium text-amber-800 shadow-lg shadow-slate-900/10 dark:border-amber-700 dark:bg-amber-950/90 dark:text-amber-100" hidden></div>
-
-    <section id="landingView" class="mx-auto mt-8 mb-4 w-[96%] max-w-[1320px]">
-      <div class="landing-shell overflow-hidden rounded-[28px] border border-slate-200 bg-white/90 shadow-xl shadow-slate-900/5 backdrop-blur dark:border-slate-700 dark:bg-slate-900/80">
-        <div class="grid gap-0 lg:grid-cols-[1.1fr_0.9fr]">
-          <div class="landing-copy border-b border-slate-200 p-6 sm:p-8 lg:border-b-0 lg:border-r dark:border-slate-700">
-            <div class="inline-flex rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-medium uppercase tracking-[0.18em] text-sky-700 dark:border-sky-900 dark:bg-sky-950/40 dark:text-sky-300">MiGuide intern</div>
-            <h1 class="mt-4 max-w-[12ch] text-3xl font-semibold leading-tight text-slate-900 sm:text-4xl dark:text-slate-100">Kies een tool om verder te gaan.</h1>
-            <p class="mt-4 max-w-xl text-sm leading-7 text-slate-600 sm:text-base dark:text-slate-300">
-              Deze omgeving bundelt interne zorgtools op een centrale plek. Open de Zorgtool of bekijk het overzicht van alle zorggroepen.
-            </p>
-            <div class="mt-8 flex flex-wrap gap-3 text-sm text-slate-500 dark:text-slate-400">
-              <div class="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 dark:border-slate-700 dark:bg-slate-950">Kaart, filters en postcode-logica</div>
-              <div class="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 dark:border-slate-700 dark:bg-slate-950">Overzicht van alle zorggroepen</div>
-            </div>
-          </div>
-          <div class="grid gap-4 p-6 sm:p-8">
-            <button id="openMapTool" type="button" class="tool-card group rounded-[24px] border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg dark:border-slate-700 dark:from-slate-900 dark:to-slate-950">
-              <div class="flex items-start justify-between gap-3">
-                <div>
-                  <div class="text-lg font-semibold text-slate-900 dark:text-slate-100">Zorgtool</div>
-                  <div class="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">Zoek op gemeente, postcode en zorgverzekeraar en bekijk direct de juiste zorggroepcontext.</div>
-                </div>
-                <div class="rounded-2xl bg-sky-100 px-3 py-2 text-sm font-medium text-sky-700 dark:bg-sky-950/40 dark:text-sky-300">Live</div>
-              </div>
-              <div class="mt-6 inline-flex items-center gap-2 text-sm font-medium text-sky-700 dark:text-sky-300">Open zorgtool <span aria-hidden="true">-></span></div>
-            </button>
-            <a href="alle-zorggroepen.html" class="tool-card group rounded-[24px] border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg dark:border-slate-700 dark:from-slate-900 dark:to-slate-950">
-              <div class="flex items-start justify-between gap-3">
-                <div>
-                  <div class="text-lg font-semibold text-slate-900 dark:text-slate-100">Zorggroep kaart</div>
-                  <div class="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">Eenvoudige kaart met alle gecontracteerde zorggroepen in kleur en overige gebieden in grijs.</div>
-                </div>
-                <div class="rounded-2xl bg-emerald-100 px-3 py-2 text-sm font-medium text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300">Nieuw</div>
-              </div>
-              <div class="mt-6 inline-flex items-center gap-2 text-sm font-medium text-emerald-700 dark:text-emerald-300">Open kaart <span aria-hidden="true">-></span></div>
-            </a>
-          </div>
+<body data-auth="required">
+  <div class="site">
+    <header class="site-head">
+      <div class="wrap">
+        <a class="brand" href="./" aria-label="MiGuide Zorgtools, startpagina">
+          <img class="logo logo-light" src="zg-data/MiGuide_Logo_Nieuw.png" alt="MiGuide" />
+          <img class="logo logo-dark" src="zg-data/MiGuide_Logo_White.png" alt="" />
+          <span class="app-name">Zorgtools</span>
+        </a>
+        <nav id="siteNav" class="site-nav" aria-label="Hoofdmenu">
+          <a href="zorgtool.html">Zorgtool</a>
+          <a href="zorggroepkaart.html">Zorggroep kaart</a>
+          <a href="losse-verwijzing-tool/index.html">Losse verwijzing</a>
+          <a href="updates.html">Updates</a>
+          <a href="documentatie.html">Documentatie</a>
+        </nav>
+        <div class="head-actions">
+          <button type="button" class="icon-btn" data-theme-toggle aria-label="Donkere modus aan of uit">Thema</button>
+          <a class="icon-btn" href="admin/index.html">Admin</a>
+          <button type="button" class="icon-btn nav-toggle" aria-expanded="false" aria-controls="siteNav">Menu</button>
         </div>
       </div>
-    </section>
+    </header>
 
-    <div id="kaartView" hidden>
-      <div class="app-grid mx-auto mt-8 mb-4 grid w-[96%] max-w-[1320px] grid-cols-1 gap-4 xl:grid-cols-[540px_minmax(0,1fr)]">
-        <aside class="app-aside h-[var(--main-panel-height)] min-h-[340px] overflow-hidden rounded-xl border border-slate-200 bg-white p-3 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-          <div class="app-aside-inner grid h-full min-h-0 grid-cols-1 gap-3 md:grid-cols-[0.9fr_1.1fr] md:grid-rows-[minmax(0,1fr)_auto]">
-            <div class="flex min-h-0 flex-col gap-2 overflow-hidden">
-              <div class="text-sm font-bold text-slate-800 dark:text-slate-100">Plaatsenlijst</div>
-              <div class="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-slate-200 bg-slate-50 p-2.5 dark:border-slate-700 dark:bg-slate-950">
-                <ul id="cityList" class="city-list min-h-0 flex-1 overflow-y-auto overflow-x-hidden text-[0.92rem] text-slate-800 dark:text-slate-100"></ul>
-              </div>
-            </div>
-            <div class="app-filter-col flex min-w-0 flex-col gap-2 overflow-visible pr-1 md:row-span-1">
-              <label class="mt-0.5 text-sm font-bold text-slate-800 dark:text-slate-100" for="gemeenteSearch">Zoek gemeente / postcode</label>
-              <div class="search-wrap relative">
-                <input id="gemeenteSearch" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none shadow-sm placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/15 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100" type="text" placeholder="Zoek gemeente of postcode..." autocomplete="off" />
-                <div id="gemeenteSuggestions" class="suggestions absolute left-0 right-0 top-[calc(100%+4px)] z-[2000] max-h-[220px] overflow-y-auto rounded-lg border border-slate-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-950" hidden></div>
-              </div>
-              <div id="gemeenteFoundDisplay" class="gemeente-found-display rounded-lg border border-sky-200 bg-sky-50 px-3 text-xs font-medium leading-5 text-sky-800 opacity-0 pointer-events-none dark:border-sky-900 dark:bg-sky-950/40 dark:text-sky-200"></div>
-              <label class="mt-0.5 text-sm font-bold text-slate-800 dark:text-slate-100" for="zorgverzekeraarFilter">Zorgverzekeraar</label>
-              <div class="relative" data-custom-select="zorgverzekeraarFilter">
-                <button type="button" data-custom-select-button class="inline-flex w-full items-center justify-between gap-x-2 rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-left text-sm font-medium text-slate-900 shadow-sm transition hover:bg-slate-50 focus:outline-none focus:ring-4 focus:ring-blue-500/15 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800">
-                  <span data-custom-select-label>Alle zorgverzekeraars</span>
-                  <svg viewBox="0 0 20 20" fill="currentColor" class="size-4 text-slate-400 dark:text-slate-500" aria-hidden="true"><path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" /></svg>
-                </button>
-                <div data-custom-select-menu class="absolute left-0 right-0 top-[calc(100%+4px)] z-[2100] max-h-64 overflow-auto rounded-lg border border-slate-200 bg-white p-1 shadow-xl dark:border-slate-700 dark:bg-slate-900"></div>
-                <select id="zorgverzekeraarFilter" class="sr-only">
-                  <option value="ALL">Alle zorgverzekeraars</option>
-                </select>
-              </div>
-              <div id="zorgverzekeraarNotice" class="fixed inset-0 z-[2600] flex items-center justify-center bg-slate-950/45 px-4 opacity-0 transition-opacity duration-200 pointer-events-none">
-                <div class="w-full max-w-[560px] -translate-y-2 rounded-2xl border border-red-200 bg-white px-6 py-5 text-red-900 shadow-2xl shadow-slate-900/20 transition-transform duration-200 dark:border-red-900 dark:bg-slate-900 dark:text-red-100">
-                  <div class="text-lg font-semibold">Let op bij VGZ</div>
-                  <p class="mt-3 text-base leading-7">
-                    Controleer of de verwijzing afkomstig is van een huisarts of specialist. VGZ keurt declaraties niet goed als de verwijzing van een specialist komt.
-                  </p>
-                  <div class="mt-5 flex justify-end">
-                    <button id="zorgverzekeraarNoticeConfirm" type="button" class="rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-red-700 active:translate-y-px dark:bg-red-700 dark:hover:bg-red-600">
-                      Ik heb gecontroleerd
-                    </button>
-                  </div>
-                </div>
-              </div>
-              <div id="zhzReferralModal" class="fixed inset-0 z-[2600] flex items-center justify-center bg-slate-950/45 px-4 opacity-0 transition-opacity duration-200 pointer-events-none">
-                <div class="relative w-full max-w-[560px] -translate-y-2 rounded-2xl border border-amber-300 bg-white px-6 py-5 text-amber-900 shadow-2xl shadow-slate-900/20 transition-transform duration-200 dark:border-amber-700 dark:bg-slate-900 dark:text-amber-100">
-                  <button id="zhzReferralModalClose" type="button" aria-label="Melding sluiten" class="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 dark:text-slate-500 dark:hover:bg-slate-800 dark:hover:text-slate-200">
-                    <svg viewBox="0 0 20 20" fill="currentColor" class="size-5" aria-hidden="true"><path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" /></svg>
-                  </button>
-                  <div class="pr-8 text-lg font-semibold">⚠️ Regio Zuid-Holland Zuid (ZHZ)</div>
-                  <p class="mt-3 text-base leading-7">
-                    Verwijzingen uit deze regio mogen <strong>uitsluitend via Monter</strong> worden verwerkt, <strong>niet via Zorgdomein</strong>.
-                  </p>
-                  <div class="mt-5 flex justify-end">
-                    <button id="zhzReferralModalConfirm" type="button" class="rounded-xl bg-amber-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-amber-600 active:translate-y-px dark:bg-amber-600 dark:hover:bg-amber-500">
-                      Begrepen
-                    </button>
-                  </div>
-                </div>
-              </div>
-              <div id="rmaNotice" class="fixed inset-0 z-[2600] flex items-center justify-center bg-slate-950/45 px-4 opacity-0 transition-opacity duration-200 pointer-events-none">
-                <div class="relative w-full max-w-[560px] -translate-y-2 rounded-2xl border border-red-200 bg-white px-6 py-5 text-red-900 shadow-2xl shadow-slate-900/20 transition-transform duration-200 dark:border-red-900 dark:bg-slate-900 dark:text-red-100">
-                  <button id="rmaNoticeClose" type="button" aria-label="Melding sluiten" class="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 dark:text-slate-500 dark:hover:bg-slate-800 dark:hover:text-slate-200">
-                    <svg viewBox="0 0 20 20" fill="currentColor" class="size-5" aria-hidden="true"><path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" /></svg>
-                  </button>
-                  <div class="pr-8 text-lg font-semibold">⚠️ RMA (asielzoekersverzekering)</div>
-                  <p class="mt-3 text-base leading-7">
-                    De <strong>GLI (Gecombineerde Leefstijlinterventie) wordt niet vergoed</strong> binnen deze verzekering.
-                  </p>
-                  <div class="mt-5 flex justify-end">
-                    <button id="rmaNoticeConfirm" type="button" class="rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-red-700 active:translate-y-px dark:bg-red-700 dark:hover:bg-red-600">
-                      Begrepen
-                    </button>
-                  </div>
-                </div>
-              </div>
-              <div class="grid grid-cols-[4fr_1fr] gap-2">
-                <button id="zoekButton" class="w-full rounded-xl border border-slate-900 bg-white px-3 py-2.5 text-sm font-semibold text-slate-900 transition hover:bg-slate-50 active:translate-y-px dark:border-slate-500 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800" type="button">Zoek</button>
-                <button id="resetButton" class="w-full rounded-xl border border-rose-200 bg-rose-50 px-2 py-2.5 text-sm font-semibold text-rose-700 transition hover:bg-rose-100 active:translate-y-px dark:border-rose-900/70 dark:bg-rose-950/30 dark:text-rose-200 dark:hover:bg-rose-900/40" type="button">Reset</button>
-              </div>
-              <label class="mt-1 text-sm font-bold text-slate-800 dark:text-slate-100" for="zorggroepFilter">Zorggroep</label>
-              <div class="relative" data-custom-select="zorggroepFilter">
-                <button type="button" data-custom-select-button class="inline-flex w-full items-center justify-between gap-x-2 rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-left text-sm font-medium text-slate-900 shadow-sm transition hover:bg-slate-50 focus:outline-none focus:ring-4 focus:ring-blue-500/15 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800">
-                  <span data-custom-select-label>Alle zorggroepen</span>
-                  <svg viewBox="0 0 20 20" fill="currentColor" class="size-4 text-slate-400 dark:text-slate-500" aria-hidden="true"><path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" /></svg>
-                </button>
-                <div data-custom-select-menu class="absolute left-0 right-0 top-[calc(100%+4px)] z-[2100] max-h-64 overflow-auto rounded-lg border border-slate-200 bg-white p-1 shadow-xl dark:border-slate-700 dark:bg-slate-900"></div>
-                <select id="zorggroepFilter" class="sr-only">
-                  <option value="ALL">Alle zorggroepen</option>
-                </select>
-              </div>
-              <label class="mt-0.5 text-sm font-bold text-slate-800 dark:text-slate-100" for="declaratiestroomFilter">Facturatiestroom</label>
-              <div class="relative" data-custom-select="declaratiestroomFilter">
-                <button type="button" data-custom-select-button class="inline-flex w-full items-center justify-between gap-x-2 rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-left text-sm font-medium text-slate-900 shadow-sm transition hover:bg-slate-50 focus:outline-none focus:ring-4 focus:ring-blue-500/15 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800">
-                  <span data-custom-select-label>Alle facturatiestromen</span>
-                  <svg viewBox="0 0 20 20" fill="currentColor" class="size-4 text-slate-400 dark:text-slate-500" aria-hidden="true"><path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" /></svg>
-                </button>
-                <div data-custom-select-menu class="absolute left-0 right-0 top-[calc(100%+4px)] z-[2100] max-h-64 overflow-auto rounded-lg border border-slate-200 bg-white p-1 shadow-xl dark:border-slate-700 dark:bg-slate-900"></div>
-                <select id="declaratiestroomFilter" class="sr-only">
-                  <option value="ALL">Alle facturatiestromen</option>
-                </select>
-              </div>
-            </div>
-            <div class="app-bottom-panels md:col-span-2 grid grid-cols-1 gap-2 md:grid-cols-[0.9fr_1.1fr]">
-              <div class="app-panel-fixed flex h-[190px] min-h-0 flex-col rounded-lg border border-slate-200 bg-slate-50 p-2.5 dark:border-slate-700 dark:bg-slate-950">
-                <div class="text-sm font-bold text-slate-800 dark:text-slate-100">Postcodes (selectie)</div>
-                <div id="postcodeListMeta" class="postcode-list-meta mt-1 h-8 overflow-hidden text-xs leading-4 text-slate-500 dark:text-slate-400">Klik op een zorggroep op de kaart om postcodes te laden.</div>
-                <ul id="postcodeList" class="postcode-list mt-2 min-h-0 flex-1 overflow-y-auto overflow-x-hidden rounded-md border border-slate-200 bg-white p-2 text-sm text-slate-800 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"></ul>
-              </div>
-              <div class="app-panel-fixed flex h-[190px] min-h-0 flex-col rounded-lg border border-slate-200 bg-slate-50 p-2.5 dark:border-slate-700 dark:bg-slate-950">
-                <div id="facturatiemoduleContext" class="module-context h-full min-h-[110px] rounded-md border border-slate-200 bg-white p-2.5 text-sm leading-6 text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
-                </div>
-              </div>
-            </div>
+    <main class="site-main">
+      <div class="wrap">
+        <section class="hero">
+          <div>
+            <p class="eyebrow">MiGuide intern</p>
+            <h1>Kies een tool om verder te gaan.</h1>
+            <p class="lead">Deze omgeving bundelt interne zorgtools op een centrale plek. Open de Zorgtool, bekijk het overzicht van alle zorggroepen of verwerk een losse verwijzing.</p>
+            <p class="note">Werk in uitvoering: controleer de uitkomst bij twijfel en meld fouten via info@miguide.nl.</p>
           </div>
-        </aside>
-        <div id="map" class="h-[var(--main-panel-height)] min-h-[340px] w-full overflow-hidden rounded-xl shadow-sm"></div>
-      </div>
+          <nav class="tools" aria-label="Tools">
+            <a class="tool" href="zorgtool.html">
+              <span class="tool-nr num">01</span>
+              <span>
+                <span class="tool-title">Zorgtool</span>
+                <span class="tool-desc">Zoek op postcode, gemeente en zorgverzekeraar en zie direct de zorggroep, facturatiemodule, facturatiestroom en prestatiecode.</span>
+              </span>
+              <span class="tool-go" aria-hidden="true">→</span>
+            </a>
+            <a class="tool" href="zorggroepkaart.html">
+              <span class="tool-nr num">02</span>
+              <span>
+                <span class="tool-title">Zorggroep kaart</span>
+                <span class="tool-desc">Overzicht van alle gecontracteerde zorggroepen in kleur en de gebieden zonder contract in grijs.</span>
+              </span>
+              <span class="tool-go" aria-hidden="true">→</span>
+            </a>
+            <a class="tool" href="losse-verwijzing-tool/index.html">
+              <span class="tool-nr num">03</span>
+              <span>
+                <span class="tool-title">Losse verwijzing tool</span>
+                <span class="tool-desc">Lees een verwijzing (PDF of afbeelding) uit, controleer de gegevens per veld en exporteer ze als JSON.</span>
+              </span>
+              <span class="tool-go" aria-hidden="true">→</span>
+            </a>
+          </nav>
+        </section>
 
-      <footer class="mx-auto mb-3 w-[96%] max-w-[1320px] text-xs leading-5 text-slate-500 dark:text-slate-400">
-        If there is something wrong or an update is needed, please send an email to
-        <a class="underline underline-offset-2" href="mailto:info@miguide.nl">info@miguide.nl</a> or send an internal message to Onur.
-        Repository:
-        <a class="underline underline-offset-2" href="https://github.com/onurmiguide/zorggroepen_interactieve_kaart" target="_blank" rel="noopener noreferrer">
-          github.com/onurmiguide/zorggroepen_interactieve_kaart
-        </a>
-      </footer>
-    </div>
+        <section class="recent" aria-labelledby="recentTitle">
+          <div class="recent-head">
+            <h2 id="recentTitle">Laatste updates</h2>
+            <a href="updates.html">Alle updates →</a>
+          </div>
+          <ul id="recentList" class="recent-list" aria-live="polite">
+            <li><span class="recent-date">&nbsp;</span><div class="skel" aria-label="Laden"><span></span><span></span></div></li>
+          </ul>
+        </section>
+      </div>
+    </main>
+
+    <footer class="site-foot">
+      <div class="wrap">
+        <span>Iets onjuist of een update nodig? Mail info@miguide.nl of stuur een intern bericht aan Onur.</span>
+        <a href="https://github.com/onurmiguide/zorggroepen_interactieve_kaart" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </div>
+    </footer>
   </div>
 
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="script/script.js?v=20261015-kennemerland-dsw"></script>
+  <script src="script/site.js?v=20261021-1"></script>
+  <script>
+    // Laatste drie updates uit hetzelfde bestand als de updates-pagina.
+    (async () => {
+      const list = document.getElementById("recentList");
+      try {
+        const res = await fetch("zg-data/updates.json", { cache: "no-store" });
+        if (!res.ok) throw new Error(res.status);
+        const updates = ((await res.json()).updates || []).slice(0, 3);
+        list.innerHTML = updates.length
+          ? updates.map((u) => `<li><span class="recent-date num">${ZT.esc(ZT.formatDate(u.date))}</span><a href="updates.html">${ZT.esc(u.title || "Update")}</a></li>`).join("")
+          : `<li><span class="recent-date">–</span><span class="muted">Nog geen updates.</span></li>`;
+      } catch (e) {
+        list.innerHTML = `<li><span class="recent-date">–</span><span class="muted">Updates konden niet worden geladen. <a href="updates.html">Bekijk de updates-pagina</a>.</span></li>`;
+      }
+    })();
+  </script>
 </body>
 </html>

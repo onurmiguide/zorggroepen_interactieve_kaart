@@ -1,6 +1,20 @@
 {
   "updates": [
     {
+      "date": "2026-10-21",
+      "title": "Nieuw ontwerp voor de hele site",
+      "scope": "website",
+      "description": "Het ontwerp uit de testomgeving staat nu op de echte site: startpagina, Zorgtool, Zorggroep kaart, Losse verwijzing tool, Updates, Documentatie en Data overzicht. De rekenregels en data zijn niet veranderd; alleen de weergave. De adminomgeving volgt later.",
+      "summary": [
+        "Na het inloggen kom je op de startpagina met de tools en de laatste updates.",
+        "De Zorgtool staat op zorgtool.html; oude links (ook met ?postcode= of #zorgtool) openen de Zorgtool vanzelf.",
+        "De Zorggroep kaart staat op zorggroepkaart.html; het oude adres alle-zorggroepen.html stuurt door.",
+        "De uitkomst laat zien waarom een postcode bij een zorggroep en facturatiemodule hoort.",
+        "Werkt op mobiel (versleepbaar onderpaneel) en in donkere modus.",
+        "De documentatie beschrijft nu het beheer via de adminomgeving."
+      ]
+    },
+    {
       "date": "2026-10-16",
       "title": "Testomgeving: hele site in het nieuwe ontwerp",
       "scope": "website",

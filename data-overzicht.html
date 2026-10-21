@@ -2,161 +2,136 @@
 <html lang="nl">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Data Overzicht - Zorggroepen Kaart</title>
-  <link rel="icon" type="image/svg+xml" href="zg-data/map-find-search-svgrepo-com.svg" />
-  <script src="https://cdn.tailwindcss.com"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Data overzicht - MiGuide</title>
   <script>
-    tailwind.config = { darkMode: "class" };
+    try {
+      const t = localStorage.getItem("miguide_theme");
+      if (t === "dark" || t === "light") document.documentElement.dataset.theme = t;
+    } catch (e) {}
   </script>
-  <link rel="stylesheet" href="css/style.css?v=20260507-cachefix" />
+  <link rel="icon" type="image/svg+xml" href="zg-data/map-find-search-svgrepo-com.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/site.css?v=20261021-2" />
 </head>
-<body class="min-h-full bg-slate-100 text-slate-800 antialiased dark:bg-slate-950 dark:text-slate-200">
-  <div class="app-topbar sticky top-0 z-[1000] flex flex-wrap items-center gap-2 border-b border-slate-200 bg-white/95 px-3 py-2.5 shadow-sm backdrop-blur sm:gap-3 sm:px-4 sm:py-3 dark:border-slate-800 dark:bg-slate-900/95">
-    <a href="index.html" aria-label="Ga naar hoofdpagina" class="app-topbar-brand">
-      <img
-        class="h-auto w-[104px] object-contain sm:w-[120px]"
-        id="siteLogo"
-        src="zg-data/MiGuide_Logo_Nieuw.png"
-        data-logo-light="zg-data/MiGuide_Logo_Nieuw.png"
-        data-logo-dark="zg-data/MiGuide_Logo_White.png"
-        alt="MiGuide logo"
-      />
-    </a>
-    <div class="app-topbar-meta min-w-0">
-      <div class="truncate text-[1rem] font-semibold leading-tight tracking-tight text-slate-900 sm:text-[1.08rem] dark:text-slate-100">Data Overzicht</div>
-      <div class="hidden truncate text-xs font-medium text-slate-500 sm:block dark:text-slate-400">Gebruikte bronnen en mappings per categorie</div>
-    </div>
-    <button id="themeToggle" class="theme-toggle ml-auto inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-slate-400 bg-white text-slate-900 transition hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800" type="button" aria-label="Schakel dark mode" title="Schakel dark mode">
-      <span id="themeToggleIcon" aria-hidden="true">🌙</span>
-    </button>
-    <details class="topbar-dropdown inline-block shrink-0">
-      <summary class="inline-flex items-center justify-center gap-x-1.5 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-900 shadow-sm hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800">
-        Menu
-      </summary>
-      <ul role="listbox" class="w-56 rounded-md bg-white p-1 shadow-xl outline-1 -outline-offset-1 outline-slate-200 dark:bg-slate-900 dark:outline-slate-700">
-        <li><a href="index.html#zorgtool" title="Open zorgtool" class="block rounded px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 focus:bg-slate-100 focus:text-slate-900 focus:outline-none dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white dark:focus:bg-slate-800 dark:focus:text-white">Zorgtool</a></li>
-        <li><a href="losse-verwijzing-tool/index.html" title="Open losse verwijzing tool" class="block rounded px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 focus:bg-slate-100 focus:text-slate-900 focus:outline-none dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white dark:focus:bg-slate-800 dark:focus:text-white">Losse verwijzing tool</a></li>
-        <li><a href="alle-zorggroepen.html" title="Bekijk zorggroep kaart" class="block rounded px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 focus:bg-slate-100 focus:text-slate-900 focus:outline-none dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white dark:focus:bg-slate-800 dark:focus:text-white">Zorggroep kaart</a></li>
-        <li><a href="updates.html" title="Bekijk recente wijzigingen" class="block rounded px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 focus:bg-slate-100 focus:text-slate-900 focus:outline-none dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white dark:focus:bg-slate-800 dark:focus:text-white">Updates</a></li>
-        <li><a href="documentatie.html" title="Bekijk documentatie" class="block rounded px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 focus:bg-slate-100 focus:text-slate-900 focus:outline-none dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white dark:focus:bg-slate-800 dark:focus:text-white">Documentatie</a></li>
-        <li><a href="https://github.com/onurmiguide/zorggroepen_interactieve_kaart" target="_blank" rel="noopener noreferrer" class="block rounded px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 focus:bg-slate-100 focus:text-slate-900 focus:outline-none dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white dark:focus:bg-slate-800 dark:focus:text-white">GitHub repo</a></li>
-      </ul>
-    </details>
-    <div class="app-topbar-badge hidden whitespace-nowrap rounded-lg border border-red-300 bg-red-50 px-2.5 py-1 text-[11px] font-bold text-red-800 lg:block dark:border-red-500/50 dark:bg-red-950/40 dark:text-red-200">Concept / Demo - Work in progress</div>
+<body>
+  <div class="site">
+    <header class="site-head">
+      <div class="wrap">
+        <a class="brand" href="./" aria-label="MiGuide Zorgtools, startpagina">
+          <img class="logo logo-light" src="zg-data/MiGuide_Logo_Nieuw.png" alt="MiGuide" />
+          <img class="logo logo-dark" src="zg-data/MiGuide_Logo_White.png" alt="" />
+          <span class="app-name">Zorgtools</span>
+        </a>
+        <nav id="siteNav" class="site-nav" aria-label="Hoofdmenu">
+          <a href="zorgtool.html">Zorgtool</a>
+          <a href="zorggroepkaart.html">Zorggroep kaart</a>
+          <a href="losse-verwijzing-tool/index.html">Losse verwijzing</a>
+          <a href="updates.html">Updates</a>
+          <a href="documentatie.html">Documentatie</a>
+        </nav>
+        <div class="head-actions">
+          <button type="button" class="icon-btn" data-theme-toggle aria-label="Donkere modus aan of uit">Thema</button>
+          <a class="icon-btn" href="admin/index.html">Admin</a>
+          <button type="button" class="icon-btn nav-toggle" aria-expanded="false" aria-controls="siteNav">Menu</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="site-main">
+      <div class="wrap docs">
+        <nav class="toc" aria-label="Inhoud">
+          <a href="#bronnen">Bronnen</a>
+          <a href="#zorggroepen">Zorggroepen</a>
+          <a href="#verzekeraars">Verzekeraar → stroom</a>
+          <a href="#zorggroepstromen">Zorggroep → stroom</a>
+          <a href="#templates">Templates</a>
+          <a href="#warnings">OCR-waarschuwingen</a>
+        </nav>
+
+        <div>
+          <section id="bronnen" class="doc-section">
+            <p class="eyebrow">Data overzicht</p>
+            <h1>Gebruikte bronnen en mappings</h1>
+            <p class="lead">Leesbare tabellen van de zorggroepen, verzekeraars, facturatiestromen en templates waarmee de Zorgtool rekent. Voor uitleg over structuur en onderhoud, zie de <a href="documentatie.html">documentatie</a>.</p>
+            <div class="cols field-gap">
+              <div class="cell">
+                <h3>Bronbestanden</h3>
+                <ul>
+                  <li><code>zg-data/zorggroepen.json</code></li>
+                  <li><code>zg-data/declaratiestroomfoto_ocr.json</code></li>
+                  <li><code>zg-data/declaratiestroom_samenvatting.txt</code></li>
+                  <li><code>zg-data/zorggroepen.geojson</code> (legacy/placeholder bestand)</li>
+                </ul>
+              </div>
+              <div class="cell">
+                <h3>Betekenis OCR-detectie</h3>
+                <p><strong>Ja</strong>: de term of regel is (redelijk) herkend in de OCR van de screenshot.</p>
+                <p><strong>Nee</strong>: niet duidelijk herkend; de waarde is ingevuld via een bekende mapping of handmatige interpretatie.</p>
+              </div>
+            </div>
+          </section>
+
+          <section id="zorggroepen" class="doc-section">
+            <h2>Zorggroepen</h2>
+            <p id="zorggroepenSummary" class="meta">Laden…</p>
+            <div class="table-wrap">
+              <table class="data" id="zorggroepenTable">
+                <thead><tr><th scope="col">Zorggroep</th><th scope="col">Regio</th><th scope="col">Aantal plaatsen</th><th scope="col">Website</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section id="verzekeraars" class="doc-section">
+            <h2>Zorgverzekeraar → Facturatiestroom</h2>
+            <div class="table-wrap">
+              <table class="data" id="verzekeraarsTable">
+                <thead><tr><th scope="col">Zorgverzekeraar</th><th scope="col">Facturatiestroom</th><th scope="col">OCR-detectie</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section id="zorggroepstromen" class="doc-section">
+            <h2>Zorggroep → Facturatiestroom</h2>
+            <div class="table-wrap">
+              <table class="data" id="zorggroepStromenTable">
+                <thead><tr><th scope="col">Zorggroep</th><th scope="col">Facturatiestroom</th><th scope="col">OCR-detectie</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section id="templates" class="doc-section">
+            <h2>Facturatiemodule templates</h2>
+            <div class="table-wrap">
+              <table class="data" id="templatesTable">
+                <thead><tr><th scope="col">Naam</th><th scope="col">Beschrijving</th><th scope="col">OCR-detectie</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section id="warnings" class="doc-section">
+            <h2>OCR-waarschuwingen</h2>
+            <ul id="warningsList"></ul>
+          </section>
+        </div>
+      </div>
+    </main>
+
+    <footer class="site-foot">
+      <div class="wrap">
+        <span>Iets onjuist of een update nodig? Mail info@miguide.nl of stuur een intern bericht aan Onur.</span>
+        <a href="https://github.com/onurmiguide/zorggroepen_interactieve_kaart" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </div>
+    </footer>
   </div>
 
-  <main class="mx-auto mt-6 mb-4 grid w-[96%] max-w-[1280px] gap-4">
-    <section class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-      <div class="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h2 class="text-base font-bold text-slate-900 dark:text-slate-100">Updates bijhouden</h2>
-          <p class="mt-1 text-sm text-slate-600 dark:text-slate-300">Voor korte samenvattingen van wijzigingen na een GitHub push kun je nu ook de aparte updates-pagina gebruiken.</p>
-        </div>
-        <a href="updates.html" class="inline-flex items-center rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800">Open updates</a>
-      </div>
-    </section>
-
-    <section class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-      <div class="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h2 class="text-base font-bold text-slate-900 dark:text-slate-100">Tooldocumentatie</h2>
-          <p class="mt-1 text-sm text-slate-600 dark:text-slate-300">Voor uitleg over structuur, postcodeflow, beslislogica en onderhoud is er nu een aparte documentatiepagina.</p>
-        </div>
-        <a href="documentatie.html" class="inline-flex items-center rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800">Open documentatie</a>
-      </div>
-    </section>
-
-    <section class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-      <h2 class="mb-2 text-base font-bold text-slate-900 dark:text-slate-100">Betekenis OCR detectie</h2>
-      <div class="text-sm text-slate-600 dark:text-slate-300">
-        <strong>Ja</strong> = de term/regel is (redelijk) herkend in de OCR van de screenshot.<br />
-        <strong>Nee</strong> = niet duidelijk herkend; waarde is ingevuld via bekende mapping / handmatige interpretatie.
-      </div>
-    </section>
-
-    <section class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-      <h2 class="mb-2 text-base font-bold text-slate-900 dark:text-slate-100">Bronbestanden</h2>
-      <ul class="data-list list-disc space-y-1 pl-5 text-sm text-slate-700 dark:text-slate-300">
-        <li><code class="rounded bg-slate-100 px-1 py-0.5 text-slate-800 dark:bg-slate-950 dark:text-slate-100">zg-data/zorggroepen.json</code></li>
-        <li><code class="rounded bg-slate-100 px-1 py-0.5 text-slate-800 dark:bg-slate-950 dark:text-slate-100">zg-data/declaratiestroomfoto_ocr.json</code></li>
-        <li><code class="rounded bg-slate-100 px-1 py-0.5 text-slate-800 dark:bg-slate-950 dark:text-slate-100">zg-data/declaratiestroom_samenvatting.txt</code></li>
-        <li><code class="rounded bg-slate-100 px-1 py-0.5 text-slate-800 dark:bg-slate-950 dark:text-slate-100">zg-data/zorggroepen.geojson</code> (legacy/placeholder bestand)</li>
-      </ul>
-    </section>
-
-    <section class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-      <h2 class="mb-2 text-base font-bold text-slate-900 dark:text-slate-100">Zorggroepen</h2>
-      <div id="zorggroepenSummary" class="mb-2 text-sm text-slate-600 dark:text-slate-300">Laden...</div>
-      <div class="table-wrap overflow-auto rounded-lg border border-slate-200 dark:border-slate-700">
-        <table class="data-table w-full border-collapse text-sm" id="zorggroepenTable">
-          <thead>
-            <tr>
-              <th>Zorggroep</th>
-              <th>Regio</th>
-              <th>Aantal plaatsen</th>
-              <th>Website</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-    </section>
-
-    <section class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-      <h2 class="mb-2 text-base font-bold text-slate-900 dark:text-slate-100">Zorgverzekeraar → Facturatiestroom</h2>
-      <div class="table-wrap overflow-auto rounded-lg border border-slate-200 dark:border-slate-700">
-        <table class="data-table w-full border-collapse text-sm" id="verzekeraarsTable">
-          <thead>
-            <tr>
-              <th>Zorgverzekeraar</th>
-              <th>Facturatiestroom</th>
-              <th>OCR detectie</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-    </section>
-
-    <section class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-      <h2 class="mb-2 text-base font-bold text-slate-900 dark:text-slate-100">Zorggroep → Facturatiestroom</h2>
-      <div class="table-wrap overflow-auto rounded-lg border border-slate-200 dark:border-slate-700">
-        <table class="data-table w-full border-collapse text-sm" id="zorggroepStromenTable">
-          <thead>
-            <tr>
-              <th>Zorggroep</th>
-              <th>Facturatiestroom</th>
-              <th>OCR detectie</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-    </section>
-
-    <section class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-      <h2 class="mb-2 text-base font-bold text-slate-900 dark:text-slate-100">Facturatiemodule templates</h2>
-      <div class="table-wrap overflow-auto rounded-lg border border-slate-200 dark:border-slate-700">
-        <table class="data-table w-full border-collapse text-sm" id="templatesTable">
-          <thead>
-            <tr>
-              <th>Naam</th>
-              <th>Beschrijving</th>
-              <th>OCR detectie</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-    </section>
-
-    <section class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-      <h2 class="mb-2 text-base font-bold text-slate-900 dark:text-slate-100">OCR Warnings</h2>
-      <ul id="warningsList" class="data-list list-disc space-y-1 pl-5 text-sm text-slate-700 dark:text-slate-300"></ul>
-    </section>
-  </main>
-
-  <script src="script/data-overzicht.js?v=20260507-cachefix"></script>
+  <script src="script/site.js?v=20261021-1"></script>
+  <script src="script/data-overzicht.js?v=20261021-1"></script>
 </body>
 </html>

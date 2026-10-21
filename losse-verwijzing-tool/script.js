@@ -118,10 +118,6 @@ function sleep(ms) {
   return new Promise((resolve) => window.setTimeout(resolve, ms));
 }
 
-function isDarkModeActive() {
-  return document.body.classList.contains("dark-mode");
-}
-
 function setTheme(mode) {
   const nextMode = mode === "dark" ? "dark" : "light";
   document.body.classList.toggle("dark-mode", nextMode === "dark");
@@ -148,14 +144,11 @@ function setTheme(mode) {
 }
 
 function initThemeToggle() {
+  // De themaknop zit in de gedeelde sitekop (../script/site.js). Zonder opgeslagen keuze
+  // volgt de pagina de systeeminstelling, net als de rest van de site.
   const saved = localStorage.getItem(THEME_STORAGE_KEY);
-  setTheme(saved || "light");
-
-  if (refs.themeToggle && !refs.themeToggle.dataset.themeBound) {
-    refs.themeToggle.dataset.themeBound = "1";
-    refs.themeToggle.addEventListener("click", () => {
-      setTheme(isDarkModeActive() ? "light" : "dark");
-    });
+  if (saved === "dark" || saved === "light") {
+    setTheme(saved);
   }
 }
 
