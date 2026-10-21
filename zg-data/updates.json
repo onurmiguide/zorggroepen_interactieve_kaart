@@ -4,7 +4,7 @@
       "date": "2026-10-21",
       "title": "Nieuw ontwerp voor de hele site",
       "scope": "website",
-      "description": "Het ontwerp uit de testomgeving staat nu op de echte site: startpagina, Zorgtool, Zorggroep kaart, Losse verwijzing tool, Updates, Documentatie en Data overzicht. De rekenregels en data zijn niet veranderd; alleen de weergave. De adminomgeving volgt later.",
+      "description": "Het ontwerp uit de testomgeving staat nu op de echte site: startpagina, Zorgtool, Zorggroep kaart, Updates, Documentatie en Data overzicht. De rekenregels en data zijn niet veranderd; alleen de weergave. De adminomgeving volgt later.",
       "summary": [
         "Na het inloggen kom je op de startpagina met de tools en de laatste updates.",
         "De Zorgtool staat op zorgtool.html; oude links (ook met ?postcode= of #zorgtool) openen de Zorgtool vanzelf.",
