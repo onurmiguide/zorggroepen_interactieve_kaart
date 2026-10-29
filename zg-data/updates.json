@@ -2,14 +2,12 @@
   "updates": [
     {
       "date": "2026-10-29",
-      "title": "RMA niet vergoed en Leerdam/Schoonrewoerd onder ZHZ VGZ",
+      "title": "RMA: GLI wordt niet vergoed",
       "scope": "kaart",
-      "description": "Deelnemers verzekerd bij RMA krijgen geen facturatiemodule meer maar 'Niet vergoed'. Postcodes 4142 t/m 4160 (o.a. Leerdam, Schoonrewoerd, Asperen en Beesd) vallen nu onder ZHZ VGZ in plaats van UNICUM.",
+      "description": "Deelnemers verzekerd bij RMA krijgen in de Zorgtool geen facturatiemodule meer maar 'Niet vergoed', omdat RMA de GLI niet vergoedt.",
       "summary": [
         "RMA: de Zorgtool toont 'Niet vergoed' (de GLI wordt niet vergoed), ook in de kaart-pop-up.",
-        "In de adminomgeving staat per zorgverzekeraar 'GLI vergoed' (Ja/Nee); RMA staat op Nee.",
-        "Voorbeeld: 4145NV (Schoonrewoerd) met Zorg & Zekerheid geeft nu ZHZ VGZ, facturatiemodule Zuid Holland Zuid - VGZ.",
-        "De reeks 4142 t/m 4160 geldt voor alle verzekeraars en is ook in de adminomgeving terug te vinden onder Postcodes > Postcode-ranges (PC4)."
+        "In de adminomgeving staat per zorgverzekeraar 'GLI vergoed' (Ja/Nee); RMA staat op Nee. Zo kun je dit ook voor andere verzekeraars instellen."
       ]
     },
     {

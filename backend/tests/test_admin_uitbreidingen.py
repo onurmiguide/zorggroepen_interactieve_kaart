@@ -172,9 +172,3 @@ def test_gli_vergoed_aanpassen_werkt_door_in_publieke_api(auth_client: TestClien
     finally:
         auth_client.put(f"/api/admin/zorgverzekeraars/{zv['id']}", json={"gli_vergoed": True})
 
-
-def test_leerdam_en_omgeving_vallen_onder_zhz_vgz(client: TestClient) -> None:
-    ranges = client.get("/api/public/postcode-overrides").json()["postcode4_range_overrides"]
-    rij = next(r for r in ranges if r["start"] == "4142" and r["end"] == "4160")
-    assert rij["zorggroep"] == "ZHZ VGZ"
-    assert "insurer_concerns" not in rij  # geldt voor alle verzekeraars

@@ -2,7 +2,7 @@
 const AUTH_SESSION_KEY = "miguide_auth_ok";
 const AUTH_PASSWORD_FALLBACK = "MiGuide#2026!@";
 const ZORGGROEPEN_URL = "zg-data/zorggroepen.json";
-const POSTCODE_OVERRIDES_URL = "zg-data/postcode_overrides.json?v=20261029-zhz-leerdam";
+const POSTCODE_OVERRIDES_URL = "zg-data/postcode_overrides.json?v=20261029-rma";
 
 // Admin public API: de kaart probeert eerst de actuele data uit de admin-backend
 // te laden en valt terug op het statische JSON-bestand als de backend niet reageert.
