@@ -76,6 +76,12 @@ def _run_light_migrations() -> None:
         if column not in columns:
             with engine.begin() as conn:
                 conn.execute(text(f"ALTER TABLE zorggroepen ADD COLUMN {column} {ddl}"))
+    if "zorgverzekeraars" in inspector.get_table_names():
+        zv_columns = {col["name"] for col in inspector.get_columns("zorgverzekeraars")}
+        if "gli_vergoed" not in zv_columns:
+            default = "1" if settings.is_sqlite else "TRUE"
+            with engine.begin() as conn:
+                conn.execute(text(f"ALTER TABLE zorgverzekeraars ADD COLUMN gli_vergoed BOOLEAN NOT NULL DEFAULT {default}"))
 
 
 def init_db() -> None:

@@ -416,6 +416,21 @@ def _apply_zorggroep_corrections(db: Session) -> int:
     return changed
 
 
+def _apply_zorgverzekeraar_corrections(db: Session) -> int:
+    """Eenmalige correcties op verzekeraars; daarna beheert de admin ze."""
+    if db.get(AppMeta, "rma_gli_niet_vergoed_2026_10") is not None:
+        return 0
+    # RMA (asielzoekersverzekering) vergoedt de GLI niet.
+    changed = 0
+    for zv in db.scalars(select(Zorgverzekeraar)).all():
+        if "rma" in (normalize_text(zv.concern_key), normalize_text(zv.name)) and zv.gli_vergoed:
+            zv.gli_vergoed = False
+            changed += 1
+    db.add(AppMeta(key="rma_gli_niet_vergoed_2026_10", value="1"))
+    db.commit()
+    return changed
+
+
 def _ensure_exact_postcode_overrides(db: Session) -> int:
     """Voegt ontbrekende exacte PC6-overrides uit de JSON additief toe (idempotent).
 
@@ -641,6 +656,7 @@ def import_seed(db: Session) -> dict[str, int]:
     # Kop van Noord-Holland). Vóór de postcode-sync, zodat hernoemde uitzonderingen
     # niet nog een keer onder de nieuwe naam worden toegevoegd.
     result["zorggroep_correcties"] = _apply_zorggroep_corrections(db)
+    result["verzekeraar_correcties"] = _apply_zorgverzekeraar_corrections(db)
     # Additief: houd de postcode-uitzonderingen in sync ook als de tabel al geseed was.
     result["postcode_exact_toegevoegd"] = _ensure_exact_postcode_overrides(db)
     result["postcode_ranges_toegevoegd"] = _ensure_postcode_ranges(db)

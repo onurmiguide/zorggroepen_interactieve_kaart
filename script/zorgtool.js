@@ -191,6 +191,10 @@
     if (currentFilter !== "ALL") scoped = scoped.filter((f) => getZorggroepName(f) === currentFilter);
     const feature = scoped[0];
     if (!feature) return null;
+    // Verzekeraar vergoedt de GLI niet (instelling in de admin, bijv. RMA): geen facturatiemodule.
+    if (isGliNietVergoed(currentZorgverzekeraar)) {
+      return { feature, scoped, stroom: "", module: "Niet vergoed", prestatiecode: "", description: "", nietVergoed: true };
+    }
 
     let stroom = currentDeclaratiestroom;
     if (stroom === "ALL") {
@@ -248,6 +252,9 @@
 
     if (insurer === "ALL") {
       steps.push("Geen zorgverzekeraar gekozen: dit is de standaardroute van het gebied.");
+    } else if (r.nietVergoed) {
+      chain.push(insurer);
+      steps.push(`${insurer} vergoedt de GLI niet: deze deelnemer wordt niet vergoed, dus er is geen facturatiemodule.`);
     } else {
       const key = normalizeInsurerKey(insurer);
       const special = resolveWorkbookSpecialRouting(r.feature, insurer);
@@ -280,7 +287,7 @@
     }
     if (r.module) {
       chain.push({ module: r.module });
-      steps.push(`${r.module} → ${r.stroom}, prestatiecode ${r.prestatiecode}.`);
+      if (!r.nietVergoed) steps.push(`${r.module} → ${r.stroom}, prestatiecode ${r.prestatiecode}.`);
     }
     return `
       <div class="why">
@@ -340,8 +347,8 @@
         </div>
         ${others.length ? `<p class="meta">Ook in dit gebied: ${esc(others.join(", "))}</p>` : ""}
         <dl class="facts">
-          <div class="fact fact-key"><dt>Facturatiemodule</dt><dd>${esc(r.module || "Per zorgverzekeraar")}</dd></div>
-          <div class="fact"><dt>Facturatiestroom</dt><dd>${esc(r.stroom || "Per zorgverzekeraar")}</dd></div>
+          <div class="fact fact-key${r.nietVergoed ? " is-niet-vergoed" : ""}"><dt>Facturatiemodule</dt><dd>${esc(r.module || "Per zorgverzekeraar")}</dd></div>
+          <div class="fact"><dt>Facturatiestroom</dt><dd>${esc(r.nietVergoed ? "–" : (r.stroom || "Per zorgverzekeraar"))}</dd></div>
           <div class="fact"><dt>Prestatiecode</dt><dd class="num">${esc(r.prestatiecode || "–")}</dd></div>
         </dl>
         ${buildWhy(r, why)}

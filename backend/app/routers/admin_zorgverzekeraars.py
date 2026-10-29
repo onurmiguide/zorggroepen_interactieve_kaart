@@ -55,6 +55,7 @@ def create_zorgverzekeraar(payload: ZorgverzekeraarCreate, db: Session = Depends
         concern_key=payload.concern_key.strip() or normalize_text(payload.name),
         aliases=_dump_aliases(payload.aliases),
         is_active=payload.is_active,
+        gli_vergoed=payload.gli_vergoed,
     )
     db.add(zv)
     db.commit()
@@ -77,6 +78,8 @@ def update_zorgverzekeraar(zv_id: int, payload: ZorgverzekeraarUpdate, db: Sessi
         zv.aliases = _dump_aliases(payload.aliases)
     if payload.is_active is not None:
         zv.is_active = payload.is_active
+    if payload.gli_vergoed is not None:
+        zv.gli_vergoed = payload.gli_vergoed
     db.commit()
     db.refresh(zv)
     audit_service.record(db, actor=user, action=audit_service.ACTION_UPDATE, entity_type=ENTITY, entity_id=zv.id, old=before, new=zv)

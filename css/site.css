@@ -426,6 +426,8 @@ details.more[open] > summary::after { content: "–"; }
 .fact-key { background: var(--brand-tint); margin: 0 -10px; padding: 12px 10px; border-top-color: transparent; border-radius: var(--radius); }
 .fact-key dd { font-size: var(--fs-l); font-weight: 600; color: var(--brand-text); line-height: 1.25; }
 .fact-key + .fact { border-top-color: transparent; }
+.fact-key.is-niet-vergoed { background: var(--error-bg); }
+.fact-key.is-niet-vergoed dd { color: var(--error-text); }
 .desc { margin: 10px 0 0; font-size: var(--fs-s); color: var(--text-muted); }
 
 /* Waarom-uitleg: korte keten + uitklapbare stappen */

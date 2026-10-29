@@ -150,3 +150,25 @@ def test_nieuwe_verzekeraar_verschijnt_in_publieke_lijst(auth_client: TestClient
     assert {"name": "Testverzekeraar", "concern_key": "cz"}.items() <= next(
         v for v in lijst if v["name"] == "Testverzekeraar"
     ).items()
+
+
+def _public_verzekeraars(client: TestClient) -> dict:
+    return {v["name"]: v for v in client.get("/api/public/zorgverzekeraars").json()["zorgverzekeraars"]}
+
+
+def test_rma_vergoedt_de_gli_niet(client: TestClient) -> None:
+    lijst = _public_verzekeraars(client)
+    assert lijst["RMA"]["gli_vergoed"] is False
+    assert lijst["CZ"]["gli_vergoed"] is True
+
+
+def test_gli_vergoed_aanpassen_werkt_door_in_publieke_api(auth_client: TestClient) -> None:
+    zv = next(v for v in auth_client.get("/api/admin/zorgverzekeraars").json() if v["name"] == "DSW")
+    assert zv["gli_vergoed"] is True
+    try:
+        resp = auth_client.put(f"/api/admin/zorgverzekeraars/{zv['id']}", json={"gli_vergoed": False})
+        assert resp.status_code == 200 and resp.json()["gli_vergoed"] is False
+        assert _public_verzekeraars(auth_client)["DSW"]["gli_vergoed"] is False
+    finally:
+        auth_client.put(f"/api/admin/zorgverzekeraars/{zv['id']}", json={"gli_vergoed": True})
+

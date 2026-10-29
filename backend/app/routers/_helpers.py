@@ -25,6 +25,7 @@ def zorgverzekeraar_out(zv: Zorgverzekeraar) -> dict:
         "concern_key": zv.concern_key,
         "aliases": parse_aliases(zv.aliases),
         "is_active": zv.is_active,
+        "gli_vergoed": zv.gli_vergoed,
         "created_at": zv.created_at,
         "updated_at": zv.updated_at,
     }

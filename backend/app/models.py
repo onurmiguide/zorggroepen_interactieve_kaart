@@ -94,6 +94,8 @@ class Zorgverzekeraar(Base, TimestampMixin):
     # Aliases als JSON-array opgeslagen in TEXT.
     aliases: Mapped[str] = mapped_column(Text, default="[]", nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    # Vergoedt deze verzekeraar de GLI? Nee = de Zorgtool toont 'Niet vergoed' (bijv. RMA).
+    gli_vergoed: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 
 
 class Facturatiestroom(Base, TimestampMixin):

@@ -1,6 +1,16 @@
 {
   "updates": [
     {
+      "date": "2026-10-29",
+      "title": "RMA: GLI wordt niet vergoed",
+      "scope": "kaart",
+      "description": "Deelnemers verzekerd bij RMA krijgen in de Zorgtool geen facturatiemodule meer maar 'Niet vergoed', omdat RMA de GLI niet vergoedt.",
+      "summary": [
+        "RMA: de Zorgtool toont 'Niet vergoed' (de GLI wordt niet vergoed), ook in de kaart-pop-up.",
+        "In de adminomgeving staat per zorgverzekeraar 'GLI vergoed' (Ja/Nee); RMA staat op Nee. Zo kun je dit ook voor andere verzekeraars instellen."
+      ]
+    },
+    {
       "date": "2026-10-21",
       "title": "Nieuw ontwerp voor de hele site",
       "scope": "website",
