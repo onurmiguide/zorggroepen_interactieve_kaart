@@ -2,7 +2,7 @@
 const AUTH_SESSION_KEY = "miguide_auth_ok";
 const AUTH_PASSWORD_FALLBACK = "MiGuide#2026!@";
 const ZORGGROEPEN_URL = "zg-data/zorggroepen.json";
-const POSTCODE_OVERRIDES_URL = "zg-data/postcode_overrides.json?v=20261001-kop-van-noord-holland";
+const POSTCODE_OVERRIDES_URL = "zg-data/postcode_overrides.json?v=20261029-zhz-leerdam";
 
 // Admin public API: de kaart probeert eerst de actuele data uit de admin-backend
 // te laden en valt terug op het statische JSON-bestand als de backend niet reageert.
@@ -109,6 +109,10 @@ function applyPlaceAliases(aliases) {
   }
 }
 
+// Verzekeraars (concern) die de GLI niet vergoeden; uit de admin, met RMA als reserve.
+const GLI_NIET_VERGOED_RESERVE = ["rma"];
+const gliNietVergoedConcerns = new Set(GLI_NIET_VERGOED_RESERVE);
+
 function applyInsurerData(data) {
   const rows = data && Array.isArray(data.zorgverzekeraars) ? data.zorgverzekeraars : [];
   runtimeInsurerNames = rows.map((row) => String(row.name || "").trim()).filter(Boolean);
@@ -122,6 +126,22 @@ function applyInsurerData(data) {
       }
     }
   }
+  // Alleen als de admin dit veld levert de reservelijst vervangen.
+  if (rows.length && rows.every((row) => typeof row.gli_vergoed === "boolean")) {
+    gliNietVergoedConcerns.clear();
+    for (const row of rows) {
+      if (row.gli_vergoed === false) {
+        gliNietVergoedConcerns.add(normalizeText(row.concern_key) || normalizeText(row.name));
+      }
+    }
+  }
+}
+
+function isGliNietVergoed(insurerName) {
+  if (!insurerName || insurerName === "ALL") {
+    return false;
+  }
+  return gliNietVergoedConcerns.has(normalizeInsurerKey(insurerName));
 }
 
 // Route volgens de beslisboom, aangepast aan de contractstatus uit de admin:
@@ -1160,6 +1180,12 @@ function updateFacturatiemoduleContext() {
     return;
   }
 
+  // Verzekeraar vergoedt de GLI niet (bijv. RMA): geen facturatiemodule, maar 'Niet vergoed'.
+  if (isGliNietVergoed(currentZorgverzekeraar)) {
+    renderResultBox("Niet vergoed (deze verzekeraar vergoedt de GLI niet)", "-");
+    return;
+  }
+
   let scoped = allFeatures.slice();
   if (currentGemeente) {
     scoped = scoped.filter((feature) => featureMatchesCurrentGemeente(feature));
@@ -1817,6 +1843,9 @@ function popupContent(feature) {
   } else if (contracts.length > 0) {
     const contractedCount = contracts.filter((row) => row.contract !== false).length;
     contractRow = `<div>Contractregels: ${contractedCount}</div>`;
+  }
+  if (isGliNietVergoed(currentZorgverzekeraar)) {
+    moduleRow = "<div>Facturatiemodule: Niet vergoed (GLI wordt niet vergoed)</div><div>Prestatiecode: -</div>";
   }
 
   return `

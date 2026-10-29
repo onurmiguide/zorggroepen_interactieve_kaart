@@ -79,7 +79,12 @@ def public_zorgverzekeraars(db: Session = Depends(get_db)) -> dict:
     return {
         "data_version": _data_version(db),
         "zorgverzekeraars": [
-            {"name": zv.name, "concern_key": zv.concern_key, "aliases": parse_aliases(zv.aliases)}
+            {
+                "name": zv.name,
+                "concern_key": zv.concern_key,
+                "aliases": parse_aliases(zv.aliases),
+                "gli_vergoed": zv.gli_vergoed,
+            }
             for zv in rows
         ],
     }

@@ -503,6 +503,7 @@
         { key: "name", label: "Naam", sortable: true },
         { key: "concern_key", label: "Concern", sortable: true, render: (r) => `<span class="zga-badge zga-badge-blue">${escapeHtml(r.concern_key || "-")}</span>` },
         { key: "aliases", label: "Aliassen", render: (r) => r.aliases.length ? r.aliases.map((a) => `<span class="zga-chip">${escapeHtml(a)}</span>`).join(" ") : "<span class='text-slate-400'>-</span>" },
+        { key: "gli_vergoed", label: "GLI", sortable: true, sortValue: (r) => (r.gli_vergoed ? 1 : 0), render: (r) => (r.gli_vergoed ? '<span class="zga-badge zga-badge-green">Vergoed</span>' : '<span class="zga-badge zga-badge-red">Niet vergoed</span>') },
         { key: "is_active", label: "Status", sortable: true, sortValue: (r) => (r.is_active ? 1 : 0), render: (r) => statusBadge(r.is_active) },
         { key: "_acties", label: "Acties", render: (r) => actionButtons(r.id, { toggle: true, toggleLabel: r.is_active ? "Deactiveren" : "Activeren" }) },
       ],
@@ -524,6 +525,7 @@
       ${field("Naam *", `<input name="name" class="zga-input" required value="${escapeHtml(row?.name || "")}" />`)}
       ${field("Concern-sleutel", `<input name="concern_key" class="zga-input" value="${escapeHtml(row?.concern_key || "")}" />`, "Bepaalt de facturatie-route in de Zorgtool. Gebruik het concern van een bestaande verzekeraar om diens route te volgen, bijv. 'cz', 'vgz', 'dsw' of 'menzis digitaal 2026'.")}
       ${field("Actief", `<select name="is_active" class="zga-select"><option value="true"${row && !row.is_active ? "" : " selected"}>Actief</option><option value="false"${row && !row.is_active ? " selected" : ""}>Inactief</option></select>`)}
+      ${field("GLI vergoed", `<select name="gli_vergoed" class="zga-select"><option value="true"${row && row.gli_vergoed === false ? "" : " selected"}>Ja, wordt vergoed</option><option value="false"${row && row.gli_vergoed === false ? " selected" : ""}>Nee, niet vergoed</option></select>`, "Bij 'Nee' toont de Zorgtool 'Niet vergoed' in plaats van een facturatiemodule (bijv. RMA).")}
       <div>
         <span class="text-sm font-medium text-slate-700 dark:text-slate-200">Aliassen</span>
         <div class="mt-1 flex gap-2">
@@ -559,7 +561,7 @@
       const fd = new FormData(form);
       const name = String(fd.get("name") || "").trim();
       if (!name) { toast("Naam is verplicht.", "error"); return; }
-      const payload = { name, concern_key: String(fd.get("concern_key") || "").trim(), aliases, is_active: fd.get("is_active") === "true" };
+      const payload = { name, concern_key: String(fd.get("concern_key") || "").trim(), aliases, is_active: fd.get("is_active") === "true", gli_vergoed: fd.get("gli_vergoed") !== "false" };
       save.disabled = true;
       try {
         if (isEdit) await api.put(`/api/admin/zorgverzekeraars/${row.id}`, payload);

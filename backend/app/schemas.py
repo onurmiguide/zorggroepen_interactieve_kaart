@@ -113,6 +113,7 @@ class ZorgverzekeraarBase(BaseModel):
     concern_key: str = ""
     aliases: list[str] = []
     is_active: bool = True
+    gli_vergoed: bool = True
 
 
 class ZorgverzekeraarCreate(ZorgverzekeraarBase):
@@ -124,6 +125,7 @@ class ZorgverzekeraarUpdate(BaseModel):
     concern_key: str | None = None
     aliases: list[str] | None = None
     is_active: bool | None = None
+    gli_vergoed: bool | None = None
 
 
 class ZorgverzekeraarOut(ZorgverzekeraarBase):
