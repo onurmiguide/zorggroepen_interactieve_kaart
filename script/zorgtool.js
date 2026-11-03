@@ -600,11 +600,9 @@
     $("q").removeAttribute("aria-activedescendant");
     if (!value) return closeSuggest();
     let items = [];
-    if (/^\d{1,4}[a-zA-Z]{0,2}$/.test(compact)) {
-      const pc = formatPostcode(compact) || formatPostcode4(compact);
-      items = pc ? [{ value: pc, label: `Zoek postcode ${display(pc)}` }] : [];
-      if (!pc) return closeSuggest();
-    } else if (!ui.ready) {
+    // Postcode: geen suggestielijst, gewoon Enter of Zoeken.
+    if (/^\d{1,4}[a-zA-Z]{0,2}$/.test(compact)) return closeSuggest();
+    if (!ui.ready) {
       list.innerHTML = `<li class="hint" role="presentation">Gegevens laden…</li>`;
       list.hidden = false;
       $("q").setAttribute("aria-expanded", "true");
