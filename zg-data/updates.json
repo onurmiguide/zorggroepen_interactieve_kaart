@@ -1,17 +1,7 @@
 {
   "updates": [
     {
-      "date": "2026-10-29",
-      "title": "RMA: GLI wordt niet vergoed",
-      "scope": "kaart",
-      "description": "Deelnemers verzekerd bij RMA krijgen in de Zorgtool geen facturatiemodule meer maar 'Niet vergoed', omdat RMA de GLI niet vergoedt.",
-      "summary": [
-        "RMA: de Zorgtool toont 'Niet vergoed' (de GLI wordt niet vergoed), ook in de kaart-pop-up.",
-        "In de adminomgeving staat per zorgverzekeraar 'GLI vergoed' (Ja/Nee); RMA staat op Nee. Zo kun je dit ook voor andere verzekeraars instellen."
-      ]
-    },
-    {
-      "date": "2026-10-21",
+      "date": "2026-11-03",
       "title": "Nieuw ontwerp voor de hele site",
       "scope": "website",
       "description": "Het ontwerp uit de testomgeving staat nu op de echte site: startpagina, Zorgtool, Zorggroep kaart, Updates, Documentatie en Data overzicht. De rekenregels en data zijn niet veranderd; alleen de weergave. De adminomgeving volgt later.",
@@ -22,6 +12,16 @@
         "De uitkomst laat zien waarom een postcode bij een zorggroep en facturatiemodule hoort.",
         "Werkt op mobiel (versleepbaar onderpaneel) en in donkere modus.",
         "De documentatie beschrijft nu het beheer via de adminomgeving."
+      ]
+    },
+    {
+      "date": "2026-10-29",
+      "title": "RMA: GLI wordt niet vergoed",
+      "scope": "kaart",
+      "description": "Deelnemers verzekerd bij RMA krijgen in de Zorgtool geen facturatiemodule meer maar 'Niet vergoed', omdat RMA de GLI niet vergoedt.",
+      "summary": [
+        "RMA: de Zorgtool toont 'Niet vergoed' (de GLI wordt niet vergoed), ook in de kaart-pop-up.",
+        "In de adminomgeving staat per zorgverzekeraar 'GLI vergoed' (Ja/Nee); RMA staat op Nee. Zo kun je dit ook voor andere verzekeraars instellen."
       ]
     },
     {
